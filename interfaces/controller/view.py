@@ -4,5 +4,8 @@ import json
 import os
 
 class Controller(wiz.controller("base")):
-    def __startup__(self, framework):
-        super().__startup__(framework)
+    def __startup__(self, wiz):
+        super().__startup__(wiz)
+        
+        if wiz.session.has("id") == False:
+            wiz.response.abort(401)
