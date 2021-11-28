@@ -5,6 +5,10 @@ html(ng-app="app")
         {$ wiz.theme('default', 'base', 'header.pug') | safe $}
         
     body.antialiased
+        script(src='/resources/themes/default/libs/tabler/dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js')
+        script(src='/resources/themes/default/libs/tabler/dist/libs/peity/jquery.peity.min.js')
+        script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
+        
         .page
             .preview
                 {$ view | safe $}
