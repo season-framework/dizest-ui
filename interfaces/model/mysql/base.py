@@ -35,8 +35,10 @@ class Model:
         for key in values:
             if key not in fields.columns:
                 continue
+                
             _field.append('`' + key + '`')
             val = values[key]
+
             if val is None:
                 _format.append('NULL')
                 _update_format.append(f"`{key}`=NULL")
@@ -47,9 +49,17 @@ class Model:
                 if '%' in format[key]:
                     _data.append(val)
             else:
-                _format.append('%s')
-                _update_format.append(f"`{key}`=%s")
-                _data.append(str(val))
+                if type(val) != dict:
+                    _v = dict()
+                    _v['value'] = val
+                    val = _v
+                fv = val['value']
+                ff = val['format'] if 'format' in val else "%s"
+                _format.append(ff)
+                _update_format.append(f"`{key}`={ff}")
+                if '%s' in ff:
+                    _data.append(str(fv))
+
         _field = join(_field, format=',')
         _format = join(_format, format=',')
         _update_format = join(_update_format, format=',')
@@ -145,6 +155,7 @@ class Model:
         status = cursor.execute(sql, data)
         rows = cursor.fetchall()
         lastrowid = cursor.lastrowid
+        # print(cursor._last_executed)
         con.commit()
         con.close()
         return status, rows, lastrowid
@@ -297,6 +308,7 @@ class Model:
             if res == 0: return True, "Nothing Changed"
             return True, "Success"
         except Exception as e:
+            print(e)
             return False, e
 
     def search(self, **query):
@@ -329,5 +341,3 @@ class Model:
         result['page'] = page + 1
         result['size'] = size
         return result
-
-        
