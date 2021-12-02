@@ -9,8 +9,8 @@ def compile(wiz, html, data):
 
     html = html.split(">")
     if len(html) > 1:
-        html = html[0] + f" id='{render_id}' ng-controller='{render_id}'>" + ">".join(html[1:])
+        html = html[0] + f" id='wiz_{render_id}' ng-controller='{render_id}'>" + ">".join(html[1:])
     else:
-        html = f"<div id='{render_id}' ng-controller='{render_id}'>" + ">".join(html) + "</div>"
+        html = f"<div id='wiz_{render_id}' ng-controller='{render_id}'>" + ">".join(html) + "</div>"
 
     return html
