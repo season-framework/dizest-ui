@@ -10,7 +10,7 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 
-from seasondh.util import stdClass
+from season import stdClass
 
 DEFAULT_VALUE = "__ERROR__"
 
@@ -191,8 +191,8 @@ class Model:
                 result.append(abspath[len(self.basepath()):])
         return result
 
-    def use(self, namespace):
-        namespace = os.path.join(self.namespace, namespace)
+    @staticmethod
+    def use(namespace=""):
         fs = Model()
         fs.namespace = namespace
         return fs

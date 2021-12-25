@@ -15,15 +15,16 @@ def join(v, format='/'):
 
 class Model:
     def __init__(self):
-        self.framework = wiz
+        self.wiz = wiz
         self.config = wiz.config('database')
         self.namespace = None
         self.tablename = None
 
     @classmethod
-    def use(cls, tablename):
+    def use(cls, tablename, namespace=None):
         model = cls()
         model.tablename = tablename
+        model.namespace = namespace
         return model
 
     def __values__(self, values, **format):
@@ -35,10 +36,8 @@ class Model:
         for key in values:
             if key not in fields.columns:
                 continue
-                
             _field.append('`' + key + '`')
             val = values[key]
-
             if val is None:
                 _format.append('NULL')
                 _update_format.append(f"`{key}`=NULL")
@@ -49,17 +48,9 @@ class Model:
                 if '%' in format[key]:
                     _data.append(val)
             else:
-                if type(val) != dict:
-                    _v = dict()
-                    _v['value'] = val
-                    val = _v
-                fv = val['value']
-                ff = val['format'] if 'format' in val else "%s"
-                _format.append(ff)
-                _update_format.append(f"`{key}`={ff}")
-                if '%s' in ff:
-                    _data.append(str(fv))
-
+                _format.append('%s')
+                _update_format.append(f"`{key}`=%s")
+                _data.append(str(val))
         _field = join(_field, format=',')
         _format = join(_format, format=',')
         _update_format = join(_update_format, format=',')
@@ -155,7 +146,6 @@ class Model:
         status = cursor.execute(sql, data)
         rows = cursor.fetchall()
         lastrowid = cursor.lastrowid
-        # print(cursor._last_executed)
         con.commit()
         con.close()
         return status, rows, lastrowid
@@ -234,13 +224,29 @@ class Model:
 
     def count(self, **where):
         try:
+            orderby = None
+            if 'orderby' in where:
+                orderby = where['orderby']
+                del where['orderby']
+            groupby = None
+            if 'groupby' in where:
+                groupby = where['groupby']
+                del where['groupby']
+
             tablename = self.tablename
             wherestr, wheredata = self.__where__(where)
             if len(wherestr) > 0:
                 sql = 'SELECT count(*) AS cnt FROM `' + tablename + '` WHERE ' + wherestr
             else:
                 sql = 'SELECT count(*) AS cnt FROM `' + tablename + '`'
+            
+            if groupby is not None:
+                sql = sql + ' GROUP BY ' + groupby
+            if orderby is not None:
+                sql = sql + ' ORDER BY ' + orderby
+
             _, rows, _ = self.query(sql, wheredata)
+
             return rows[0]['cnt']
         except Exception as e:
             return 0
@@ -308,7 +314,6 @@ class Model:
             if res == 0: return True, "Nothing Changed"
             return True, "Success"
         except Exception as e:
-            print(e)
             return False, e
 
     def search(self, **query):
@@ -332,12 +337,21 @@ class Model:
         page = (page - 1) * size
         query['limit'] = f"{page}, {size}"
         result = dict()
+
         rows = self.select(**query)
         result['list'] = rows
+
         del query['limit']
         if 'orderby' in query: del query['orderby']
-        if 'groupby' in query: del query['groupby']
-        result['lastpage'] = math.ceil(self.count(**query) / size)
+        if 'fields' in query: del query['fields']
+        query['fields'] = "count(*) AS cnt"
+        
+        totalcount = self.rows(**query)
+        if len(totalcount) > 1:
+            totalcount = len(totalcount)
+        else:
+            totalcount = totalcount[0]['cnt']
+        result['lastpage'] = math.ceil(totalcount / size)
         result['page'] = page + 1
         result['size'] = size
         return result
