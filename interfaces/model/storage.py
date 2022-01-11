@@ -192,7 +192,7 @@ class Model:
         return result
 
     @staticmethod
-    def use(namespace=""):
+    def use(namespace):
         fs = Model()
         fs.namespace = namespace
         return fs

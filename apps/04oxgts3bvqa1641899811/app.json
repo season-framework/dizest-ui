@@ -1,0 +1,1 @@
+{"id": "04oxgts3bvqa1641899811", "title": "Main Page", "namespace": "page.main", "properties": {"html": "pug", "js": "javascript", "css": "scss"}, "viewuri": "/", "created": "2022-01-11 20:16:51", "updated": "2022-01-11 23:03:39", "category": "component", "controller": "view", "theme": "default/nav"}

@@ -1,1 +1,1 @@
-wiz.response.redirect("/wiz")
+wiz.response.render("page.main")

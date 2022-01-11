@@ -2,27 +2,9 @@ doctype 5
 
 html(ng-app="app")
     head
-        {$ wiz.theme('default', 'base', 'header.pug') | safe $}
+        {$ wiz.theme('default', 'base', 'header.pug') $}
         
     body.antialiased
-        script(src='/resources/themes/default/libs/tabler/dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js')
-        script(src='/resources/themes/default/libs/tabler/dist/libs/peity/jquery.peity.min.js')
         script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
-        
-        .page
-            .preview
-                {$ view | safe $}
-
-            style.
-                html,
-                body {
-                    overflow: auto;
-                }
-
-                body {
-                    padding: 32px;
-                }
-
-                .page {
-                    background: transparent;
-                }
+                
+        {$ view $}

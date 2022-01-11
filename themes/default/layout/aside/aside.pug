@@ -1,0 +1,50 @@
+aside.navbar.navbar-vertical.navbar-expand-lg.navbar-side
+    .container
+        button.navbar-toggler.text-white(type='button' data-bs-toggle='collapse' data-bs-target='#navbar-menu')
+            span.navbar-toggler-icon
+
+        a.navbar-brand.navbar-brand-autodark.d-none-navbar-horizontal.pr-0.m-0(href='/w/{$ project_id $}')
+            .text-center
+                - if logo
+                    img.d-block.m-1.mt-0.mb-0(src='{$ logo $}' style='width:120px;')
+                - else
+                    img.d-block.m-1.mt-0.mb-0(src='/resources/images/logo.png' style='width:120px;')
+
+        #navbar-menu.navbar-collapse.collapse
+            {$ wiz.render("widget.project.navigation") $}
+
+            ul.navbar-nav.mt-0.mb-4
+                - each menu in menus
+                    - if menu.child == null
+                        li.nav-item(class=menu['class'])
+                            a.nav-link(href=menu['url'] target=menu['target'])
+                                - if menu.icon
+                                    span.mr-3(style="width: 20px; text-align: center;")
+                                        i(class=menu['icon'])
+                                span.nav-link-title= menu['title']
+                    - if menu.child
+                        li.nav-item.dropdown(class=menu['class'])
+                            a.nav-link(href=menu.child[0]['url'] target=menu.child[0]['target'] class=menu['show'])
+                                - if menu.icon
+                                    span.mr-3(style="width: 20px; text-align: center;")
+                                        i(class=menu['icon'])
+                                span.nav-link-title= menu['title']
+
+                            ul.dropdown-menu(class=menu['show'])
+                                - each child in menu.child
+                                    li
+                                        - if child.type == 'header'
+                                            span.dropdown-header= child['title']
+                                        - elif child.type == 'divider'
+                                            div.dropdown-divider(style="{$child['style']$}")
+                                        - else
+                                            a.dropdown-item(href=child['url'] target=child['target'] class=child['class'])
+                                                | {$child['title']$}
+                                            
+                - each menu in topmenus
+                    li.nav-item.if-mobile(class=menu['class'])
+                        a.nav-link(href=menu['url'] target=menu['target'])
+                            - if menu.icon
+                                span.mr-3(style="width: 20px; text-align: center;")
+                                    i(class=menu['icon'])
+                            span.nav-link-title= menu['title']

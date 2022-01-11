@@ -1,0 +1,48 @@
+doctype 5
+
+html(ng-app="app")
+    head
+        {$ wiz.theme('default', 'base', 'header.pug') $}
+        
+    body.antialiased
+        script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
+
+        .page
+            {$ wiz.theme('default', 'aside', 'aside.pug') $}
+            
+            .content(ng-cloak)
+                - if topmenus
+                    .content-top.bg-primary.text-right.p-2.if-desktop
+                        - each menu in topmenus
+                            a.text-white.ml-3(href=menu.url ng-click=menu.click)
+                                span.nav-link-title= menu['title']
+                    
+                .content-area.bg-white
+                    - if topmenus
+                        .bg-primary.text-right.p-2.if-desktop
+                            - each menu in topmenus
+                                a.text-white.ml-3(href=menu.url ng-click=menu.click)
+                                    span.nav-link-title= menu['title']
+                    {$ view $}
+
+        style.
+            @media (min-width: 1024px) {
+                .navbar-vertical {
+                    width: 280px !important;
+                }
+
+                .page {
+                    padding-left: 280px !important;
+                }
+            }
+
+            html, body {
+                overflow: hidden;
+                background: #f1f0fa;
+            }
+
+            body > .page {
+                height: 100vh;
+                overflow: auto;
+                background: #f1f0fa;
+            }
