@@ -2,12 +2,13 @@ if (!window.season) window.season = {};
 
 window.season.shortcut = function (element, config) {
     return new (function () {
-        var self = this;
+        let self = this;
         self.holdings = {};
         if (!config) config = {};
 
-        var isMacLike = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        var KEYMOD = { 'MetaLeft': 'meta', 'MetaRight': 'meta', 'OSLeft': 'meta', 'OSRight': 'meta', 'ControlLeft': 'ctrl', 'ControlRight': 'ctrl', 'AltLeft': 'alt', 'AltRight': 'alt', 'ShiftLeft': 'shift', 'ShiftRight': 'shift' };
+        let platform = navigator?.userAgentData?.platform || navigator?.platform || 'unknown'
+        let isMacLike = /(Mac|iPhone|iPod|iPad)/i.test(platform);
+        let KEYMOD = { 'MetaLeft': 'meta', 'MetaRight': 'meta', 'OSLeft': 'meta', 'OSRight': 'meta', 'ControlLeft': 'ctrl', 'ControlRight': 'ctrl', 'AltLeft': 'alt', 'AltRight': 'alt', 'ShiftLeft': 'shift', 'ShiftRight': 'shift' };
         if (isMacLike) {
             KEYMOD = { 'MetaLeft': 'ctrl', 'MetaRight': 'ctrl', 'OSLeft': 'ctrl', 'OSRight': 'ctrl', 'ControlLeft': 'meta', 'ControlRight': 'meta', 'AltLeft': 'alt', 'AltRight': 'alt', 'ShiftLeft': 'shift', 'ShiftRight': 'shift' };
         }
@@ -17,8 +18,8 @@ window.season.shortcut = function (element, config) {
         self.set_shortcut = function (name, fn) {
             name = name.toLowerCase();
             name = name.split('|');
-            for (var i = 0; i < name.length; i++) {
-                var _name = name[i].replace(/  /gim, ' ').trim().split(' ');
+            for (let i = 0; i < name.length; i++) {
+                let _name = name[i].replace(/  /gim, ' ').trim().split(' ');
                 if (_name == 'default') {
                     self.shortcut[_name] = fn;
                     continue;
@@ -29,16 +30,17 @@ window.season.shortcut = function (element, config) {
             }
         }
 
-        for (var name in config) {
+        for (let name in config) {
             self.set_shortcut(name, config[name]);
         }
 
         $(element).keydown(function (ev) {
-            var keycode = ev.code;
-            self.holdings[keycode] = true;
+            let keycode = ev.code;
+            self.holdings[keycode] = new Date().getTime();
+            let ismod = KEYMOD[keycode] ? true : false;
 
-            var keynamespace = [];
-            for (var key in self.holdings) {
+            let keynamespace = [];
+            for (let key in self.holdings) {
                 if (KEYMOD[key]) {
                     keynamespace.push(KEYMOD[key].toLowerCase());
                 } else {
@@ -46,25 +48,31 @@ window.season.shortcut = function (element, config) {
                 }
             }
 
+            let holdings = keynamespace.length;
+
             keynamespace.sort();
             keynamespace = keynamespace.join(' ');
             keynamespace = keynamespace.toLowerCase();
 
-            if (self.shortcut[keynamespace]) {
+            if (holdings > 1 && !ismod) {
                 delete self.holdings[keycode];
+            }
+
+            if (self.shortcut[keynamespace]) {
+                ev.preventDefault();
                 self.shortcut[keynamespace](ev, keynamespace);
                 ev.proceed = true;
             }
 
             if (self.shortcut['default']) {
+                ev.preventDefault();
                 self.shortcut['default'](ev, keynamespace);
             }
         });
 
         $(element).keyup(function (ev) {
-            var keycode = ev.code;
-            if (self.holdings[keycode])
-                delete self.holdings[keycode];
+            let keycode = ev.code;
+            delete self.holdings[keycode];
         });
     });
 }
