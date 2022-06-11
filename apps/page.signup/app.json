@@ -1,0 +1,15 @@
+{
+    "id": "page.signup",
+    "title": "Sign Up",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "css"
+    },
+    "viewuri": "",
+    "created": "2022-01-11 23:20:04",
+    "updated": "2022-06-11 16:38:16",
+    "theme": "default/base",
+    "controller": "base",
+    "category": "page"
+}

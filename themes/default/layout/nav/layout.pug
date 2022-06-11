@@ -2,13 +2,13 @@ doctype 5
 
 html(ng-app="app")
     head
-        {$ wiz.theme('default', 'base', 'header.pug') $}
+        {$ wiz.theme('default').layout('base').view('header.pug') $}
         
     body.antialiased
         script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
 
         .page
-            {$ wiz.theme('default', 'nav', 'navbar.pug') $}
+            {$ wiz.theme('default').layout('nav').view('navbar.pug') $}
             
             .content(ng-cloak)
                 {$ view $}

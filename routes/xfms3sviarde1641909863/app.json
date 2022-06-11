@@ -1,1 +1,0 @@
-{"id": "xfms3sviarde1641909863", "title": "Auth", "namespace": "xfms3sviarde1641909863", "route": "/auth/<path:path>", "viewuri": "/auth/logout", "created": "2022-01-11 23:04:23", "updated": "2022-01-11 23:17:19", "controller": "view"}

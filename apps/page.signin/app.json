@@ -1,0 +1,15 @@
+{
+    "id": "page.signin",
+    "title": "Sign In",
+    "properties": {
+        "html": "pug",
+        "js": "javascript",
+        "css": "css"
+    },
+    "viewuri": "",
+    "created": "2022-01-11 23:05:10",
+    "updated": "2022-06-11 16:38:25",
+    "theme": "default/base",
+    "controller": "base",
+    "category": "page"
+}
