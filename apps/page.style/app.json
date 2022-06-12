@@ -1,6 +1,6 @@
 {
-    "id": "page.main",
-    "title": "Main Page",
+    "id": "page.style",
+    "title": "Style Guide",
     "properties": {
         "html": "pug",
         "js": "javascript",
@@ -8,7 +8,7 @@
     },
     "viewuri": "/",
     "created": "2022-01-11 20:16:51",
-    "updated": "2022-06-11 16:45:07",
+    "updated": "2022-06-13 00:33:26",
     "category": "page",
     "controller": "view",
     "theme": "default/nav"

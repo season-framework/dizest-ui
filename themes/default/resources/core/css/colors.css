@@ -1,0 +1,21 @@
+:root {
+    --wiz-color-background: #fff;
+    --wiz-color-background-lt: rgba(116, 108, 112, .05);
+    --wiz-color-scroll-background: #F5F5F5;
+    --wiz-color-scroll-thumb: #ababab;
+
+    --wiz-color-text: #1e293b;
+    --wiz-color-border: #d9d9d9;
+    
+    --wiz-color-blue: #3843D0;
+    --wiz-color-blue-lt: rgba(32, 107, 196, .05);
+    --wiz-color-blue-hover: rgba(56, 67, 208, .9);
+    
+    --wiz-color-red: #EB5267;
+    --wiz-color-red-lt: rgba(235, 82, 103, .05);
+    --wiz-color-red-hover: rgba(235, 82, 103, .9);
+
+    --wiz-color-skyblue: #4da6ff;
+
+    --wiz-color-light: rgba(116, 108, 112, .1);
+}

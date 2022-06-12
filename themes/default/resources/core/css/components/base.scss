@@ -12,7 +12,29 @@ blockquote p {
     margin: 0 !important;
 }
 
-// triggers
+*::-webkit-scrollbar-track {
+    background-color: var(--wiz-color-scroll-background);
+}
+
+*::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+    background-color: var(--wiz-color-scroll-background);
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 0;
+    background-color: var(--wiz-color-scroll-thumb);
+    background-image: -webkit-linear-gradient(45deg,
+            rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%,
+            transparent);
+}
+
 .overflow-x {
     overflow-x: auto;
 }
@@ -44,10 +66,6 @@ blockquote p {
     user-select: none;
 }
 
-.text-primary {
-    color: var(--wiz-color-primary) !important;
-}
-
 .border-bottom {
     border-bottom: 1px solid rgba(110, 117, 130, .2);
 }
@@ -56,6 +74,17 @@ blockquote p {
     border-top: 1px solid rgba(110, 117, 130, .2);
 }
 
+.if-mobile {
+    @media (min-width: 769px) {
+        display: none !important;
+    }
+}
+
+.if-desktop {
+    @media (max-width: 1023px) {
+        display: none !important;
+    }
+}
 
 // tabler overrides
 .container-xl {

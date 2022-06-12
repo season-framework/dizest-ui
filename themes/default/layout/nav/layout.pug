@@ -7,21 +7,22 @@ html(ng-app="app")
     body.antialiased
         script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
 
-        .page
+        .wiz-navbar-page
             {$ wiz.theme('default').layout('nav').view('navbar.pug') $}
             
-            .content(ng-cloak)
-                {$ view $}
+            .wiz-content
+                .wiz-view
+                    {$ view $}
 
-        .footer
-            .container.pt-5.pb-5
-                .row
-                    .col-md-3.text-left
-                        img(src="/resources/images/logo.png" style="width: 100%; max-width: 180px; margin: 0 auto;")
-                    .col-md-9
-                        .text-left (30128) 602, 12, Naseongbuk 1-ro, Sejong-si, Republic of Korea / TEL (044) 862-7370 / FAX (070) 4064-7370
-                        .text-left.mt-1
-                            span.mr-2 Copyright ⓒ 2021 BY
-                            a.mr-2(href="https://www.season.co.kr" target="_blank" style="color: #f06f1c;") SEASON CO. LTD.
-                            | All Rights Reserved.
-                        .text-left.mt-1 Powered BY WIZ
+                .wiz-footer
+                    .container.pt-5.pb-5
+                        .row
+                            .col-md-3.text-left
+                                img(src="/resources/images/logo-season-black.svg" style="width: 100%; max-width: 200px; margin: 0 auto;")
+                            .col-md-9
+                                .text-left (30128) 602, 12, Naseongbuk 1-ro, Sejong-si, Republic of Korea / TEL (044) 862-7370 / FAX (070) 4064-7370
+                                .text-left.mt-1
+                                    span.mr-2 Copyright ⓒ 2021 BY
+                                    a.mr-2(href="https://www.season.co.kr" target="_blank" style="color: #f06f1c;") SEASON CO. LTD.
+                                    | All Rights Reserved.
+                                .text-left.mt-1 Powered BY WIZ

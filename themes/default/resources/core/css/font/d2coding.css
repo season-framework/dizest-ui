@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'wiz-eb';
+    src: url('/resources/themes/default/font/d2coding/EB.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 1000;
+}
+
+@font-face {
+    font-family: 'wiz-b';
+    src: url('/resources/themes/default/font/d2coding/R.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 1000;
+}
+
+@font-face {
+    font-family: 'wiz-r';
+    src: url('/resources/themes/default/font/d2coding/R.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'wiz-sub';
+    src: url('/resources/themes/default/font/d2coding/R.ttf') format('truetype');
+    font-style: normal;
+    font-weight: normal;
+}

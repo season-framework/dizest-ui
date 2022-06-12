@@ -18,7 +18,8 @@ class Controller(wiz.controller("base")):
         self.set_menu(top=menu)
 
         menu = []
-        menu.append({ 'title': 'Home', 'url': '/' })
-        menu.append({ 'title': 'About', 'url': '/about' })
-        menu.append({ 'title': 'Project', 'url': '/project' })
+        menu.append({ 'title': 'Styles', 'url': '/style' })
+        menu.append({ 'title': 'Side Style', 'url': '/side' })
+        menu.append({ 'title': 'Database', 'url': '/database' })
+        menu.append({ 'title': 'Chat', 'url': '/chat' })
         self.set_menu(main=menu)

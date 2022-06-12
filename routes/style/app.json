@@ -1,0 +1,9 @@
+{
+    "id": "style",
+    "title": "style",
+    "route": "/style",
+    "controller": "view",
+    "viewuri": "/style",
+    "created": "2022-06-13 00:31:35",
+    "updated": "2022-06-13 00:32:08"
+}

@@ -1,0 +1,15 @@
+{
+    "id": "view.style.button",
+    "category": "view",
+    "script_type": "text/javascript",
+    "theme": "",
+    "controller": "",
+    "properties": {
+        "html": "pug",
+        "css": "scss",
+        "js": "javascript"
+    },
+    "title": "style.button",
+    "created": "2022-06-13 00:23:39",
+    "updated": "2022-06-13 00:40:02"
+}

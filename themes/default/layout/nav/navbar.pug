@@ -5,13 +5,13 @@ header.navbar.navbar-expand-md.navbar-primary
 
         a.navbar-brand.navbar-brand-autodark.d-none-navbar-horizontal.pr-0.pr-md-3(href='/')
             div
-                img.m-3(src='/resources/images/logo.png' style='height: 52px;') 
+                img.m-3(src='/resources/images/logo-black.png' style='height: 52px;') 
             
         .navbar-expand-md
             - if menu.top
                 .text-right.mb-2
                     - each item in menu.top
-                        a.text-white.ml-3(href=item.url)
+                        a.text-muted.ml-3(href=item.url)
                             span.nav-link-title= item.title
 
             #navbar-menu.navbar.collapse.navbar-collapse.mb-3
@@ -25,6 +25,7 @@ header.navbar.navbar-expand-md.navbar-primary
                                             span.mr-2(style="width: 20px; text-align: center;")
                                                 i(class=item.icon)
                                         span.nav-link-title= item.title
+
                             - if item.child
                                 li.nav-item.dropdown(class=item.class)
                                     a.nav-link(href=item.child[0].url target=item.child[0].target)

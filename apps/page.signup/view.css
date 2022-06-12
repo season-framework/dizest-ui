@@ -32,7 +32,7 @@ body {
 }
 
 .wrapper {
-  background: #746C70;
+  background: var(--wiz-color-blue);
   position: absolute;
   width: 100%;
   height: 100%;

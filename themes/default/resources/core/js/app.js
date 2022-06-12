@@ -1,5 +1,5 @@
 var app = angular.module(
-    'app', ['ngSanitize', 'ui.sortable', 'season.dragger', 'ui.monaco', 'ui.monaco.diff', 'shagstrom.angular-split-pane']
+    'app', ['ngSanitize']
 ).directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind('keydown keypress', function (event) {
