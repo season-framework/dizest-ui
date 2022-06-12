@@ -34,7 +34,7 @@ header.navbar.navbar-expand-md.navbar-primary
                                                 i(class=item.icon)
                                         span.nav-link-title= item.title
 
-                                    ul.dropdown-menu.dropdown-menu-lg-end(class=item.show)
+                                    ul.dropdown-menu.dropdown-menu-arrow.dropdown-menu-lg-end(class=item.show)
                                         - each child in item.child
                                             li
                                                 a.dropdown-item(href=child.url target=child.target class=child.class)= child.title

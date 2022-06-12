@@ -100,11 +100,24 @@ body {
                     color: var(--wiz-color-blue);
                 }
 
-                .dropdown-menu-lg-end {
-                    margin-top: 12px;
+                .dropdown-menu-arrow:before {
+                    right: 24px !important;
+                    left: unset;
+                    width: 24px;
+                    height: 36px;
+                    border: 1px solid var(--wiz-color-border);
 
                     @media (max-width: 768px) {
-                        margin-top: 0;
+                        border: none !important;
+                        background: transparent !important;
+                    }
+                }
+
+                .dropdown-menu {
+                    margin-top: 12px !important;
+
+                    @media (max-width: 768px) {
+                        margin-top: 0 !important;
                     }
                 }
 
