@@ -5,14 +5,9 @@ aside.navbar.navbar-vertical.navbar-expand-lg.navbar-side
 
         a.navbar-brand.navbar-brand-autodark.d-none-navbar-horizontal.pr-0.m-0(href='/w/{$ project_id $}')
             .text-center
-                - if logo
-                    img.d-block.m-1.mt-0.mb-0(src='{$ logo $}' style='width:120px;')
-                - else
-                    img.d-block.m-1.mt-0.mb-0(src='/resources/images/logo.png' style='width:120px;')
+                img.d-block.m-1.mt-0.mb-0(src='/resources/images/logo-black.png' style='width:120px;')
 
         #navbar-menu.navbar-collapse.collapse
-            {$ wiz.render("widget.project.navigation") $}
-
             ul.navbar-nav.mt-0.mb-4
                 - each menu in menus
                     - if menu.child == null

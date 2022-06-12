@@ -39,6 +39,30 @@ body {
             background: #fff;
             border-bottom: 1px solid var(--wiz-color-border);
 
+            @media (max-width: 768px) {
+                > div {
+                    display: block !important;
+
+                    > button, > a {
+                        display: inline-block;
+                    }
+
+                    .navbar-toggler {
+                        color: var(--wiz-color-text);
+                        margin-left: 16px;
+                        margin-right: 12px;
+                    }
+
+                    .navbar-expand-md {
+                        background: var(--wiz-color-background);
+
+                        #navbar-menu.show {
+                            border-bottom: 1px solid var(--wiz-color-border);
+                        }
+                    }
+                }
+            }
+
             .nav-item {
                 cursor: pointer;
                 padding: 0;
@@ -47,6 +71,10 @@ body {
                 word-break: break-all;
                 position: relative;
                 margin-left: 12px;
+
+                @media (max-width: 768px) {
+                    margin-left: 0;
+                }
 
                 .nav-link {
                     color: var(--wiz-color-text);
@@ -61,12 +89,31 @@ body {
                     .nav-link-title {
                         color: var(--wiz-color-blue) !important;
                     }
+
+                    @media (max-width: 768px) { 
+                        border-radius: 0;
+                    }
                 }
 
                 .dropdown-item.active {
                     background-color: var(--wiz-color-blue-lt);
                     color: var(--wiz-color-blue);
                 }
+
+                .dropdown-menu-lg-end {
+                    margin-top: 12px;
+
+                    @media (max-width: 768px) {
+                        margin-top: 0;
+                    }
+                }
+
+                @media (max-width: 768px) { 
+                    .dropdown-menu.active {
+                        display: block !important;
+                    }
+                }
+                
             }
         }
 
