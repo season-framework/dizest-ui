@@ -28,15 +28,15 @@ header.navbar.navbar-expand-md.navbar-primary
 
                             - if item.child
                                 li.nav-item.dropdown(class=item.class)
-                                    a.nav-link(href=item.child[0].url target=item.child[0].target)
+                                    a.nav-link.dropdown-toggle(role="button" data-bs-toggle="dropdown" aria-expanded="false")
                                         - if item.icon
                                             span.mr-2(style="width: 20px; text-align: center;")
                                                 i(class=item.icon)
                                         span.nav-link-title= item.title
 
-                                    ul.dropdown-menu(class=item.show)
+                                    ul.dropdown-menu.dropdown-menu-lg-end.mt-2(class=item.show)
                                         - each child in item.child
-                                            li.pl-3
+                                            li
                                                 a.dropdown-item(href=child.url target=child.target class=child.class)= child.title
 
 - if menu.sub

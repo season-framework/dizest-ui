@@ -46,18 +46,7 @@ body {
                 line-height: 1;
                 word-break: break-all;
                 position: relative;
-
-                &.active {
-                    &:before {
-                        content: "⦁";
-                        position: absolute;
-                        width: 100%;
-                        top: -12px;
-                        font-size: 16px;
-                        color: var(--wiz-color-skyblue) !important;
-                        text-align: center;
-                    }
-                }
+                margin-left: 12px;
 
                 .nav-link {
                     color: var(--wiz-color-text);
@@ -65,8 +54,18 @@ body {
                     padding: 12px 24px !important;
                 }
 
-                &:hover{
-                    border-bottom: 1px solid var(--wiz-color-skyblue) !important;
+                &:hover, &.active {
+                    background-color: var(--wiz-color-blue-lt);
+                    border-radius: 21px;
+                    border: none !important;
+                    .nav-link-title {
+                        color: var(--wiz-color-blue) !important;
+                    }
+                }
+
+                .dropdown-item.active {
+                    background-color: var(--wiz-color-blue-lt);
+                    color: var(--wiz-color-blue);
                 }
             }
         }

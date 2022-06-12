@@ -54,7 +54,7 @@ class Controller:
                     elif 'url' in child: cpt = child['url']
 
                     if menu['class'] == 'active':
-                        menu['show'] = 'show'
+                        menu['show'] = 'active'
 
                     if cpt is not None:
                         if request.match(cpt): 

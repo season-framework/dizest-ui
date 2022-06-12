@@ -20,6 +20,10 @@ class Controller(wiz.controller("base")):
         menu = []
         menu.append({ 'title': 'Styles', 'url': '/style' })
         menu.append({ 'title': 'Side Style', 'url': '/side' })
-        menu.append({ 'title': 'Database', 'url': '/database' })
-        menu.append({ 'title': 'Chat', 'url': '/chat' })
+        menu.append({ 'title': 'Tutorial', 'url': '/tutorial',
+            'child': [
+                { 'title': 'Use Database', 'url': '/tutorial/database' },
+                { 'title': 'Chat Example', 'url': '/tutorial/chat' }
+            ]
+        })
         self.set_menu(main=menu)
