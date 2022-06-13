@@ -57,12 +57,3 @@ aside.navbar.navbar-vertical.navbar-expand-lg.navbar-side
                                                         span.nav-icon(style="width: 20px; text-align: center;")
                                                             i(class=child.icon)
                                                     span= child.title
-                                            
-            ul.navbar-nav.if-mobile
-                - each menu in menu.top
-                    li.nav-item(class=menu.class)
-                        a.nav-link(href=menu.url target=menu.target)
-                            - if menu.icon
-                                span.mr-3(style="width: 20px; text-align: center;")
-                                    i(class=menu.icon)
-                            span.nav-link-title= menu.title

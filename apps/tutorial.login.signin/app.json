@@ -1,5 +1,5 @@
 {
-    "id": "page.signin",
+    "id": "tutorial.login.signin",
     "title": "Sign In",
     "properties": {
         "html": "pug",
@@ -8,8 +8,8 @@
     },
     "viewuri": "",
     "created": "2022-01-11 23:05:10",
-    "updated": "2022-06-13 01:22:12",
+    "updated": "2022-06-13 21:21:30",
     "theme": "default/base",
     "controller": "base",
-    "category": "tutorial"
+    "category": "tutorial.login"
 }

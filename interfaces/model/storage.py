@@ -166,7 +166,6 @@ class write:
 
 class Model:
     def __init__(self):
-        self.framework = wiz
         self.config = wiz.config('storage')
         self.namespace = ""
 
@@ -174,7 +173,7 @@ class Model:
         self.write = write(self)
         
     def basepath(self):
-        return os.path.join(self.config.get("path", os.path.join(season.core.PATH.PROJECT, "storage")), self.namespace)
+        return os.path.join(self.config.get("path", os.path.join(season.path.project, "storage")), self.namespace)
 
     def __json__(self, jsonstr):
         try:

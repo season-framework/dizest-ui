@@ -1,10 +1,14 @@
 from season import stdClass
 
-config = stdClass()
+# use sqlite
+orm = stdClass()
+orm.type = 'sqlite'
+orm.path = 'wiz.db'
 
-config.mysql = stdClass()
-config.mysql.host = '127.0.0.1'
-config.mysql.user = 'dbuser'
-config.mysql.password = 'dbpass'
-config.mysql.database = 'dbname'
-config.mysql.charset = 'utf8'
+# # for use mysql
+# orm.type = 'mysql'
+# orm.host = '127.0.0.1'
+# orm.user = 'dbuser'
+# orm.password = 'dbpass'
+# orm.database = 'dbname'
+# orm.charset = 'utf8'

@@ -1,9 +1,9 @@
 {
     "id": "side",
-    "title": "side",
+    "title": "/side",
     "route": "/side/<path:path>",
     "controller": "view",
     "viewuri": "/side",
     "created": "2022-06-13 01:08:11",
-    "updated": "2022-06-13 15:00:30"
+    "updated": "2022-06-13 19:08:33"
 }

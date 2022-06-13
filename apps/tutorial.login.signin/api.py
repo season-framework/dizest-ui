@@ -2,7 +2,7 @@ def login(wiz):
     user_id = wiz.request.query("id", True)
     user_password = wiz.request.query("password", True)
 
-    # check user
+    # check user in code
     user = None
     if user_id == "admin" and user_password == "1234":
         user = dict()
@@ -12,13 +12,19 @@ def login(wiz):
         user['status'] = "active"
     
     ## Use Database
-    # userdb = wiz.model("mysql").use("users")
-    # user = userdb.get(id=user_id, password={"format": "PASSWORD(%s)", "op": "=", "value": user_password})
-    
+    userdb = wiz.model("orm").use('user')
+    user = userdb.get(id=user_id)
     if user is None:
         wiz.response.status(401, "Check userid or password")
-    if user['status'] != 'active':
-        wiz.response.status(401, "You can login after administrator's approval.")
     
+    # check password
+    checkpw = user['password'](user_password)
+    if checkpw == False:
+        wiz.response.status(401, "Check password")
+
+    # delete password check function
+    del user['password']
+
+    # set session and response
     wiz.session.set(**user)
     wiz.response.status(200, True)
