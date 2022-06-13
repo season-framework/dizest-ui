@@ -1,1 +1,1 @@
-wiz.response.render("page.side")
+wiz.response.render("layout.side")

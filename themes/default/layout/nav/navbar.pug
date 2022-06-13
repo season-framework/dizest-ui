@@ -21,17 +21,11 @@ header.navbar.navbar-expand-md.navbar-primary
                             - if item.child == null
                                 li.nav-item(class=item.class)
                                     a.nav-link(href=item.url target=item.target)
-                                        - if item.icon
-                                            span.mr-2(style="width: 20px; text-align: center;")
-                                                i(class=item.icon)
                                         span.nav-link-title= item.title
 
                             - if item.child
                                 li.nav-item.dropdown(class=item.class)
                                     a.nav-link.dropdown-toggle(role="button" data-bs-toggle="dropdown" aria-expanded="false")
-                                        - if item.icon
-                                            span.mr-2(style="width: 20px; text-align: center;")
-                                                i(class=item.icon)
                                         span.nav-link-title= item.title
 
                                     ul.dropdown-menu.dropdown-menu-arrow.dropdown-menu-lg-end(class=item.show)

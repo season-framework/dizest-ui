@@ -1,6 +1,6 @@
 {
-    "id": "page.side",
-    "category": "sample.side",
+    "id": "layout.side",
+    "category": "layout",
     "script_type": "text/javascript",
     "theme": "default/aside",
     "controller": "view",
@@ -10,6 +10,6 @@
         "js": "javascript"
     },
     "created": "2022-06-13 01:15:46",
-    "updated": "2022-06-13 01:25:04",
-    "title": "Side Style"
+    "updated": "2022-06-13 15:00:03",
+    "title": "Sidebar Layout"
 }

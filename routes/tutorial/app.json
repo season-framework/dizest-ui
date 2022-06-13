@@ -4,5 +4,5 @@
     "route": "/tutorial/<category>",
     "controller": "view",
     "created": "2022-06-13 00:58:50",
-    "updated": "2022-06-13 00:59:16"
+    "updated": "2022-06-13 15:00:56"
 }

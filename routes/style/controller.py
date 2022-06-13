@@ -1,1 +1,1 @@
-wiz.response.render("page.style")
+wiz.response.render("layout.nav")

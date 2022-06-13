@@ -7,20 +7,20 @@ html(ng-app="app")
     body.antialiased
         script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
 
-        .page
+        .wiz-aside-page
             {$ wiz.theme('default').layout('aside').view('aside.pug') $}
             
-            .content(ng-cloak)
-                - if topmenus
-                    .content-top.bg-primary.text-right.p-2.if-desktop
-                        - each menu in topmenus
-                            a.text-white.ml-3(href=menu.url ng-click=menu.click)
-                                span.nav-link-title= menu['title']
+            .wiz-content
+                - if menu.top
+                    .wiz-content-top
+                        .ml-auto
+                        - each menu in menu.top
+                            a.wiz-top-menu(href=menu.url ng-click=menu.click)
+                                span= menu.title
                     
-                .content-area.bg-white
-                    - if topmenus
-                        .bg-primary.text-right.p-2.if-desktop
-                            - each menu in topmenus
-                                a.text-white.ml-3(href=menu.url ng-click=menu.click)
-                                    span.nav-link-title= menu['title']
-                    {$ view $}
+                    .wiz-view-top
+                        {$ view $}
+
+                - else
+                    .wiz-view
+                        {$ view $}

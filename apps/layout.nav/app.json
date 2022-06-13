@@ -1,6 +1,6 @@
 {
-    "id": "page.style",
-    "title": "Style Guide",
+    "id": "layout.nav",
+    "title": "Navbar Layout",
     "properties": {
         "html": "pug",
         "js": "javascript",
@@ -8,8 +8,8 @@
     },
     "viewuri": "/",
     "created": "2022-01-11 20:16:51",
-    "updated": "2022-06-13 01:21:52",
-    "category": "sample.nav",
+    "updated": "2022-06-13 14:59:49",
+    "category": "layout",
     "controller": "view",
     "theme": "default/nav"
 }

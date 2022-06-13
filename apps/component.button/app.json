@@ -1,6 +1,6 @@
 {
-    "id": "view.style.button",
-    "category": "sample.nav",
+    "id": "component.button",
+    "category": "component",
     "script_type": "text/javascript",
     "theme": "",
     "controller": "",
@@ -9,8 +9,8 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "style.button",
+    "title": "Buttons",
     "created": "2022-06-13 00:23:39",
-    "updated": "2022-06-13 01:24:28",
+    "updated": "2022-06-13 15:01:44",
     "viewuri": "/style"
 }
