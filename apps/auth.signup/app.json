@@ -1,5 +1,5 @@
 {
-    "id": "tutorial.login.signup",
+    "id": "auth.signup",
     "title": "Sign Up",
     "properties": {
         "html": "pug",
@@ -8,7 +8,7 @@
     },
     "viewuri": "",
     "created": "2022-01-11 23:20:04",
-    "updated": "2022-06-13 21:21:39",
+    "updated": "2022-06-13 21:24:00",
     "theme": "default/base",
     "controller": "base",
     "category": "tutorial.login"
