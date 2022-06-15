@@ -10,7 +10,7 @@ meta(name='apple-mobile-web-app-capable' content='yes')
 meta(name='mobile-web-app-capable' content='yes')
 meta(name='HandheldFriendly' content='True')
 meta(name='MobileOptimized' content='320')
-link(rel="shortcut icon" href="/resources/themes/default/img/icon.ico")
+link(rel="shortcut icon" href="/resources/images/favicon.png")
 
 // core.js
 script(src='/resources/themes/default/core/js/jquery-3.5.1.min.js')
@@ -30,6 +30,12 @@ link(href='/resources/themes/default/libs/tabler/dist/css/tabler-payments.min.cs
 link(href='/resources/themes/default/libs/tabler/dist/css/tabler-vendors.min.css' rel='stylesheet')
 link(href='/resources/themes/default/libs/tabler/dist/css/demo.min.css' rel='stylesheet')
 link(href='/resources/themes/default/libs/toastr/toastr.min.css' rel='stylesheet')
+
+- each item in wiz_resources_css
+    link(href=item rel='stylesheet')
+
+- each item in wiz_resources_js
+    script(src=item)
 
 // wiz css
 link(href='/resources/themes/default/core/css/theme.scss' rel='stylesheet')

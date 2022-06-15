@@ -1,3 +1,3 @@
-wiz.response.render("/tutorial/database", "layout.nav")
-wiz.response.render("/tutorial/chat", "layout.nav")
+wiz.response.render("/tutorial/database", "page.tutorial")
+wiz.response.render("/tutorial/chat", "page.tutorial")
 wiz.response.redirect("/tutorial/database")

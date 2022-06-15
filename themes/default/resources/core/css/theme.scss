@@ -25,12 +25,14 @@ body {
         > header {
             margin: 0 !important;
             font-size: 14px;
-            margin-top: 30px;
+            padding: 0;
             z-index: 1080;
             background: #fff;
             border-bottom: 1px solid var(--wiz-color-border);
 
             @media (max-width: 768px) {
+                height: auto;
+
                 > div {
                     display: block !important;
 
@@ -52,14 +54,61 @@ body {
 
             .navbar-brand {
                 img {
-                    height: 43px;
+                    height: 52px;
+
+                    @media (max-width: 768px) {
+                        height: 38px;
+                    }
                 }
             }
 
             .navbar-collapse {
+                margin: 0;
                 margin-bottom: 8px;
-                @media (max-width: 768px) {
-                    margin-bottom: 0;
+                padding: 0;
+            }
+
+            .top-menu {
+                align-items: center;
+                font-size: 14px;
+                margin-top: 4px;
+                margin-bottom: 6px;
+                color: var(--wiz-color-text);
+
+                .top-menu-item {
+                    margin-right: 16px;
+                }
+
+                a {
+                    color: var(--wiz-color-text);
+                }
+                
+                .dropdown {
+                    display: inline-block;
+                    cursor: pointer;
+
+                    .btn {
+                        font-size: 14px;
+                        padding: 2px 16px;
+                        height: 26px;
+                    }
+
+                    .dropdown-menu {
+                        margin-top: 12px !important;
+                    }
+
+                    .dropdown-menu-arrow:before {
+                        right: 24px !important;
+                        left: unset;
+                        width: 24px;
+                        height: 36px;
+                        border: 1px solid var(--wiz-color-border);
+
+                        @media (max-width: 768px) {
+                            border: none !important;
+                            background: transparent !important;
+                        }
+                    }
                 }
             }
 
@@ -80,6 +129,10 @@ body {
                     color: var(--wiz-color-text);
                     font-size: 18px;
                     padding: 6px 24px !important;
+
+                    @media (max-width: 768px) {
+                        padding: 12px 24px !important;
+                    }
                 }
 
                 &:hover, &.active {
@@ -130,6 +183,31 @@ body {
             }
         }
 
+        .wiz-subnav {
+            background: var(--wiz-color-blue);
+            color: #fff;
+            overflow-x: auto; 
+            white-space: nowrap;  
+            width: 100%; 
+            padding: 18px 12px;
+            font-family: 'wiz-eb';
+            border-bottom: 1px solid var(--wiz-color-border);
+            z-index: 1029;
+            position: absolute;
+
+            a {
+                cursor: pointer !important;
+                color: #fff;
+                padding: 8px 24px;
+            }
+
+            .wiz-subnav-item.active {
+                background: #fff;
+                border-radius: 24px;
+                color: var(--wiz-color-blue);
+            }
+        }
+
         .wiz-content {
             position: fixed;
             width: 100vw;
@@ -138,17 +216,57 @@ body {
             overflow: auto;
 
             @media (max-width: 768px) {
-                height: calc(100vh - 68px);
-                top: 68px;
+                height: calc(100vh - 56px);
+                top: 56px;
             }
 
             .wiz-view {
-                min-height: calc(100vh - 266px);
+                min-height: calc(100vh - 243px);
+            }
+
+            &.has-subnav {
+                height: calc(100vh - 157px);
+                top: 157px;
+
+                @media (max-width: 768px) {
+                    height: calc(100vh - 112px);
+                    top: 112px;
+                }
+
+                .wiz-view {
+                    min-height: calc(100vh - 299px);
+
+                    @media (max-width: 768px) {
+                        min-height: calc(100vh - 363px);
+                    }
+                }
             }
 
             .wiz-footer {
-                border-top: 1px solid var(--wiz-color-border);
+                color: var(--wiz-color-text);
                 background: var(--wiz-color-background);
+                border-top: 1px solid var(--wiz-color-border);
+                font-size: 15px;
+                padding-top: 32px;
+                padding-bottom: 32px;
+                text-align: left;
+
+                small {
+                    font-size: 14px;
+                }
+
+                a {
+                    color: var(--wiz-color-red);
+                    cursor: pointer;
+                }
+
+                @media (max-width: 768px) {
+                    text-align: center;
+
+                    .wiz-footer-image {
+                        margin-bottom: 24px;
+                    }
+                }
             }
         }
     }
@@ -235,6 +353,11 @@ body {
                     .nav-item {
                         border-top: 1px solid var(--wiz-color-border);
 
+                        &.nav-item-header {
+                            padding: 2px 12px;
+                            background: var(--wiz-color-light);
+                        }
+
                         .nav-link {
                             font-size: 16px;
                             padding: 12px 16px !important;
@@ -311,6 +434,34 @@ body {
                 .wiz-top-menu {
                     margin-right: 18px;
                     color: var(--wiz-color-text);
+                }
+
+                .dropdown {
+                    display: inline-block;
+                    cursor: pointer;
+
+                    .btn {
+                        font-size: 12px;
+                        padding: 2px 16px;
+                        height: 24px;
+                    }
+
+                    .dropdown-menu {
+                        margin-top: 6px !important;
+                    }
+
+                    .dropdown-menu-arrow:before {
+                        right: 24px !important;
+                        left: unset;
+                        width: 24px;
+                        height: 36px;
+                        border: 1px solid var(--wiz-color-border);
+
+                        @media (max-width: 768px) {
+                            border: none !important;
+                            background: transparent !important;
+                        }
+                    }
                 }
             }
 

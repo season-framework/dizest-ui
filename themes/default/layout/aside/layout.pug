@@ -5,7 +5,7 @@ html(ng-app="app")
         {$ wiz.theme('default').layout('base').view('header.pug') $}
         
     body.antialiased
-        script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
+        {$ wiz.theme('default').layout('base').view('onload.pug') $}
 
         .wiz-aside-page
             {$ wiz.theme('default').layout('aside').view('aside.pug') $}
@@ -14,10 +14,26 @@ html(ng-app="app")
                 - if menu.top
                     .wiz-content-top
                         .ml-auto
-                        - each menu in menu.top
-                            a.wiz-top-menu(href=menu.url ng-click=menu.click)
-                                span= menu.title
-                    
+                        - each item in menu.top
+                            - if item.child == null
+                                a.text-dark.ml-3(href=item.url)
+                                    - if item.icon
+                                        i(class=item.icon)
+                                    - if item.title
+                                        span.nav-link-title= item.title
+                            - else
+                                .dropdown.ml-3
+                                    .btn.btn-round.btn-outline-primary.dropdown-toggle(data-bs-toggle="dropdown" aria-expanded="false")
+                                        - if item.icon
+                                            i(class=item.icon)
+                                        - if item.title
+                                            span= item.title
+                                    ul.dropdown-menu.dropdown-menu-arrow.dropdown-menu-lg-end
+                                        - each child in item.child
+                                            li
+                                                a.dropdown-item(href=child.url target=child.target class=child.class)= child.title
+                        .mr-2
+
                     .wiz-view-top
                         {$ view $}
 

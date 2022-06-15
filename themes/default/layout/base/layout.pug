@@ -5,6 +5,6 @@ html(ng-app="app")
         {$ wiz.theme('default').layout('base').view('header.pug') $}
         
     body.antialiased
-        script(src='/resources/themes/default/libs/tabler/dist/js/tabler.min.js')
+        {$ wiz.theme('default').layout('base').view('onload.pug') $}
                 
         {$ view $}

@@ -3,6 +3,45 @@ import datetime
 import json
 import os
 
+class Resource:
+    def __init__(self):
+        self.__theme__ = "default"
+
+    def theme(self, theme):
+        self.__theme__ = theme
+        return self
+
+    def css(self, url):
+        if url[0] == "/": url = url[1:]
+        theme = self.__theme__
+        data = wiz.response.data.get("wiz_resources_css")
+        if data is None: data = list()
+        data.append(f"/resources/themes/{theme}/{url}")
+        wiz.response.data.set(wiz_resources_css=data)
+        return self
+    
+    def js(self, url, onload=False):
+        if url[0] == "/": url = url[1:]
+        theme = self.__theme__
+        
+        if onload: data = wiz.response.data.get("wiz_resources_js_load")
+        else: data = wiz.response.data.get("wiz_resources_js")
+
+        if data is None: data = list()
+        data.append(f"/resources/themes/{theme}/{url}")
+        
+        if onload: wiz.response.data.set(wiz_resources_js_load=data)
+        else: wiz.response.data.set(wiz_resources_js=data)
+        
+        return self
+
+    def script(self, code):
+        data = wiz.response.data.get("wiz_resources_script")
+        if data is None: data = list()
+        data.append(code)
+        wiz.response.data.set(wiz_resources_script=data)
+        return self
+
 class Menu:
     def __init__(self):
         self.data = dict()
@@ -25,9 +64,10 @@ class Menu:
                 if 'pattern' in menu: pt = menu['pattern']
                 elif 'url' in menu: pt = menu['url']
 
+                menu['class'] = ''
                 if pt is not None:
-                    if request.match(pt): menu['class'] = 'active'
-                    else: menu['class'] = ''
+                    if request.match(pt): 
+                        menu['class'] = 'active'
 
                 if 'child' in menu:
                     menu['show'] = ''
@@ -41,11 +81,13 @@ class Menu:
                         if menu['class'] == 'active':
                             menu['show'] = 'active'
 
+                        menu['child'][i]['class'] = ''
                         if cpt is not None:
-                            if request.match(cpt): 
-                                menu['child'][i]['class'] = 'active'
-                            else: 
-                                menu['child'][i]['class'] = ''
+                            try:
+                                if request.match(cpt): 
+                                    menu['child'][i]['class'] = 'active'
+                            except:
+                                pass
             
             data = wiz.response.data.get("menu")
             key = self.name
@@ -63,12 +105,23 @@ class Menu:
             self.data[-1]['child'].append(menu)
             return self
 
+        def clear(self):
+            self.data = []
+            return self
+
 class Controller:
     def __init__(self):
         wiz.menu = Menu()
+        wiz.res = wiz.resource = Resource()
+
         wiz.session = wiz.model("session").use()
         sessiondata = wiz.session.get()
         wiz.response.data.set(session=sessiondata)
+
+        lang = wiz.request.query("lang", None)
+        if lang is not None:
+            wiz.response.lang(lang)
+            wiz.response.redirect(wiz.request.uri())
 
     def parse_json(self, jsonstr, default=None):
         try:

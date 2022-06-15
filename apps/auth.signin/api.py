@@ -10,6 +10,9 @@ def login(wiz):
         user['role'] = "admin"
         user['email'] = "contact@season.co.kr"
         user['status'] = "active"
+        
+        wiz.session.set(**user)
+        wiz.response.status(200, True)
     
     ## Use Database
     userdb = wiz.model("orm").use('user')

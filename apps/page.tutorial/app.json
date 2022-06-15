@@ -1,6 +1,6 @@
 {
-    "id": "layout.side",
-    "category": "layout",
+    "id": "page.tutorial",
+    "category": "page",
     "script_type": "text/javascript",
     "theme": "default/aside",
     "controller": "view",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "created": "2022-06-13 01:15:46",
-    "updated": "2022-06-13 15:00:03",
-    "title": "Sidebar Layout"
+    "title": "Tutorial",
+    "created": "2022-06-15 22:59:13",
+    "updated": "2022-06-15 22:59:45"
 }

@@ -1,1 +1,1 @@
-wiz.response.redirect("/style")
+wiz.response.render("page.main")
