@@ -64,6 +64,10 @@ class Menu:
                 if 'pattern' in menu: pt = menu['pattern']
                 elif 'url' in menu: pt = menu['url']
 
+                lang = wiz.request.lang()
+                if lang in menu: menu['title'] = menu[lang]
+                if lang.lower() in menu: menu['title'] = menu[lang.lower()]
+
                 menu['class'] = ''
                 if pt is not None:
                     if request.match(pt): 
@@ -74,6 +78,9 @@ class Menu:
                     for i in range(len(menu['child'])):
                         child = menu['child'][i]
                         cpt = None
+
+                        if lang in menu['child'][i]: menu['child'][i]['title'] = menu['child'][i][lang]
+                        if lang.lower() in menu['child'][i]: menu['child'][i]['title'] = menu['child'][i][lang.lower()]
                     
                         if 'pattern' in child: cpt = child['pattern']
                         elif 'url' in child: cpt = child['url']

@@ -8,22 +8,15 @@ class Controller(wiz.controller("base")):
         super().__init__()
 
         if wiz.session.has("id"):
-            if wiz.request.lang() == 'KO':
-                wiz.menu.top \
-                    .add(title='WIZ', url='/wiz') \
-                    .add(title='마이페이지', url='/mypage') \
-                    .add(title='로그아웃', url='/auth/logout')
-            else:
-                wiz.menu.top \
-                    .add(title='WIZ', url='/wiz') \
-                    .add(title='Mypage', url='/mypage') \
-                    .add(title='Logout', url='/auth/logout')
-
+            wiz.menu.top \
+                .add(title='WIZ', url='/wiz') \
+                .add(title='Mypage', ko="마이페이지", url='/mypage') \
+                .add(title='Logout', ko="로그아웃", url='/auth/logout')
         else:
             wiz.menu.top \
                 .add(title='WIZ', url='/wiz') \
-                .add(title='Sign-up', url='/auth/join') \
-                .add(title='Sign-in', url='/auth/login')
+                .add(title='Sign-up', ko="회원가입", url='/auth/join') \
+                .add(title='Sign-in', ko="로그인", url='/auth/login')
         
         wiz.menu.top \
             .add(title='Language', url='/language') \
