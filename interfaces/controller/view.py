@@ -14,7 +14,6 @@ class Controller(wiz.controller("base")):
                 .add(title='Logout', ko="로그아웃", url='/auth/logout')
         else:
             wiz.menu.top \
-                .add(title='WIZ', url='/wiz') \
                 .add(title='Sign-up', ko="회원가입", url='/auth/join') \
                 .add(title='Sign-in', ko="로그인", url='/auth/login')
         
