@@ -129,6 +129,10 @@ class Controller:
         if lang is not None:
             wiz.response.lang(lang)
             wiz.response.redirect(wiz.request.uri())
+        
+        config = wiz.model("dizest/config").load()
+        if config is None: config = dict()
+        wiz.response.data.set(hubconfig=config)
 
     def parse_json(self, jsonstr, default=None):
         try:

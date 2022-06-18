@@ -1,0 +1,15 @@
+{
+    "id": "hub.dashboard",
+    "category": "page",
+    "script_type": "text/javascript",
+    "theme": "dizest/aside",
+    "controller": "user",
+    "properties": {
+        "html": "pug",
+        "css": "scss",
+        "js": "javascript"
+    },
+    "title": "/hub/dashboard",
+    "created": "2022-06-18 16:03:03",
+    "updated": "2022-06-18 16:14:02"
+}

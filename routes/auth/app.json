@@ -4,6 +4,6 @@
     "route": "/auth/<path:path>",
     "viewuri": "/auth/logout",
     "created": "2022-01-11 23:04:23",
-    "updated": "2022-06-13 21:23:48",
-    "controller": "view"
+    "updated": "2022-06-18 15:58:50",
+    "controller": "base"
 }

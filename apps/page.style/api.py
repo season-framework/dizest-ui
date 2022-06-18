@@ -1,2 +1,0 @@
-def status(wiz):
-    pass

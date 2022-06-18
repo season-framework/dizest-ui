@@ -1,5 +1,5 @@
-wiz.response.render('/auth/login', "auth.signin")
-wiz.response.render('/auth/join', "auth.signup")
+wiz.response.render('/auth/login', "page.signin")
+wiz.response.render('/auth/join', "page.signup")
 
 if wiz.match("/auth/logout") is not None:
     if wiz.session.has("id"):

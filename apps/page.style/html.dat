@@ -1,5 +1,0 @@
-.container
-    .text-center.mt-6
-        img(src="/resources/images/logo-sym.png")
-        h2.mt-5 WIZ Demo Page
-        a.btn.btn-primary.mt-2(href="/wiz") Start WIZ

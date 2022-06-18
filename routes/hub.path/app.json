@@ -1,0 +1,8 @@
+{
+    "id": "hub.path",
+    "title": "/hub/*",
+    "route": "/hub/<path:path>",
+    "controller": "user",
+    "created": "2022-06-18 16:01:30",
+    "updated": "2022-06-18 16:13:46"
+}
