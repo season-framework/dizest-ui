@@ -1,5 +1,10 @@
 {
     "default": {
-        "hello": "Hello, World!"
+        "title": "Workflows",
+        "desc": "My workflow"
+    },
+    "ko": {
+        "title": "\uc6cc\ud06c\ud50c\ub85c\uc6b0",
+        "desc": "\ub0b4 \uc6cc\ud06c\ud50c\ub85c\uc6b0"
     }
 }

@@ -42,6 +42,14 @@ class Resource:
         wiz.response.data.set(wiz_resources_script=data)
         return self
 
+    def ng(self, module_name):
+        data = wiz.response.data.get("wiz_resources_ng_module")
+        if data is None: data = []
+        if module_name not in data:
+            data.append(module_name)
+        wiz.response.data.set(wiz_resources_ng_module=data)
+        return self
+
 class Menu:
     def __init__(self):
         self.data = dict()
@@ -120,7 +128,8 @@ class Controller:
     def __init__(self):
         wiz.menu = Menu()
         wiz.res = wiz.resource = Resource()
-
+        wiz.res.ng('ngSanitize')
+        
         wiz.session = wiz.model("session").use()
         sessiondata = wiz.session.get()
         wiz.response.data.set(session=sessiondata)

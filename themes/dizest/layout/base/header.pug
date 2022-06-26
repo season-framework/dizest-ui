@@ -41,11 +41,16 @@ link(href='/resources/themes/dizest/libs/toastr/toastr.min.css' rel='stylesheet'
 link(href='/resources/themes/dizest/core/css/theme.scss' rel='stylesheet')
 
 script(src='/resources/themes/dizest/core/js/base.js')
-script(src='/resources/themes/dizest/core/js/app.js')
-
-// libs
-script(src='/resources/themes/dizest/libs/chartjs/Chart.min.js')
-script(src='/resources/themes/dizest/libs/ckeditor/balloonblock/ckeditor.js')
-
-script(src='/resources/themes/dizest/libs/sortable/sortable.min.js')
-script(src='/resources/themes/dizest/libs/sortable/sortable.ng.js')
+script(type="text/javascript").
+    window.app = angular.module(
+        'app', {$ wiz_resources_ng_module | safe $}
+    ).directive('ngEnter', () => (scope, element, attrs) => {
+        element.bind('keydown keypress', (event) => {
+            if (event.which === 13) {
+                scope.$apply(() => {
+                    scope.$eval(attrs.ngEnter);
+                });
+                event.preventDefault();
+            }
+        });
+    });

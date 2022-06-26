@@ -1,15 +1,15 @@
 {
-    "id": "hub.dashboard",
+    "id": "hub.workflow.item",
     "category": "hub",
     "script_type": "text/javascript",
-    "theme": "dizest/aside",
+    "theme": "dizest/base",
     "controller": "user",
     "properties": {
         "html": "pug",
         "css": "scss",
         "js": "javascript"
     },
-    "title": "/hub/dashboard",
-    "created": "2022-06-18 16:03:03",
-    "updated": "2022-06-18 16:44:51"
+    "title": "/hub/workflow/item",
+    "created": "2022-06-18 16:44:45",
+    "updated": "2022-06-26 23:37:41"
 }

@@ -1,14 +1,12 @@
-var app = angular.module(
-    'app', ['ngSanitize']
-).directive('ngEnter', function () {
-    return function (scope, element, attrs) {
-        element.bind('keydown keypress', function (event) {
-            if (event.which === 13) {
-                scope.$apply(function () {
-                    scope.$eval(attrs.ngEnter);
-                });
-                event.preventDefault();
-            }
-        });
-    };
+window.app = angular.module(
+    'app', ['ngSanitize', 'ui.sortable']
+).directive('ngEnter', () => (scope, element, attrs) => {
+    element.bind('keydown keypress', (event) => {
+        if (event.which === 13) {
+            scope.$apply(() => {
+                scope.$eval(attrs.ngEnter);
+            });
+            event.preventDefault();
+        }
+    });
 });

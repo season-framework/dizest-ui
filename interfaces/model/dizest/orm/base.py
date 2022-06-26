@@ -2,6 +2,7 @@ import os
 import season
 import peewee as pw
 import bcrypt
+import json
 
 class Model(pw.Model):
     class Meta:
@@ -37,6 +38,6 @@ class Model(pw.Model):
             try:
                 if value is not None:
                     return json.loads(value)
-            except:
+            except Exception as e:
                 pass
             return []

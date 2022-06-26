@@ -1,4 +1,4 @@
-.workflow-list
+.workflow-list(ng-cloak)
     .workflow-list-header
         .page-header.d-print-none
             .row.align-items-center
@@ -8,11 +8,10 @@
                         span.status-indicator-circle
                         span.status-indicator-circle
                 .col
-                    h2.page-title Workflows
+                    h2.page-title= dic("title")
                     .text-muted
                         ul.list-inline.list-inline-dots.mb-0
-                            li.list-inline-item My workflow
-                
+                            li.list-inline-item= dic("desc")
                 .col-auto.actions
                     a.btn.btn-primary.mr-1(ng-click="workflow.import()")
                         i.fa-solid.fa-cloud-arrow-up
@@ -23,7 +22,7 @@
         .container.pt-4
             .row.row-deck.row-cards
                 .col-md-3.p-3(ng-repeat="item in workflow.list")
-                    .card.card-hover(ng-click="link('/hub/workflow/item/' + item.id)")
+                    .card(ng-click="link('/hub/workflow/item/' + item.id)")
                         .card-body.p-0
                             .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
                                 svg(viewBox="0 0 16 9")

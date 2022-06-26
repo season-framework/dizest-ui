@@ -54,6 +54,16 @@ class Drawflow {
 
         this.evCache = new Array();
         this.prevDiff = -1;
+
+        this.bindings = {};
+    }
+
+    bind(name, callback) {
+        if (callback)
+            this.bindings[name] = callback;
+        if (this.bindings[name])
+            return this.bindings[name];
+        return () => { }
     }
 
     start() {
@@ -95,7 +105,6 @@ class Drawflow {
         this.load();
     }
     /* Mobile zoom */
-
 
     pointerdown_handler(ev) {
         this.evCache.push(ev);
@@ -247,6 +256,7 @@ class Drawflow {
                     }
                 }
 
+                this.bind('click')('node', $(this.node_selected).attr("id"));
                 break;
 
             case 'output':
@@ -300,6 +310,8 @@ class Drawflow {
                 }
 
                 this.editor_selected = true;
+
+                this.bind('click')('background');
                 break;
 
             case 'main-path':
@@ -365,6 +377,7 @@ class Drawflow {
                 break;
 
             default:
+                this.bind('click')('background');
         }
 
         if (e.type === "touchstart") {
@@ -380,6 +393,17 @@ class Drawflow {
         }
 
         this.dispatch('clickEnd', e);
+    }
+
+    move(position) {
+        for (let key in position) {
+            this[key] = position[key];
+        }
+
+        let x = (this.canvas_x);
+        let y = (this.canvas_y);
+
+        this.precanvas.style.transform = "translate(" + x + "px, " + y + "px) scale(" + this.zoom + ")";
     }
 
     position(e) {
@@ -697,8 +721,6 @@ class Drawflow {
                 }
 
                 return ' M ' + line_x + ' ' + line_y + ' C ' + hx1 + ' ' + line_y + ' ' + hx2 + ' ' + y + ' ' + x + '  ' + y;
-                break;
-
             case 'close':
                 if (start_pos_x >= end_pos_x) {
                     var hx1 = line_x + Math.abs(x - line_x) * (curvature * -1);
@@ -709,8 +731,6 @@ class Drawflow {
                 }
 
                 return ' M ' + line_x + ' ' + line_y + ' C ' + hx1 + ' ' + line_y + ' ' + hx2 + ' ' + y + ' ' + x + '  ' + y;
-                break;
-
             case 'other':
                 if (start_pos_x >= end_pos_x) {
                     var hx1 = line_x + Math.abs(x - line_x) * (curvature * -1);
@@ -721,8 +741,6 @@ class Drawflow {
                 }
 
                 return ' M ' + line_x + ' ' + line_y + ' C ' + hx1 + ' ' + line_y + ' ' + hx2 + ' ' + y + ' ' + x + '  ' + y;
-                break;
-
             default:
                 var hx1 = line_x + Math.abs(x - line_x) * curvature;
                 var hx2 = x - Math.abs(x - line_x) * curvature;
@@ -1352,7 +1370,7 @@ class Drawflow {
         for (var x = 0; x < num_out.length; x++)
             output_container.appendChild(create_obj("output-text", num_out[x].substring(7)));
         if (num_out.length < num_in.length)
-            output_container.appendChild(create_obj("output-text disabled" , ' '));
+            output_container.appendChild(create_obj("output-text disabled", ' '));
         variable_container.appendChild(output_container);
         node.appendChild(variable_container);
 

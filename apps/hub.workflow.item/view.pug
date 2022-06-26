@@ -1,0 +1,331 @@
+.workspace.area-round
+    .workspace-header
+        .page-header.d-print-none
+            .row.align-items-center
+                .col-auto
+                    span.status-indicator.status-indicator-animated.status-primary
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                        span.status-indicator-circle
+                .col
+                    h2.page-title
+                        small.text-muted.mr-2 Workflow:
+                        span {{workflow.data.title}}
+
+                .col-auto.actions
+                    .dropdown
+                        button.btn.btn-secondary.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false") kernel
+                        ul.dropdown-menu
+                            li
+                                a.dropdown-item stop
+                                a.dropdown-item kill
+                                a.dropdown-item restart
+
+                    .btn.btn-primary
+                        i.fa-solid.fa-cloud-arrow-down
+
+                    .btn.btn-primary(ng-click="workflow.stop()" ng-if="workflow.running == 'running'")
+                        i.fa-solid.fa-stop
+
+                    .btn.btn-primary(ng-click="workflow.run()" ng-if="workflow.running != 'running'")
+                        i.fa-solid.fa-play
+
+                    .btn.btn-primary(ng-click="workflow.save()")
+                        i.fa-solid.fa-save
+
+                    a.btn.btn-primary.btn-circle(href="/hub/workflow/list")
+                        i.fa-solid.fa-xmark
+
+    .workspace-loading(ng-if="loader.display")
+        table
+            tr
+                td
+                    .spinner-border.text-primary
+
+    .workspace-body
+        .app
+            .app-search
+                input.form-control.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
+
+            .app-list
+                .no-items.text-center.p-6(ng-if="app.data.length == 0")
+                    i.fa-solid.fa-cube
+                    .mt-2 No Apps
+
+                .app-info(ng-repeat="item in app.data" draggable="true" ondragstart="drag(event)" data-node="{{item.id}}")
+                    .avatar-area.avatar-area-sm.mr-3
+                        .avatar-container
+                            span.avatar(style="background-image: url({{item.logo}})")
+                    .title-area
+                        .app-header.mb-1.pb-1 {{item.title}}
+                        .app-namespace.text-muted {{item.version}}
+                    .ml-auto
+                        button.btn.btn-white.btn-sm.mr-1(ng-click="app.delete(item.id)")
+                            i.fa-solid.fa-xmark
+                        button.btn.btn-primary.btn-sm(ng-click="workflow.add(item.id)")
+                            i.fa-solid.fa-plus
+
+        .workflow
+            .workflow-canvas.noselect(ng-if="!workflow.clear")
+                #drawflow(ondrop="drop(event)" ondragover="allowDrop(event)")
+
+            .workflow-zoom
+                .btn-group
+                    .btn.btn-primary(ng-click="workflow.drawflow.zoom_out()")
+                        i.fa-solid.fa-magnifying-glass-minus
+                    .btn.btn-primary(ng-click="workflow.drawflow.zoom_reset()")
+                        i.fa-solid.fa-magnifying-glass
+                    .btn.btn-primary(ng-click="workflow.drawflow.zoom_in()")
+                        i.fa-solid.fa-magnifying-glass-plus
+        
+        .workspace-tab.wp-info(ng-if="view == 'info'")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-info-circle.mr-2
+                    span Workflow Info
+                .ml-auto
+                .text-white.close-btn(ng-click="info.toggle()")
+                    i.fa-solid.fa-xmark
+            
+            .workspace-tab-body
+
+
+        .workspace-tab.codeflow(ng-if="view == 'codeflow'")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-code.mr-2
+                    span Codeflow
+                .ml-auto
+                .text-white.close-btn(ng-click="codeflow.toggle()")
+                    i.fa-solid.fa-xmark
+            
+            .codeflow-body(ng-click="node.select()" ui-sortable='sortableOptions' ng-model="node.data")
+                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id)")
+                    .codeflow-header
+                        span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="item.inactive = !item.inactive")
+                            span {{item.inactive ? 'manual' : 'auto'}}
+                        input(ng-model="workflow.data.apps[item.app_id].title")
+                        .ml-auto
+                        .btn.btn-sm.btn-white(ng-click="node.maximize(item.id)")
+                            i.fa-solid.fa-up-right-and-down-left-from-center
+                        .btn.btn-sm.btn-white.cursor-grab
+                            i.fa-solid.fa-arrows-up-down-left-right
+                        .btn.btn-sm.btn-primary(ng-click="node.delete(item.id)")
+                            i.fa-solid.fa-xmark
+
+                    .codeflow-options
+                        table.table.card-table.table-sm
+                            thead
+                                tr
+                                    th.text-left(colspan=4) Input
+                                    th.text-right
+                                        button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].inputs.push({})")
+                                            i.fa-solid.fa-plus
+                            tbody(ng-if="workflow.data.apps[item.app_id].inputs.length == 0")
+                                tr
+                                    td.pl-2(colspan=5)
+                                        span.text-muted No input
+
+                            tbody(ui-sortable='sortableOptions' ng-model="workflow.data.apps[item.app_id].inputs")
+                                tr(ng-repeat="obj in workflow.data.apps[item.app_id].inputs")
+                                    td.w-1(style="width: 120px !important;")
+                                        select.form-select(ng-model="obj.type")
+                                            option(value="variable") Variable
+                                            option(value="output") Output
+
+                                    td.w-1(style="width: 120px !important;")
+                                        select.form-select(ng-model="obj.inputtype" ng-if="obj.type == 'variable'")
+                                            option(value="text") Text
+                                            option(value="password") Password
+                                            option(value="number") Number
+                                            option(value="date") Date
+                                            option(value="list") List
+                                            option(value="memo") Memo
+                                    td.w-1
+                                        input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="obj.name")
+                                    td
+                                        textarea.form-control(placeholder="{{ obj.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" ng-model="obj.description")
+                                    td.w-1.nowrap
+                                        button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].inputs.remove(obj)")
+                                            i.fa-solid.fa-xmark
+                                        .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
+                                            i.fa-solid.fa-up-down-left-right
+                    
+                    .codeflow-options
+                        table.table.card-table.table-sm
+                            thead
+                                tr
+                                    th.w-1.nowrap(colspan=2) Output 
+                                    th.w-1.nowrap.text-right
+                                        button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].outputs.push({})")
+                                            i.fa-solid.fa-plus
+
+                            tbody(ng-if="workflow.data.apps[item.app_id].outputs.length == 0")
+                                tr
+                                    td.pl-2(colspan=5)
+                                        span.text-muted No Output
+
+                            tbody(ui-sortable='sortableOptions' ng-model="workflow.data.apps[item.app_id].outputs")
+                                tr(ng-repeat="obj in workflow.data.apps[item.app_id].outputs")
+                                    td.w-1
+                                        input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="obj.name")
+                                    td
+                                        textarea.form-control(placeholder="Description" ng-model="obj.description")
+                                    td.w-1.nowrap
+                                        button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].outputs.remove(obj)")
+                                            i.fa-solid.fa-xmark
+                                        .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
+                                            i.fa-solid.fa-up-down-left-right
+
+                    .codeflow-item
+                        .codeflow-codearea
+                            .item-index [1]
+                            .item-body
+                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="app.monaco_opt" ui-monaco)
+                
+                .btn.btn-primary.btn-block(ng-click="workflow.add()")
+                    i.fa-solid.fa-plus
+
+                .mb-6
+            
+        .workspace-tab.uimode(ng-if="view == 'uimode'")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-display.mr-2
+                    span UI Mode
+                .ml-auto
+                .text-white.close-btn(ng-click="uimode.toggle()")
+                    i.fa-solid.fa-xmark
+            
+            .workspace-tab-body
+
+        .menu-area
+            .d-block
+                .btn(ng-click="appstore.toggle()" class="{{appstore.display ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-brands.fa-hubspot
+
+            .d-block
+                .btn(ng-click="info.toggle()" class="{{view == 'info' ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-solid.fa-info
+
+            .d-block
+                .btn(ng-click="codeflow.toggle()" class="{{view == 'codeflow' ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-solid.fa-code
+            
+            .d-block
+                .btn(ng-click="uimode.toggle()" class="{{view == 'uimode' ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-solid.fa-display
+            
+            .d-block
+                .btn(ng-click="viewer.info.toggle()" class="{{viewer.info.show ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-solid.fa-folder-tree
+
+            .mt-auto
+
+            .d-block
+                .btn.btn-white(ng-click="viewer.shortcut.toggle()" class="{{viewer.shortcut.show ? 'btn-primary' : 'btn-white'}}")
+                    i.fa-solid.fa-keyboard
+        
+    div(ng-if="node.selected")
+        style.
+            .{{node.selected.id}}, #codeflow-{{node.selected.id}} {
+                background: white;
+                -webkit-box-shadow: 0 2px 8px 2px #4ea9ff !important;
+                box-shadow: 0 2px 8px 2px #4ea9ff;
+            }
+
+    div(ng-repeat="(key, value) in workflow.status")
+        div(ng-if="value.status == 'error'")
+            style.
+                .{{value.flow_id}} {
+                    box-shadow: 0 2px 20px 2px #d63939 !important;
+                }
+
+        div(ng-if="value.status == 'pending'")
+            style.
+                .{{value.flow_id}} .pending-indicator {
+                    display: block !important;
+                }
+
+                .{{value.flow_id}} .action-btn-play {
+                    display: none;
+                }
+
+                .{{value.flow_id}} .action-btn-stop {
+                    display: block !important;
+                }
+                
+
+        div(ng-if="value.status == 'finish'")
+            style.
+                .flow-{{value.flow_id}} .finish-indicator {
+                    display: block !important;
+                    padding-top: 9px;
+                    text-align: center;
+                    font-size: 12px;
+                    background: rgba(47,179,68,.1);
+                    color: #2fb344;
+                    font-weight: 1000;
+                }
+
+        div(ng-if="value.status == 'running'")
+            style.
+                :root {
+                    --animate-duration: 1s;
+                    --animate-delay: 1s;
+                    --animate-repeat: 1;
+                }
+
+                @keyframes heartBeat {
+                    0% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+
+                    25% {
+                        -webkit-transform: scale(1.02);
+                        transform: scale(1.02);
+                    }
+
+                    50% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+
+                    75% {
+                        -webkit-transform: scale(1.02);
+                        transform: scale(1.02);
+                    }
+
+                    100% {
+                        -webkit-transform: scale(1);
+                        transform: scale(1);
+                    }
+                }
+
+                .flow-{{value.flow_id}} {
+                    box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                }
+
+                .flow-{{value.flow_id}} .action-btn-play {
+                    display: none;
+                }
+
+                .flow-{{value.flow_id}} .action-btn-stop {
+                    display: block !important;
+                }
+
+                .flow-{{value.flow_id}} .progress {
+                    display: flex !important;
+                }
+
+    div(ng-if="workflow.active_flow_id")
+        style.
+            .{{workflow.active_flow_id}} {
+                    background: white;
+                    border: 1px solid #4ea9ff;
+                    -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                    box-shadow: 0 2px 20px 2px #4ea9ff;
+            }
+
+    {$ wiz.render("component.modal") $}

@@ -21,7 +21,7 @@ class Model:
         if config is None:
             return False
         try:
-            db = wiz.model("dizest/db").use("user")
+            db = wiz.model("dizest/orm").use("user")
             count = db.count()
             if count == 0:
                 return False
@@ -62,7 +62,7 @@ class Model:
         except:
             pass
 
-        # TODO: db update page        
+        # TODO: db update page
         return True
 
     @staticmethod

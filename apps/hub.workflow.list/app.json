@@ -1,6 +1,6 @@
 {
     "id": "hub.workflow.list",
-    "category": "page",
+    "category": "hub",
     "script_type": "text/javascript",
     "theme": "dizest/aside",
     "controller": "user",
@@ -11,5 +11,5 @@
     },
     "title": "/hub/workflow/list",
     "created": "2022-06-18 16:13:49",
-    "updated": "2022-06-18 16:30:20"
+    "updated": "2022-06-18 17:01:17"
 }
