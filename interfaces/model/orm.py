@@ -1,5 +1,6 @@
 import os
 
+import datetime
 import string as _string
 import random as _random
 import peewee as pw
@@ -8,7 +9,7 @@ from playhouse.shortcuts import model_to_dict, dict_to_model
 class Model:
     def __init__(self, tablename=None):
         self.tablename = tablename
-        self.orm = wiz.model(f"dizest/orm/{tablename}")
+        self.orm = wiz.model(f"orm/{tablename}")
         
     @classmethod
     def use(cls, tablename=None):
@@ -42,25 +43,49 @@ class Model:
                         obj[field] = data[field]
                 return obj
             return data
-        except:
+        except Exception as e:
             pass
         return None
 
-    def count(self, **where):
+    def count(self, like=None, **where):
         db = self.orm
         try:
             query = db.select(pw.fn.COUNT(db.id).alias("cnt"))
+            if like is not None:
+                like = like.split(",")
+            
             for key in where:
-                field = getattr(db, key)
-                query = query.where(field==where[key])
+                try:
+                    field = getattr(db, key)
+                    values = [where[key]]
+                    if type(where[key]) == list:
+                        values = where[key]
+
+                    qo = None
+                    for v in values:
+                        if qo is None:
+                            if like is not None and key in like:
+                                qo = field.contains(v)
+                            else:
+                                qo = field==v
+                        else:
+                            if like is not None and key in like:
+                                qo = (qo) | (field.contains(v))
+                            else:
+                                qo = (qo) | (field==v)
+                    query = query.where(qo)
+                except Exception as e:
+                    pass
+
             return query[0].cnt
         except:
             pass
         return 0
 
-    def rows(self, order='ASC', orderby=None, page=None, dump=10, fields=None, like=None, **where):
+    def rows(self, query=None, order='ASC', orderby=None, page=None, dump=10, fields=None, like=None, **where):
         db = self.orm
-        query = db.select()
+        if query is None:
+            query = db.select()
 
         if like is not None:
             like = like.split(",")
@@ -68,11 +93,24 @@ class Model:
         for key in where:
             try:
                 field = getattr(db, key)
-                qo = field==where[key]
-                if key in like:
-                    qo = field.contains(where[key])
+                values = [where[key]]
+                if type(where[key]) == list:
+                    values = where[key]
+
+                qo = None
+                for v in values:
+                    if qo is None:
+                        if like is not None and key in like:
+                            qo = field.contains(v)
+                        else:
+                            qo = field==v
+                    else:
+                        if like is not None and key in like:
+                            qo = (qo) | (field.contains(v))
+                        else:
+                            qo = (qo) | (field==v)
                 query = query.where(qo)
-            except:
+            except Exception as e:
                 pass
 
         if orderby is not None:
@@ -108,7 +146,8 @@ class Model:
 
         return rows
         
-    def insert(self, data):
+    def insert(self, *args, **data):
+        if len(args) > 0: data = args[0]
         db = self.orm
         if 'id' not in data:
             obj_id = self.random()

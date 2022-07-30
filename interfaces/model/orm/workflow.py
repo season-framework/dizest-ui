@@ -1,11 +1,11 @@
 import peewee as pw
-base = wiz.model("dizest/orm/base")
+base = wiz.model("orm/base")
 
 class Model(base):
     class Meta:
         db_table = 'workflow'
 
-    id = pw.CharField(primary_key=True, max_length=32)
+    id = pw.CharField(primary_key=True, max_length=16)
     user_id = pw.CharField(index=True, max_length=32)
     title = pw.CharField(index=True, max_length=96)
     version = pw.CharField(index=True, max_length=24)
@@ -13,7 +13,6 @@ class Model(base):
     created = pw.DateTimeField(index=True)
     updated = pw.DateTimeField(index=True)
     
-    updatepolicy = pw.CharField(max_length=16)
     logo = pw.TextField()
     featured = pw.TextField()
     description = pw.TextField()

@@ -4,7 +4,7 @@ html(ng-app="app")
     head
         {$ wiz.theme('dizest').layout('base').view('header.pug') $}
         
-    body.antialiased
-        {$ wiz.theme('dizest').layout('base').view('onload.pug') $}
-                
+    body.antialiased                
         {$ view $}
+
+        {$ wiz.theme('dizest').layout('base').view('onload.pug') $}

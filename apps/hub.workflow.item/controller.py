@@ -13,9 +13,11 @@ wiz.res.theme("dizest") \
     .script("require.config({ paths: { vs: '/resources/themes/dizest/libs/monaco/min/vs' } });")
 
 wpid = wiz.request.segment.workflow_id
-db = wiz.model("dizest/orm").use("workflow")
+db = wiz.model("orm").use("workflow")
 workflow = db.get(id=wpid)
 if workflow is not None:
     if workflow['user_id'] != wiz.session.get("id"):
         wiz.response.redirect("/")
-kwargs['workflow'] = workflow
+
+kwargs['workflow_id'] = wpid
+kwargs['manager_id'] = 'main'

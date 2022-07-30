@@ -1,0 +1,15 @@
+{
+    "id": "component.file",
+    "category": "component",
+    "script_type": "text/javascript",
+    "theme": "",
+    "controller": "",
+    "properties": {
+        "html": "pug",
+        "css": "scss",
+        "js": "javascript"
+    },
+    "title": "File Uploader",
+    "created": "2022-07-29 20:38:36",
+    "updated": "2022-07-29 20:54:47"
+}

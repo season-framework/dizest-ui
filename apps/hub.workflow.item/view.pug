@@ -1,9 +1,9 @@
-.workspace.area-round
+.workspace.area-round(ng-cloak)
     .workspace-header
         .page-header.d-print-none
             .row.align-items-center
                 .col-auto
-                    span.status-indicator.status-indicator-animated.status-primary
+                    span.status-indicator.status-indicator-animated(class="{{kernel.status_class()}}")
                         span.status-indicator-circle
                         span.status-indicator-circle
                         span.status-indicator-circle
@@ -13,25 +13,28 @@
                         span {{workflow.data.title}}
 
                 .col-auto.actions
-                    .dropdown
-                        button.btn.btn-secondary.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false") kernel
+                    .dropdown(ng-if="kernel.is('stop')")
+                        button.btn.btn-white.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                            span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
+                            span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec}}
+                        
                         ul.dropdown-menu
-                            li
-                                a.dropdown-item stop
-                                a.dropdown-item kill
-                                a.dropdown-item restart
-
-                    .btn.btn-primary
-                        i.fa-solid.fa-cloud-arrow-down
-
-                    .btn.btn-primary(ng-click="workflow.stop()" ng-if="workflow.running == 'running'")
-                        i.fa-solid.fa-stop
-
-                    .btn.btn-primary(ng-click="workflow.run()" ng-if="workflow.running != 'running'")
+                            li(ng-repeat="spec in kernel.specs")
+                                a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
+                    
+                    .btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
                         i.fa-solid.fa-play
+
+                    .btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
+
+                    .btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
+                        i.fa-solid.fa-stop
 
                     .btn.btn-primary(ng-click="workflow.save()")
                         i.fa-solid.fa-save
+
+                    .btn.btn-primary
+                        i.fa-solid.fa-cloud-arrow-down
 
                     a.btn.btn-primary.btn-circle(href="/hub/workflow/list")
                         i.fa-solid.fa-xmark
@@ -52,10 +55,10 @@
                     i.fa-solid.fa-cube
                     .mt-2 No Apps
 
-                .app-info(ng-repeat="item in app.data" draggable="true" ondragstart="drag(event)" data-node="{{item.id}}")
+                .app-info(ng-repeat="item in app.data" draggable="true" ondragstart="dragdrop.drag(event)" data-node="{{item.id}}")
                     .avatar-area.avatar-area-sm.mr-3
                         .avatar-container
-                            span.avatar(style="background-image: url({{item.logo}})")
+                            span.avatar(style="background-image: {{ item.logo ? 'url(' + item.logo + ')' : '#fff' }}" ng-cloak)
                     .title-area
                         .app-header.mb-1.pb-1 {{item.title}}
                         .app-namespace.text-muted {{item.version}}
@@ -67,7 +70,7 @@
 
         .workflow
             .workflow-canvas.noselect(ng-if="!workflow.clear")
-                #drawflow(ondrop="drop(event)" ondragover="allowDrop(event)")
+                #drawflow(ondrop="dragdrop.drop(event)" ondragover="dragdrop.allowDrop(event)")
 
             .workflow-zoom
                 .btn-group
@@ -78,29 +81,28 @@
                     .btn.btn-primary(ng-click="workflow.drawflow.zoom_in()")
                         i.fa-solid.fa-magnifying-glass-plus
         
-        .workspace-tab.wp-info(ng-if="view == 'info'")
+        .workspace-tab.wp-info(ng-if="menubar.is('info')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-info-circle.mr-2
                     span Workflow Info
                 .ml-auto
-                .text-white.close-btn(ng-click="info.toggle()")
+                .text-white.close-btn(ng-click="menubar.toggle('info')")
                     i.fa-solid.fa-xmark
             
             .workspace-tab-body
 
-
-        .workspace-tab.codeflow(ng-if="view == 'codeflow'")
+        .workspace-tab.codeflow(ng-if="menubar.is('codeflow')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-code.mr-2
                     span Codeflow
                 .ml-auto
-                .text-white.close-btn(ng-click="codeflow.toggle()")
+                .text-white.close-btn(ng-click="menubar.toggle('codeflow')")
                     i.fa-solid.fa-xmark
             
-            .codeflow-body(ng-click="node.select()" ui-sortable='sortableOptions' ng-model="node.data")
-                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id)")
+            .codeflow-body(ng-click="node.select(null, 'codeflow')")
+                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')")
                     .codeflow-header
                         span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="item.inactive = !item.inactive")
                             span {{item.inactive ? 'manual' : 'auto'}}
@@ -108,8 +110,10 @@
                         .ml-auto
                         .btn.btn-sm.btn-white(ng-click="node.maximize(item.id)")
                             i.fa-solid.fa-up-right-and-down-left-from-center
-                        .btn.btn-sm.btn-white.cursor-grab
-                            i.fa-solid.fa-arrows-up-down-left-right
+                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)")
+                            i.fa-solid.fa-arrow-up
+                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.down(item)")
+                            i.fa-solid.fa-arrow-down
                         .btn.btn-sm.btn-primary(ng-click="node.delete(item.id)")
                             i.fa-solid.fa-xmark
 
@@ -126,7 +130,7 @@
                                     td.pl-2(colspan=5)
                                         span.text-muted No input
 
-                            tbody(ui-sortable='sortableOptions' ng-model="workflow.data.apps[item.app_id].inputs")
+                            tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].inputs")
                                 tr(ng-repeat="obj in workflow.data.apps[item.app_id].inputs")
                                     td.w-1(style="width: 120px !important;")
                                         select.form-select(ng-model="obj.type")
@@ -165,7 +169,7 @@
                                     td.pl-2(colspan=5)
                                         span.text-muted No Output
 
-                            tbody(ui-sortable='sortableOptions' ng-model="workflow.data.apps[item.app_id].outputs")
+                            tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].outputs")
                                 tr(ng-repeat="obj in workflow.data.apps[item.app_id].outputs")
                                     td.w-1
                                         input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="obj.name")
@@ -188,42 +192,42 @@
 
                 .mb-6
             
-        .workspace-tab.uimode(ng-if="view == 'uimode'")
+        .workspace-tab.uimode(ng-if="menubar.is('uimode')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-display.mr-2
                     span UI Mode
                 .ml-auto
-                .text-white.close-btn(ng-click="uimode.toggle()")
+                .text-white.close-btn(ng-click="menubar.toggle('uimode')")
                     i.fa-solid.fa-xmark
             
             .workspace-tab-body
 
         .menu-area
             .d-block
-                .btn(ng-click="appstore.toggle()" class="{{appstore.display ? 'btn-primary' : 'btn-white'}}")
+                .btn(ng-click="menubar.toggle('hub')" class="{{menubar.btn_class('hub')}}")
                     i.fa-brands.fa-hubspot
 
             .d-block
-                .btn(ng-click="info.toggle()" class="{{view == 'info' ? 'btn-primary' : 'btn-white'}}")
+                .btn(ng-click="menubar.toggle('info')" class="{{menubar.btn_class('info')}}")
                     i.fa-solid.fa-info
 
             .d-block
-                .btn(ng-click="codeflow.toggle()" class="{{view == 'codeflow' ? 'btn-primary' : 'btn-white'}}")
+                .btn(ng-click="menubar.toggle('codeflow')" class="{{menubar.btn_class('codeflow')}}")
                     i.fa-solid.fa-code
             
             .d-block
-                .btn(ng-click="uimode.toggle()" class="{{view == 'uimode' ? 'btn-primary' : 'btn-white'}}")
+                .btn(ng-click="menubar.toggle('uimode')" class="{{menubar.btn_class('uimode')}}")
                     i.fa-solid.fa-display
             
             .d-block
-                .btn(ng-click="viewer.info.toggle()" class="{{viewer.info.show ? 'btn-primary' : 'btn-white'}}")
+                .btn(ng-click="menubar.toggle('storage')" class="{{menubar.btn_class('storage')}}")
                     i.fa-solid.fa-folder-tree
 
             .mt-auto
 
             .d-block
-                .btn.btn-white(ng-click="viewer.shortcut.toggle()" class="{{viewer.shortcut.show ? 'btn-primary' : 'btn-white'}}")
+                .btn.btn-white(ng-click="menubar.toggle('shortcut')" class="{{menubar.btn_class('shortcut')}}")
                     i.fa-solid.fa-keyboard
         
     div(ng-if="node.selected")
@@ -327,5 +331,3 @@
                     -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
                     box-shadow: 0 2px 20px 2px #4ea9ff;
             }
-
-    {$ wiz.render("component.modal") $}

@@ -1,10 +1,12 @@
 {
     "default": {
         "title": "Workflows",
-        "desc": "My workflow"
+        "desc": "My workflow",
+        "importerror": "Not supported file format"
     },
     "ko": {
         "title": "\uc6cc\ud06c\ud50c\ub85c\uc6b0",
-        "desc": "\ub0b4 \uc6cc\ud06c\ud50c\ub85c\uc6b0"
+        "desc": "\ub0b4 \uc6cc\ud06c\ud50c\ub85c\uc6b0",
+        "importerror": "DIZEST \uc6cc\ud06c\ud50c\ub85c\uc6b0 \ud30c\uc77c\uc744 \uc120\ud0dd\ud574\uc8fc\uc138\uc694."
     }
 }

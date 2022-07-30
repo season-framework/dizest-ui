@@ -6,7 +6,7 @@ import json
 
 class Model(pw.Model):
     class Meta:
-        config = wiz.model("dizest/config").load()
+        config = wiz.model("dizest").config()
         dbconfig = config.db
         if dbconfig.config is None: dbconfig.config = dict()
         if dbconfig.type == 'mysql':

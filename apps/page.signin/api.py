@@ -1,4 +1,4 @@
-db = wiz.model("dizest/orm").use("user")
+db = wiz.model("orm").use("user")
 
 def login(wiz):
     user_id = wiz.request.query("id", True)

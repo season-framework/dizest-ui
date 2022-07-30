@@ -1,0 +1,8 @@
+{
+    "id": "auth.saml",
+    "title": "/auth/saml",
+    "route": "/auth/saml/<action>/<path:path>",
+    "controller": "base",
+    "created": "2022-07-05 00:09:13",
+    "updated": "2022-07-05 00:09:13"
+}

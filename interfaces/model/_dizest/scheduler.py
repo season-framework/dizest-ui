@@ -11,7 +11,7 @@ BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
     def __init__(self, wpid, package=None):
-        dizestconfig = wiz.model("dizest/config").load()
+        dizestconfig = wiz.model("dizest").config()
         kernel_cache = os.path.join(BASEPATH, "cache")
         kernel_mode = "spawn"
 

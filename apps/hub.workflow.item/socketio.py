@@ -7,8 +7,7 @@ import requests
 import traceback
 import datetime
 
-Dizest = wiz.model("dizest/scheduler")
-db = wiz.model("dizest/orm").use("workflow")
+db = wiz.model("orm").use("workflow")
 
 class Controller:
     def __init__(self):
@@ -19,17 +18,6 @@ class Controller:
             io.join(data)
             io.emit("join", data, to=data, broadcast=True)
         except:
-            pass
-
-    def status(self, wiz, data, io):
-        try:
-            wpid = data['workflow_id']
-            fid = data['flow_id'] if 'flow_id' in data else None
-            dizest = Dizest(wpid)
-            if dizest is None:
-                return
-            io.emit("status", dict(dizest.status(fid)), to=wpid, broadcast=True)
-        except Exception as e:
             pass
 
     def connect(self, wiz, data):

@@ -1,4 +1,6 @@
-let wiz_controller = async ($sce, $scope, $timeout) => {
-    let _$timeout = $timeout;
-    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+let wiz_controller = async ($sce, $scope, $alert, $loading, $render) => {
+    await $loading.show();
+    await $render(2000);
+    await $loading.hide();
+    $alert('test');
 }

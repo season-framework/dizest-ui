@@ -1,0 +1,32 @@
+& {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    background-color: rgba(0, 0, 0, .7);
+
+    table {
+        width: 100vw;
+        height: 100vh;
+        z-index: 2002;
+        position: fixed;
+        top: 0;
+        left: 0;
+        
+        td {
+            height: 100vh;
+            vertical-align: middle;
+            text-align: center;
+
+            .spinner-border {
+                width: 64px;
+                height: 64px;
+                color: #fff;
+                border: 6px solid currentColor;
+                border-right-color: transparent;
+            }
+        }
+    }
+}

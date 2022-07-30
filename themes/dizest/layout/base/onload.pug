@@ -6,3 +6,7 @@ script(src='/resources/themes/dizest/libs/tabler/dist/js/tabler.min.js')
 - each item in wiz_resources_script
     script.
         {$ item | safe $}
+
+{$ wiz.render('component.modal') $}
+{$ wiz.render('component.loading') $}
+{$ wiz.render('component.file') $}

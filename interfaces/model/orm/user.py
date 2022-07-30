@@ -1,5 +1,5 @@
 import peewee as pw
-base = wiz.model("dizest/orm/base")
+base = wiz.model("orm/base")
 
 class Model(base):
     class Meta:

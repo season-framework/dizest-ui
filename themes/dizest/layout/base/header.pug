@@ -31,26 +31,30 @@ link(href='/resources/themes/dizest/libs/tabler/dist/css/tabler-vendors.min.css'
 link(href='/resources/themes/dizest/libs/tabler/dist/css/demo.min.css' rel='stylesheet')
 link(href='/resources/themes/dizest/libs/toastr/toastr.min.css' rel='stylesheet')
 
+// wiz css
+link(href='/resources/themes/dizest/core/css/theme.scss' rel='stylesheet')
+
+script(src='/resources/themes/dizest/core/js/base/array.js')
+script(src='/resources/themes/dizest/core/js/base/date.js')
+script(src='/resources/themes/dizest/core/js/base/function.js')
+script(src='/resources/themes/dizest/core/js/base/number.js')
+script(src='/resources/themes/dizest/core/js/base/string.js')
+script(src='/resources/themes/dizest/core/js/base/toastr.js')
+
+script(type="text/javascript").
+    window.app = angular.module(
+        'app', {$ wiz_resources_ng_module | safe $}
+    )
+
+script(src='/resources/themes/dizest/core/js/ng-directive/enter.js')
+script(src='/resources/themes/dizest/core/js/ng-factory/render.js')
+script(src='/resources/themes/dizest/core/js/ng-factory/alert.js')
+script(src='/resources/themes/dizest/core/js/ng-factory/loading.js')
+script(src='/resources/themes/dizest/core/js/ng-factory/file.js')
+script(src='/resources/themes/dizest/core/js/ng-factory/util.js')
+
 - each item in wiz_resources_css
     link(href=item rel='stylesheet')
 
 - each item in wiz_resources_js
     script(src=item)
-
-// wiz css
-link(href='/resources/themes/dizest/core/css/theme.scss' rel='stylesheet')
-
-script(src='/resources/themes/dizest/core/js/base.js')
-script(type="text/javascript").
-    window.app = angular.module(
-        'app', {$ wiz_resources_ng_module | safe $}
-    ).directive('ngEnter', () => (scope, element, attrs) => {
-        element.bind('keydown keypress', (event) => {
-            if (event.which === 13) {
-                scope.$apply(() => {
-                    scope.$eval(attrs.ngEnter);
-                });
-                event.preventDefault();
-            }
-        });
-    });

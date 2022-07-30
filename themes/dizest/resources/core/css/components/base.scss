@@ -43,11 +43,6 @@ blockquote p {
     overflow-y: auto;
 }
 
-.btn-block {
-    width: 100%;
-    display: block;
-}
-
 .wrap {
     word-wrap: break-word;
     white-space: initial;
@@ -67,11 +62,11 @@ blockquote p {
 }
 
 .border-bottom {
-    border-bottom: 1px solid rgba(110, 117, 130, .2);
+    border-bottom: 1px solid var(--wiz-color-border);
 }
 
 .border-top {
-    border-top: 1px solid rgba(110, 117, 130, .2);
+    border-top: 1px solid var(--wiz-color-border);
 }
 
 .if-mobile {

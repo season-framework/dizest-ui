@@ -23,5 +23,5 @@ class Controller(wiz.controller("base")):
             .add(title='Workspace', ko="작업공간", type="header") \
             .add(title='Dashboard', ko="대시보드", url='/hub/dashboard', icon="fa-solid fa-cubes") \
             .add(title='Workflow', ko="워크플로우", url='/hub/workflow/list', icon="fa-solid fa-cubes") \
-            .add(title='Drive', ko="드라이브", url='/hub/drive', icon="fa-solid fa-folder-tree") \
-            .build()
+            .add(title='Drive', ko="드라이브", url='/hub/drive', icon="fa-solid fa-folder-tree")        
+        wiz.menu.main.build()

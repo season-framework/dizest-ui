@@ -12,7 +12,11 @@
                     .text-muted
                         ul.list-inline.list-inline-dots.mb-0
                             li.list-inline-item= dic("desc")
-                .col-auto.actions
+
+                .col-auto.actions.area-round
+                    input.form-control.mr-1(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
+                
+                .col-auto.actions.area-round
                     a.btn.btn-primary.mr-1(ng-click="workflow.import()")
                         i.fa-solid.fa-cloud-arrow-up
                     a.btn.btn-primary(href="/hub/workflow/item/new")
@@ -21,8 +25,8 @@
     .workflow-list-item
         .container.pt-4
             .row.row-deck.row-cards
-                .col-md-3.p-3(ng-repeat="item in workflow.list")
-                    .card(ng-click="link('/hub/workflow/item/' + item.id)")
+                .col-md-3.p-3(ng-repeat="item in workflow.data")
+                    .card(ng-click="workflow.click(item)")
                         .card-body.p-0
                             .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
                                 svg(viewBox="0 0 16 9")
@@ -38,15 +42,16 @@
                                 .text-muted {{item.updated}}
     
     .workflow-pagenation
-        .pagenation.text-center
-            button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="workflow.load.page(workflow.query.page*1-1)")
+        .pagenation.text-center.area-round(ng-if="workflow.pager.pages.length > 0")
+            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.floor((workflow.query.page-1) / 10) * 10 - 9)" ng-class="(workflow.query.page-1)/10 < 1 ? 'disabled' : ''")
                 i.fas.fa-angle-double-left
-            button.btn.btn-sm(ng-repeat="page in workflow.pages" ng-class="page == workflow.query.page ? 'btn-primary' : 'btn-link'" ng-click="workflow.load.page(page)") {{page}}
-            button.btn.btn-sm.btn-link.pt-1.pb-1(ng-click="workflow.load.page(workflow.query.page*1+1)")
+            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1-1)" ng-class="workflow.query.page == 1 ? 'disabled' : ''")
+                i.fas.fa-angle-left
+            button.btn.btn-square.btn-sm.mr-1.ml-1(ng-repeat="p in workflow.pager.pages" ng-class="p == workflow.query.page ? 'btn-primary' : ''" ng-click="workflow.page(p)") {{p}}
+            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1+1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
+                i.fas.fa-angle-right
+            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.ceil((workflow.query.page) / 10) * 10 + 1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
                 i.fas.fa-angle-double-right
-
-    .display-none(style="display: none;")
-        input#import-file(type="file" accept=".dzw")
 
     .modal.fade#import-modal(tabindex="-1")
         .modal-dialog
@@ -58,54 +63,32 @@
                     .form-group.row.mb-3
                         label.form-label.col-3.col-form-label Title
                         .col
-                            input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.data.title")
+                            input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.importdata.title")
                     
                     .form-group.row.mb-3
                         label.form-label.col-3.col-form-label Version
                         .col
-                            input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.version")
+                            input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.importdata.version")
 
                     .form-group.row
-                        label.form-label.col-3.col-form-label Update Policy
+                        label.form-label.col-3.col-form-label Visibility
                         .col
                             .form-selectgroup
                                 label.form-selectgroup-item
-                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="auto" ng-model="workflow.data.updatepolicy")
+                                    input.form-selectgroup-input(type="radio" name="visibility" value="public" ng-model="workflow.importdata.visibility")
                                     span.form-selectgroup-label
-                                        i.fa-solid.fa-wand-magic-sparkles.mr-2
-                                        span Auto
-                                label.form-selectgroup-item
-                                    input.form-selectgroup-input(type="radio" name="updatepolicy" value="manual" ng-model="workflow.data.updatepolicy")
-                                    span.form-selectgroup-label
-                                        i.fa-solid.fa-repeat.mr-2
-                                        span Manual
-                
-                .modal-body.bg-white.p-0
-                    table.table.card-table.table-vcenter
-                        thead
-                            tr
-                                th App ID
-                                th Import As
-                                th Link To
-                        tbody(ng-repeat="(key, item) in workflow.data.apps")
-                            tr
-                                td.text-left {{item.title}}
-                                td.nowrap
-                                    label.form-selectgroup-item(style="display: inline-block;")
-                                        input.form-selectgroup-input(type="radio" name="vartype-{{item.id}}" value="new" ng-model="workflow.transform[item.id].mode")
-                                        span.form-selectgroup-label.w-96
-                                            span New
-                                    label.form-selectgroup-item(style="display: inline-block;")
-                                        input.form-selectgroup-input(type="radio" name="vartype-{{item.id}}" value="link" ng-model="workflow.transform[item.id].mode")
-                                        span.form-selectgroup-label.w-96
-                                            span Link
-                                td
-                                    select.form-select(ng-model="workflow.transform[item.id].id" ng-if="workflow.transform[item.id].mode != 'new'")
-                                        option(ng-repeat="target in apps" value="{{target.id}}") {{target.title}}
+                                        i.fa-solid.fa-share-nodes.mr-2
+                                        span Public
 
+                                label.form-selectgroup-item
+                                    input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="workflow.importdata.visibility")
+                                    span.form-selectgroup-label
+                                        i.fa-solid.fa-lock.mr-2
+                                        span Private
+                
                 .modal-body.bg-white.p-1
 
                 .modal-footer.d-flex.bg-white
                     button.btn.btn-white(style="border-radius: 16px;" type="button" data-bs-dismiss="modal") Cancel
                     .mr-auto
-                    button.btn.btn-primary(style="border-radius: 16px;" type="button" ng-click="workflow.gen()") Import
+                    button.btn.btn-primary(style="border-radius: 16px;" type="button" ng-click="workflow.create()") Import

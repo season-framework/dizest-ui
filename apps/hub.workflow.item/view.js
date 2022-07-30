@@ -1,164 +1,122 @@
-let wiz_controller = async ($sce, $scope, $timeout) => {
-    let _$timeout = $timeout;
-    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
+let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
+    await $loading.show();
 
-    let ansi_up = new AnsiUp();
+    let API = async (fnname, data) => {
+        if (!data) data = {};
+        data['workflow_id'] = workflow.id;
+        data['manager_id'] = workflow.manager_id;
+        return await wiz.API.async(fnname, data);
+    }
 
-    let random = () => {
-        const fchars = 'abcdefghiklmnopqrstuvwxyz';
-        const chars = '0123456789abcdefghiklmnopqrstuvwxyz';
-        const stringLength = 16;
-        let randomstring = '';
-        for (let i = 0; i < stringLength; i++) {
-            let rnum = null;
-            if (i === 0) {
-                rnum = Math.floor(Math.random() * fchars.length);
-                randomstring += fchars.substring(rnum, rnum + 1);
-            } else {
-                rnum = Math.floor(Math.random() * chars.length);
-                randomstring += chars.substring(rnum, rnum + 1);
+    window.options = $scope.options = (() => {
+        let obj = {};
+
+        obj.monaco = (language) => {
+            let opt = {
+                value: '',
+                language: language,
+                theme: "vs",
+                fontSize: 14,
+                automaticLayout: true,
+                scrollBeyondLastLine: false,
+                lineNumbers: 'off',
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                glyphMargin: false,
+                scrollbar: {
+                    vertical: "hidden",
+                    handleMouseWheel: false,
+                },
+                minimap: {
+                    enabled: false
+                }
+            };
+
+            opt.onLoad = async (editor) => {
+                let monaco_auto_height = async () => {
+                    const LINE_HEIGHT = 21;
+                    const el = editor._domElement;
+                    let counter = editor.getModel().getLineCount();
+                    let height = counter * LINE_HEIGHT;
+                    if (height < 105) height = 105;
+                    el.style.height = height + 'px';
+                    editor.layout();
+                }
+
+                await monaco_auto_height();
+
+                editor.onDidChangeModelDecorations(monaco_auto_height);
+
+                let shortcuts = shortcut.configuration(window.monaco);
+                for (let shortcutname in shortcuts) {
+                    let monacokey = shortcuts[shortcutname].monaco;
+                    let fn = shortcuts[shortcutname].fn;
+                    if (!monacokey) continue;
+
+                    editor.addCommand(monacokey, async () => {
+                        await fn();
+                        await shortcut.bind();
+                    });
+                }
             }
+
+            return opt;
         }
 
-        return randomstring;
-    }
-
-    let alert = async (message) => {
-        await wiz.connect("component.modal")
-            .data({
-                title: "Alert",
-                message: message,
-                btn_action: "Close",
-                btn_class: "btn-primary"
-            })
-            .event("modal-show");
-    }
-
-    let monaco_option = (language) => {
-        let opt = {
-            value: '',
-            language: language,
-            theme: "vs",
-            fontSize: 14,
-            automaticLayout: true,
-            scrollBeyondLastLine: false,
-            lineNumbers: 'off',
-            roundedSelection: false,
-            scrollBeyondLastLine: false,
-            glyphMargin: false,
-            scrollbar: {
-                vertical: "hidden",
-                handleMouseWheel: false,
-            },
-            minimap: {
-                enabled: false
+        obj.sortableOptions = {
+            stop: async () => {
+                try {
+                    for (let i = 0; i < node.data.length; i++) {
+                        let flow = node.data[i];
+                        workflow.data.flow[flow.id].order = i + 1;
+                    }
+                } catch (e) {
+                }
             }
         };
 
-        opt.onLoad = async (editor) => {
-            let monaco_auto_height = async () => {
-                const LINE_HEIGHT = 21;
-                const el = editor._domElement;
-                let counter = editor.getModel().getLineCount();
-                let height = counter * LINE_HEIGHT;
-                if (height < 105) height = 105;
-                el.style.height = height + 'px';
-                editor.layout();
-            }
+        return obj;
+    })();
 
-            await monaco_auto_height();
-
-            editor.onDidChangeModelDecorations(monaco_auto_height);
-
-            // let shortcuts = $scope.shortcut.configuration(window.monaco);
-            // for (let shortcutname in shortcuts) {
-            //     let monacokey = shortcuts[shortcutname].monaco;
-            //     let fn = shortcuts[shortcutname].fn;
-            //     if (!monacokey) continue;
-
-            //     editor.addCommand(monacokey, async () => {
-            //         await fn();
-            //         await $scope.shortcut.bind();
-            //     });
-            // }
-        }
-
-        return opt;
-    }
-
-    $scope.sortableOptions = {
-        stop: async () => {
-            try {
-                for (let i = 0; i < $scope.node.data.length; i++) {
-                    let flow = $scope.node.data[i];
-                    $scope.workflow.data.flow[flow.id].order = i + 1;
-                }
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    };
-
-    $scope.loader = (() => {
+    window.menubar = $scope.menubar = (() => {
         let obj = {};
-        obj.display = false;
+        obj.view = null;
 
-        obj.show = async () => {
-            obj.display = true;
-            await $timeout();
+        obj.is = (view) => {
+            return obj.view == view;
         }
 
-        obj.hide = async () => {
-            obj.display = false;
-            await $timeout();
+        obj.toggle = async (view) => {
+            if (obj.view == view) {
+                obj.view = '';
+            } else {
+                obj.view = view;
+            }
+            await $render();
+        }
+
+        obj.btn_class = (view) => {
+            if (view == obj.view) return 'btn-primary';
+            return 'btn-white';
         }
 
         return obj;
     })();
 
-    $scope.view = null;
-
     window.info = $scope.info = (() => {
         let obj = {};
-
-        obj.toggle = async () => {
-            if ($scope.view == 'info') {
-                $scope.view = '';
-            } else {
-                $scope.view = 'info';
-            }
-            await $timeout();
-        }
 
         return obj;
     })();
 
     window.uimode = $scope.uimode = (() => {
         let obj = {};
-        obj.toggle = async () => {
-            if ($scope.view == 'uimode') {
-                $scope.view = '';
-            } else {
-                $scope.view = 'uimode';
-            }
-            await $timeout();
-        }
 
         return obj;
     })();
 
     window.codeflow = $scope.codeflow = (() => {
         let obj = {};
-        obj.display = false;
-
-        obj.toggle = async () => {
-            if ($scope.view == 'codeflow') {
-                $scope.view = '';
-            } else {
-                $scope.view = 'codeflow';
-            }
-            await $timeout();
-        }
 
         return obj;
     })();
@@ -166,7 +124,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     window.app = $scope.app = (() => {
         let obj = {};
 
-        obj.monaco_opt = monaco_option('python');
+        obj.monaco_opt = options.monaco('python');
 
         obj.struct = {
             title: 'new app',
@@ -191,28 +149,28 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         obj.load = async () => {
             obj.data = [];
-            let apps = $scope.workflow.data.apps;
+            let apps = workflow.data.apps;
             for (let app_id in apps) {
                 obj.data.push(apps[app_id]);
             }
-            await $timeout();
+            await $render();
         }
 
         obj.get = async (app_id) => {
-            let apps = $scope.workflow.data.apps;
+            let apps = workflow.data.apps;
             if (apps[app_id])
                 return apps[app_id];
             if (app_id)
                 return null;
 
-            app_id = random();
+            app_id = $util.random();
             while (apps[app_id])
-                app_id = random();
+                app_id = $util.random();
 
             let newdata = angular.copy(obj.struct);
             newdata.id = app_id;
 
-            $scope.workflow.data.apps[app_id] = newdata;
+            workflow.data.apps[app_id] = newdata;
             await obj.load();
 
             return newdata;
@@ -225,38 +183,39 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         }
 
         obj.validate = async (app_id) => {
-            // $scope.app.data.description = $scope.app.desc_editor.data.get();
+            // obj.data.description = obj.desc_editor.data.get();
+
             let data = angular.copy(await obj.get(app_id));
 
             if (!data.title || data.title.length == 0) {
-                await alert("App title is not filled.");
+                await $alert("App title is not filled.");
                 return;
             }
 
             if (!data.version || data.version.length == 0) {
-                await alert("App Version is not filled.");
+                await $alert("App Version is not filled.");
                 return;
             }
 
             let checker = {};
             for (let i = 0; i < data.inputs.length; i++) {
                 if (!data.inputs[i].name || data.inputs[i].name.length == 0) {
-                    await alert("Input name must be filled");
+                    await $alert("Input name must be filled");
                     return;
                 }
 
                 if (data.inputs[i].name.includes(" ")) {
-                    await alert("Input name only allow alphabet and digits.");
+                    await $alert("Input name only allow alphabet and digits.");
                     return;
                 }
 
                 if (data.inputs[i].name.match(/[^a-z0-9_]/gi)) {
-                    await alert("Input name only allow alphabet and digits.");
+                    await $alert("Input name only allow alphabet and digits.");
                     return;
                 }
 
                 if (checker[data.inputs[i].name]) {
-                    await alert("Input name must be unique.");
+                    await $alert("Input name must be unique.");
                     return;
                 }
 
@@ -266,22 +225,22 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             checker = {};
             for (let i = 0; i < data.outputs.length; i++) {
                 if (!data.outputs[i].name || data.outputs[i].name.length == 0) {
-                    await alert("Output name must be filled");
+                    await $alert("Output name must be filled");
                     return;
                 }
 
                 if (data.outputs[i].name.includes(" ")) {
-                    await alert("Output name only allow alphabet and digits.");
+                    await $alert("Output name only allow alphabet and digits.");
                     return;
                 }
 
                 if (data.outputs[i].name.match(/[^a-z0-9_]/gi)) {
-                    await alert("Output name only allow alphabet and digits.");
+                    await $alert("Output name only allow alphabet and digits.");
                     return;
                 }
 
                 if (checker[data.outputs[i].name]) {
-                    await alert("Output name must be unique.");
+                    await $alert("Output name must be unique.");
                     return;
                 }
 
@@ -302,8 +261,8 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 })
                 .event("modal-show");
             if (!res) return;
-            delete $scope.workflow.data.apps[app_id];
-            await $scope.workflow.update();
+            delete workflow.data.apps[app_id];
+            await workflow.update();
             await obj.load();
         }
 
@@ -318,10 +277,16 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         obj.last_timestamp = new Date().getTime();
 
         obj.run = async (flow_id) => {
+            await $loading.show();
             $("#node-" + flow_id + " .debug-message").remove();
-            $scope.workflow.debug[flow_id] = "";
-            await $scope.workflow.save(false);
-            await wiz.API.async("run", { workflow_id: $scope.workflow.data.id, flow_id: flow_id });
+            workflow.debug[flow_id] = "";
+            await workflow.save(true);
+            await API("run", { flow_id: flow_id });
+            await $loading.hide();
+        }
+
+        obj.stop = async (flow_id) => {
+            await API("stop", { flow_id: flow_id });
         }
 
         obj.get = async (node_id) => {
@@ -335,26 +300,46 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
         obj.build = async () => {
             obj.data = [];
-            for (let key in $scope.workflow.data.flow) {
-                if (!$scope.workflow.data.flow[key].order) {
-                    $scope.workflow.data.flow[key].order = new Date().getTime();
+            for (let key in workflow.data.flow) {
+                if (!workflow.data.flow[key].order) {
+                    workflow.data.flow[key].order = new Date().getTime();
                 }
-                obj.data.push($scope.workflow.data.flow[key]);
+                obj.data.push(workflow.data.flow[key]);
             }
 
             obj.data.sort((a, b) => {
                 return a.order - b.order;
             });
 
-            await $timeout();
+            await $render();
         }
 
-        obj.select = async (node_id) => {
-            let item = await $scope.node.get(node_id);
+        obj.code = async (node_id) => {
+            if (!node_id) return;
+            if (!menubar.is('codeflow')) {
+                await menubar.toggle('codeflow');
+                await $render(1000);
+                obj.selected = null;
+            }
+            await obj.select(node_id, 'drawflow');
+        }
+
+        obj.select = async (node_id, uifrom) => {
+            let item = await obj.get(node_id);
             let diff = new Date().getTime() - obj.last_timestamp;
             obj.last_timestamp = new Date().getTime();
 
             if (diff > 100) {
+                if (!node_id) {
+                    obj.selected = null;
+                    await $render();
+                    return;
+                }
+
+                if (obj.selected && obj.selected.id == item.id) {
+                    return;
+                }
+
                 obj.selected = item;
 
                 if (item) {
@@ -363,9 +348,9 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                             return false;
                         let x = $('#node-' + node_id).position().left;
                         let y = $('#node-' + node_id).position().top;
-                        let canvas_x = $scope.workflow.drawflow.canvas_x;
-                        let canvas_y = $scope.workflow.drawflow.canvas_y;
-                        let zoom = $scope.workflow.drawflow.zoom;
+                        let canvas_x = workflow.drawflow.canvas_x;
+                        let canvas_y = workflow.drawflow.canvas_y;
+                        let zoom = workflow.drawflow.zoom;
 
                         let w = $('#drawflow').width() * zoom;
                         let h = $('#drawflow').height() * zoom;
@@ -381,17 +366,20 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                         }
 
                         if (!onx || !ony) {
-                            $scope.workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 2.4) });
+                            workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 2.4) });
                         }
                         return true;
                     }
 
-                    let stat = await drawflow_position();
-                    if (!stat) return;
+                    if (uifrom == 'codeflow') {
+                        let stat = await drawflow_position();
+                        if (!stat) return;
+                    }
 
                     let codeflow_position = async () => {
                         if ($('#codeflow-' + node_id).length == 0)
                             return false;
+
                         let y_start = $('.codeflow-body').scrollTop();
                         let y_end = y_start + $('.codeflow-body').height();
 
@@ -406,15 +394,17 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                         }
                     }
 
-                    await codeflow_position();
+                    if (uifrom == 'drawflow') {
+                        await codeflow_position();
+                    }
                 }
 
             }
-            await $timeout();
+            await $render();
         }
 
         obj.create = async (app_id, pos_x, pos_y, nodeid, data, isdrop) => {
-            let drawflow = $scope.workflow.drawflow;
+            let drawflow = workflow.drawflow;
 
             if (!data) data = {};
             if (drawflow.editor_mode === 'fixed') {
@@ -434,14 +424,15 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                 pos_y = pos_y * (drawflow.precanvas.clientHeight / (drawflow.precanvas.clientHeight * drawflow.zoom)) - (drawflow.precanvas.getBoundingClientRect().y * (drawflow.precanvas.clientHeight / (drawflow.precanvas.clientHeight * drawflow.zoom)));
             }
 
-            let item = await $scope.app.get(app_id);
+            let item = await app.get(app_id);
             if (!item)
                 return false;
             if (!nodeid)
                 nodeid = item.id + "-" + new Date().getTime();
 
             let container = $("<div class='card-header'></div>");
-            container.append('<div class="avatar-area avatar-area-sm mr-2"><div class="avatar-container"><span class="avatar" style="background-image: url(' + item.logo + ')"></span></div></div>')
+            let logo = item.logo ? 'url(' + item.logo + ')' : '#fff';
+            container.append('<div class="avatar-area avatar-area-sm mr-2"><div class="avatar-container"><span class="avatar" style="background-image: ' + logo + ';"></span></div></div>')
             container.append('<h2 class="card-title" style="line-height: 1;">' + item.title + '<br/><small class="text-white" style="font-size: 10px; font-weight: 100; font-family: \'wiz-r\'">' + item.version + '</small></h2>');
             container.append('<div class="ml-auto"></div>');
             container.append('<button class="btn btn-sm btn-white" onclick="node.delete(\'' + nodeid + '\')"><i class="fa-solid fa-xmark"></i></button>');
@@ -452,7 +443,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             actions.append('<span class="pending-indicator status-indicator status-yellow status-indicator-animated"><span class="status-indicator-circle"><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span></span>')
             if (item.mode == 'ui') actions.append('<div class="action-btn" onclick="node.display(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
             actions.append('<div class="action-btn" onclick="app.info(\'' + app_id + '\')"><i class="fa-solid fa-info"></i></div>');
-            actions.append('<div class="action-btn" onclick="app.code(\'' + app_id + '\')"><i class="fa-solid fa-code"></i></div>');
+            actions.append('<div class="action-btn" onclick="node.code(\'' + nodeid + '\')"><i class="fa-solid fa-code"></i></div>');
             actions.append('<div class="action-btn action-btn-play" onclick="node.run(\'' + nodeid + '\')"><i class="fa-solid fa-play"></i></div>');
             actions.append('<div class="action-btn action-btn-stop" onclick="node.stop(\'' + nodeid + '\')"><i class="fa-solid fa-stop"></i></div>');
             html = html + actions.prop('outerHTML');
@@ -530,8 +521,9 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         }
 
         obj.delete = async (nodeid) => {
-            $scope.workflow.drawflow.removeNodeId('node-' + nodeid);
-            await $scope.workflow.update();
+            obj.selected = null;
+            workflow.drawflow.removeNodeId('node-' + nodeid);
+            await workflow.update();
         }
 
         return obj;
@@ -543,39 +535,39 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
         obj.status = {};
         obj.debug = {};
 
-        obj.data = {
-            title: '',
-            version: '',
-            visibility: 'private',
-            updatepolicy: 'auto',
-            logo: '',
-            featured: '',
-            description: '',
-            apps: {},
-            flow: {}
-        };
+        obj.manager_id = wiz.data.manager_id;
+        obj.id = wiz.data.workflow_id;
+        obj.data = {};
+        obj.url = wiz.API.url("download/" + obj.id);
 
-        if (wiz.data.workflow) {
-            obj.data = wiz.data.workflow;
-            obj.url = wiz.API.url("download/" + wiz.data.workflow.id);
+        obj.init = async () => {
+            let res = await API("data");
+            obj.data = res.data;
+
+            res = await API("flow_status");
+            obj.status = res.data.status;
+            for (let flow_id in res.data.log) {
+                let logdata = res.data.log[flow_id];
+                obj.debug[flow_id] = logdata.replace(/\n/gim, '<br>');
+                await socket.log(flow_id);
+            }
+
+            await obj.refresh();
+            await obj.update();
+            await $render();
         }
 
         obj.add = async (app_id) => {
             await obj.update();
-            await $scope.node.create(app_id);
-            await obj.update();
-        }
-
-        obj.init = async () => {
-            await obj.refresh();
+            await node.create(app_id);
             await obj.update();
         }
 
         obj.refresh = async () => {
             obj.clear = true;
-            await $timeout();
+            await $render();
             obj.clear = false;
-            await $timeout();
+            await $render();
 
             let position = {};
             if (obj.drawflow) {
@@ -609,7 +601,7 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
                     let outputs = [];
                     for (let outputkey in item.outputs) outputs.push(outputkey);
                     let app_id = item.id.split("-")[0];
-                    await $scope.node.create(app_id, item.pos_x, item.pos_y, item.id, item.data);
+                    await node.create(app_id, item.pos_x, item.pos_y, item.id, item.data);
                 }
 
                 for (let key in flowdata) {
@@ -644,36 +636,37 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
 
             obj.drawflow.bind('click', async (type, target) => {
                 if (type != 'node') {
-                    await $scope.node.select();
+                    await node.select(null, 'drawflow');
                     return;
                 }
 
-                await $scope.node.select(target.substring(5));
+                await node.select(target.substring(5), 'drawflow');
             });
 
-            if ($scope.node.selected) {
-                await $scope.node.select($scope.node.selected.id);
+            if (node.selected) {
+                await node.select(node.selected.id);
             }
-
 
             for (let flow_id in obj.debug) {
-                await $scope.socket.log(flow_id);
+                await socket.log(flow_id);
 
             }
 
-            for (let flow_id in obj.data.flow)
-                socket.emit("status", { workflow_id: obj.data.id, flow_id: flow_id });
+            for (let flow_id in workflow.status) {
+                let fdata = workflow.status[flow_id];
+                $('#node-' + flow_id + ' .finish-indicator').text('[' + fdata.index + ']');
+            }
         }
 
-        obj.update = async () => {
+        obj.update = async (donot_node_reload) => {
             let data = angular.copy(obj.data);
 
             let checker = true;
             for (let key in data.apps)
-                checker = await $scope.app.validate(key);
+                checker = await app.validate(key);
             if (!checker) return;
 
-            await $scope.app.load();
+            await app.load();
 
             let flows = obj.drawflow.export().drawflow.Home.data;
 
@@ -704,139 +697,240 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             }
 
             data.flow = flows;
-
             obj.data = data;
+            if (!donot_node_reload)
+                await node.build();
 
-            await $scope.node.build();
             await obj.refresh();
-
-            await $timeout();
-
+            await $render();
             return data;
         }
 
         obj.save = async (hide_result) => {
-            let data = await $scope.workflow.update();
+            let data = await obj.update(true);
 
             if (!data.title || data.title.length == 0) {
-                await alert("Workflow title is not filled.");
+                await $alert("Workflow title is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');
                 return;
             }
 
             if (!data.version || data.version.length == 0) {
-                await alert("Workflow Version is not filled.");
+                await $alert("Workflow Version is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');
                 return;
             }
 
             let res = null;
-            if (data.id) {
-                res = await wiz.API.async("update", { data: JSON.stringify(data) });
-                if (res.code == 200 && !hide_result) toastr.success("Saved");
-                else toastr.error("Error");
-            } else {
-                res = await wiz.API.async("create", { data: JSON.stringify(data) });
-                if (res.code == 200) {
-                    let wpid = res.data;
-                    location.href = "/hub/workflow/item/" + wpid;
-                } else {
-                    toastr.error("Error");
-                }
-            }
+            res = await API("update", { data: JSON.stringify(data) });
+            if (res.code == 200 && !hide_result) toastr.success("Saved");
+            else if (res.code != 200) toastr.error("Error");
         }
 
-        obj.init();
         return obj;
     })();
 
-    // event controller
-    window.allowDrop = async (ev) => {
-        ev.preventDefault();
-    }
-    window.drag = async (ev) => {
-        if (ev.type === "touchstart") {
-            mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
-        } else {
-            ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
-        }
-    }
-    window.drop = async (ev) => {
-        if (ev.type === "touchend") {
-            let parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
-            if (parentdrawflow != null) {
-                $scope.node.create(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY, null, null, true);
-            }
-            mobile_item_selec = '';
-        } else {
-            ev.preventDefault();
-            let data = ev.dataTransfer.getData("node");
-            $scope.node.create(data, ev.clientX, ev.clientY, null, null, true);
+    window.kernel = $scope.kernel = (() => {
+        let obj = {};
+
+        obj.status = 'stop';
+        obj.spec = null;
+
+        obj.init = async () => {
+            let kernelspecs = await API("kernelspecs");
+            kernelspecs = kernelspecs.data;
+            obj.specs = kernelspecs;
+
+            let { code, data } = await API("status");
+            if (code != 200) return;
+
+            obj.status = data.status;
+            obj.spec = data.spec;
+
+            await $render();
         }
 
-        await $scope.workflow.update();
-    }
+        obj.status_class = () => {
+            if (obj.status == 'stop') return 'status-secondary';
+            if (obj.status == 'running') return 'status-primary';
+            return 'status-yellow';
+        }
 
-    // socket bind
-    let socket = wiz.socket.get();
-    if ($scope.workflow.data.id) {
-        let wpid = $scope.workflow.data.id;
-        $scope.socket = {};
-        $scope.socket.running_status = {};
-        $scope.socket.log = async (flow_id) => {
+        obj.is = (status) => {
+            if (obj.status == status) return true;
+            return false;
+        }
+
+        obj.select = async (spec) => {
+            obj.spec = spec;
+            await $render();
+        }
+
+        obj.kill = async () => {
+            await API("kill");
+            await $render();
+        }
+
+        obj.start = async () => {
+            let { code, data } = await API("start", { spec: obj.spec });
+            if (code != 200) return await $alert(data);
+
+            await $loading.show();
+            await $render();
+        }
+
+        obj.stop = async () => {
+            await API("stop");
+        }
+
+        obj.restart = async () => {
+            await $loading.show();
+            await API("restart");
+            await $loading.hide();
+        }
+
+        return obj;
+    })();
+
+    window.socket = $scope.socket = (() => {
+        let obj = {};
+        obj.client = wiz.socket.get();
+        obj.running_status = {};
+
+        obj.log = async (flow_id) => {
             let node_id = '#node-' + flow_id;
             $(node_id + " .debug-message").remove();
-            let data = $scope.workflow.debug[flow_id];
+            let data = workflow.debug[flow_id];
             if (data) {
                 $(node_id).append('<div class="debug-message">' + data + '</div>');
                 let element = $(node_id + " .debug-message")[0];
                 if (!element) return;
                 element.scrollTop = element.scrollHeight - element.clientHeight;
             }
-
-
         };
 
-        socket.on("log", async (res) => {
-            let data = res.data;
+        obj.client.on("connect", async () => {
+            socket.client.emit("join", workflow.manager_id + '-' + workflow.id);
+        });
+
+        obj.client.on("kernel.status", async (data) => {
+            kernel.status = data.data;
+            await $render();
+            await $loading.hide();
+        });
+
+        obj.client.on("flow.status", async (message) => {
+            let { flow_id, data } = message;
+            if (!workflow.status[flow_id]) workflow.status[flow_id] = { flow_id: flow_id };
+            workflow.status[flow_id].status = data;
+            await $render();
+        });
+
+        obj.client.on("flow.index", async (message) => {
+            let { flow_id, data } = message;
+            if (!workflow.status[flow_id]) workflow.status[flow_id] = { flow_id: flow_id };
+            workflow.status[flow_id].index = data;
+            $('#node-' + flow_id + ' .finish-indicator').text('[' + data + ']');
+        });
+
+        obj.client.on("flow.log", async (message) => {
+            let { flow_id, data } = message;
             data = data.replace(/\n/gim, '<br>');
-            if ($scope.workflow.debug[res.flow_id]) $scope.workflow.debug[res.flow_id] = $scope.workflow.debug[res.flow_id] + data;
-            else $scope.workflow.debug[res.flow_id] = data;
-            await $scope.socket.log(res.flow_id);
-            await $timeout();
+            if (workflow.debug[flow_id]) workflow.debug[flow_id] = workflow.debug[flow_id] + '<br>' + data;
+            else workflow.debug[flow_id] = data;
+            await obj.log(flow_id);
+            await $render();
         });
 
-        socket.on("connect", function (data) {
-            socket.emit("join", wpid);
-        });
+        return obj;
+    })();
 
-        socket.on("wpstatus", async (data) => {
-            $scope.workflow.running = data;
-            await $timeout();
-        });
+    window.shortcut = $scope.shortcut = (() => {
+        let obj = {};
+        obj.configuration = (monaco) => {
+            if (!monaco) monaco = { KeyMod: {}, KeyCode: {} };
+            return {
+                'save': {
+                    key: 'Ctrl KeyS',
+                    desc: 'save',
+                    monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+                    fn: async () => {
+                        await workflow.save();
+                    }
+                },
+                'run': {
+                    key: 'Shift Enter',
+                    desc: 'run',
+                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.KEY_ENTER,
+                    fn: async () => {
+                        await node.run(node.selected.id);
+                    }
+                }
+            }
+        };
 
-        socket.on("status", async (data) => {
-            if (!data.flow_id) return;
-            $scope.socket.running_status = data;
-            let node_id = '#node-' + data.flow_id;
-            $(node_id + " .error-message").remove();
-            if (data.code == 2)
-                $(node_id).append('<div class="error-message p-3 pt-2 pb-2 bg-red-lt">' + data.message + '</div>')
-            if (data.code == 1)
-                $(node_id).append('<div class="error-message p-3 pt-2 pb-2 bg-red-lt">Run the previous app first</div>')
-            $scope.workflow.status[data.flow_id] = data;
-            $('.flow-' + data.flow_id + ' .finish-indicator').text('[' + data.index + ']');
-            await $timeout();
-        });
+        obj.bind = async () => {
+            $(window).unbind();
 
-        socket.on("stop", async () => {
-            $scope.socket.running_status = {};
-            $scope.workflow.status = {};
-            $("#drawflow .error-message").remove();
-            await $timeout();
-        });
-    }
+            let shortcut_opts = {};
+            let shortcuts = obj.configuration(window.monaco);
+            obj.list = angular.copy(shortcuts);
+
+            for (let key in shortcuts) {
+                let keycode = shortcuts[key].key;
+                let fn = shortcuts[key].fn;
+                if (!keycode) continue;
+                shortcut_opts[keycode] = async (ev) => {
+                    ev.preventDefault();
+                    await fn();
+                };
+            }
+
+            season.shortcut(window, shortcut_opts);
+        }
+
+        return obj;
+    })();
+
+    window.dragdrop = $scope.dragdrop = (() => {
+        let obj = {};
+
+        obj.allowDrop = async (ev) => {
+            ev.preventDefault();
+        }
+
+        obj.drag = async (ev) => {
+            if (ev.type === "touchstart") {
+                mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+            } else {
+                ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+            }
+        }
+
+        obj.drop = async (ev) => {
+            if (ev.type === "touchend") {
+                let parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+                if (parentdrawflow != null) {
+                    node.create(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY, null, null, true);
+                }
+                mobile_item_selec = '';
+            } else {
+                ev.preventDefault();
+                let data = ev.dataTransfer.getData("node");
+                node.create(data, ev.clientX, ev.clientY, null, null, true);
+            }
+
+            await workflow.update();
+        }
+
+        return obj;
+    })();
 
     // load data
-    await $scope.app.load();
+    await workflow.init();
+    await kernel.init();
+    await app.load();
+    await shortcut.bind();
+
+    await $loading.hide();
 }

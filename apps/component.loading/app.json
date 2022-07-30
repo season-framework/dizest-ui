@@ -1,0 +1,15 @@
+{
+    "id": "component.loading",
+    "category": "component",
+    "script_type": "text/javascript",
+    "theme": "",
+    "controller": "",
+    "properties": {
+        "html": "pug",
+        "css": "scss",
+        "js": "javascript"
+    },
+    "title": "Loading",
+    "created": "2022-07-29 17:59:26",
+    "updated": "2022-07-29 19:59:55"
+}
