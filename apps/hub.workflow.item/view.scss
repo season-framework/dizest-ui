@@ -19,32 +19,6 @@
     }
 }
 
-.workspace-loading {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2000;
-    background-color: rgba(116, 108, 112, .1);
-
-    table {
-        width: 100%;
-        height: 100%;
-        
-        td {
-            height: 100%;
-            vertical-align: middle;
-            text-align: center;
-
-            .spinner-border {
-                width: 48px;
-                height: 48px;
-            }
-        }
-    }
-}   
-
 .workspace-body {
     width: 100vw;
     height: calc(100vh - 54px);
@@ -128,22 +102,6 @@
     }
 
     .codeflow {
-         .codeflow-header {
-            display: flex;
-            background: var(--wiz-color-blue);
-            padding: 4px 12px;
-            height: 40px;
-            align-items: center;
-
-            input {
-                background: transparent;
-                border: none;
-                box-shadow: none;
-                flex: auto;
-                margin-right: 4px;
-            }
-        }
-
         .codeflow-body {
             padding: 16px;
             height: calc(100% - 40px);
@@ -198,48 +156,93 @@
                     }
                 }
 
-            }
-
-            .codeflow-header {
-                padding: 0;
-                background: var(--wiz-color-blue-lt);
-                height: 22px;
-                
-                .badge {
-                    height: 22px;
-                    border-radius: 0;
+                .codeflow-header {
                     display: flex;
                     align-items: center;
-                    cursor: pointer;
-                }
+                    padding: 0;
+                    background: var(--wiz-color-blue-lt);
+                    height: 22px;
 
-                .btn {
-                    font-size: 14px;
-                    border-radius: 0;
-                }
-
-                .cursor-grab {
-                    cursor: grab !important;
-                }
-            }
-            
-            .codeflow-item {
-                border-top: 1px solid var(--wiz-color-border);
-
-                .codeflow-codearea {
-                    display: flex;
-
-                    .item-index {
-                        padding-top: 8px;
-                        padding-left: 8px;
-                        width: 48px;
-                        font-size: 12px;
-                        border-right: 1px solid var(--wiz-color-border);
+                    input {
+                        background: transparent;
+                        border: none;
+                        box-shadow: none;
+                        flex: auto;
+                        margin-right: 4px;
+                    }
+                    
+                    .badge {
+                        height: 22px;
+                        border-radius: 0;
+                        display: flex;
+                        align-items: center;
+                        cursor: pointer;
                     }
 
-                    .item-body {
-                        flex: auto;
-                        min-height: 105px;
+                    .btn {
+                        font-size: 14px;
+                        border-radius: 0;
+                    }
+
+                    .cursor-grab {
+                        cursor: grab !important;
+                    }
+                }
+
+                .codeflow-options {
+                    display: none;
+                }
+                
+                .codeflow-item {
+                    border-top: 1px solid var(--wiz-color-border);
+
+                    .table.card-table.table-sm {
+                        display: none;
+                    }
+
+                    .codeflow-codearea {
+                        display: flex;
+
+                        .item-index {
+                            padding-top: 8px;
+                            padding-left: 8px;
+                            width: 48px;
+                            font-size: 12px;
+                            border-right: 1px solid var(--wiz-color-border);
+                        }
+
+                        .item-body {
+                            flex: auto;
+                            min-height: 105px;
+                        }
+                    }
+                }
+            }
+
+            .codeflow-selected {
+                .codeflow-header {
+                    background: var(--wiz-color-blue);
+
+                    input {
+                        color: #fff;   
+                    }
+
+                    ::placeholder {
+                        color: rgba(255,255,255,.5) !important;
+                    }
+                }
+
+                .codeflow-options {
+                    display: block !important;
+                }
+
+                .codeflow-item {
+                    .table.card-table.table-sm {
+                        display: table;
+                    }
+
+                    .codeflow-codearea {
+                        border: 3px solid var(--wiz-color-skyblue);
                     }
                 }
             }
@@ -317,11 +320,9 @@
                     }
                 }
             }
-
         }
     }
 }
-
 
 #drawflow {
     cursor: grab;
@@ -530,6 +531,14 @@
                 padding: 6px;
                 max-height: 200px;
                 overflow: auto;
+                cursor: auto;
+
+                -webkit-touch-callout: text;
+                -webkit-user-select: text;
+                -khtml-user-select: text;
+                -moz-user-select: text;
+                -ms-user-select: text;
+                user-select: text;
             }
         }
 
@@ -566,6 +575,14 @@
             padding: 6px 8px;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
+
+            &.bg-blue-lt {
+                color: var(--wiz-color-blue) !important;
+
+                .text-white {
+                    color: var(--wiz-color-blue) !important;
+                }
+            }
             
             .card-title {
                 overflow: hidden;

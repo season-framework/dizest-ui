@@ -12,9 +12,11 @@ manager = dizest.manager()
 
 wpdata = db.get(id=workflow_id)
 
+# check authorization
 if wpdata is None: wiz.response.status(404, 'Not found')
 if wpdata['user_id'] != user_id: wiz.response.status(401, 'Unauthorized')
 
+# load workflow instance
 workflow = manager.workflow(wpdata)
 
 def data():
@@ -108,10 +110,7 @@ def run():
 
 def stop():
     try:
-        wpid = wiz.request.query("workflow_id", True)
-        fid = wiz.request.query("flow_id", None)
-        # dizest = wiz.model("dizest/scheduler")(wpid)
-        # dizest.stop()
+        workflow.stop()
     except:
         pass
     wiz.response.status(200)

@@ -1,6 +1,5 @@
 wiz.res.theme("dizest") \
-    .js('libs/ckeditor/dizest/translations/en.js') \
-    .js('libs/ckeditor/dizest/ckeditor.js') \
+    .js('libs/showdown/showdown.min.js') \
     .js('libs/sortable/sortable.min.js') \
     .js('libs/sortable/sortable.ng.js') \
     .ng('ui.sortable') \

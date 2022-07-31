@@ -8,6 +8,11 @@ app.factory('$file', () => {
             return await wiz.connect("component.file").data(accept).event("json");
         }
 
+        obj.image = async (opts) => {
+            if (!opts) opts = {};
+            return await wiz.connect("component.file").data(opts).event("image");
+        }
+
         return obj;
     })();
 });

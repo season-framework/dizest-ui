@@ -23,12 +23,14 @@
                                 a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
                     
                     .btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
-                        i.fa-solid.fa-play
+                        i.fa-solid.fa-play.mr-2
+                        span Start Kernel
 
                     .btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
 
                     .btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
-                        i.fa-solid.fa-stop
+                        i.fa-solid.fa-stop.mr-2
+                        span Stop Kernel
 
                     .btn.btn-primary(ng-click="workflow.save()")
                         i.fa-solid.fa-save
@@ -39,23 +41,17 @@
                     a.btn.btn-primary.btn-circle(href="/hub/workflow/list")
                         i.fa-solid.fa-xmark
 
-    .workspace-loading(ng-if="loader.display")
-        table
-            tr
-                td
-                    .spinner-border.text-primary
-
     .workspace-body
         .app
             .app-search
-                input.form-control.search-form(placeholder="enter for search" ng-model="apps.query.text" ng-enter="apps.load.current(true)")
+                input.form-control.search-form(placeholder="enter for search" ng-model="app.query" ng-change="app.search(app.query)")
 
             .app-list
                 .no-items.text-center.p-6(ng-if="app.data.length == 0")
                     i.fa-solid.fa-cube
                     .mt-2 No Apps
 
-                .app-info(ng-repeat="item in app.data" draggable="true" ondragstart="dragdrop.drag(event)" data-node="{{item.id}}")
+                .app-info(ng-repeat="item in app.data" ng-if="!app.ishide[item.id]" draggable="true" ondragstart="dragdrop.drag(event)" data-node="{{item.id}}")
                     .avatar-area.avatar-area-sm.mr-3
                         .avatar-container
                             span.avatar(style="background-image: {{ item.logo ? 'url(' + item.logo + ')' : '#fff' }}" ng-cloak)
@@ -91,6 +87,85 @@
                     i.fa-solid.fa-xmark
             
             .workspace-tab-body
+                .card.mb-4
+                    .card-header
+                        h4.card-title Information
+
+                    .card-body.p-4
+                        .form-group.row.mb-3(ng-if="workflow.data.id")
+                            label.form-label.col-3.col-form-label App ID
+                            .col
+                                input.form-control(type="text" ng-model="workflow.data.id" disabled="disabled")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Workflow Title
+                            .col
+                                input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.data.title")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Workflow Version
+                            .col
+                                input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.version")
+
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Visibility
+                            .col
+                                .form-selectgroup
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="workflow.data.visibility")
+                                        span.form-selectgroup-label
+                                            i.fa-solid.fa-lock.mr-2
+                                            span Private
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="visibility" value="public" ng-model="workflow.data.visibility")
+                                        span.form-selectgroup-label
+                                            i.fa-brands.fa-hubspot.mr-2
+                                            span Public
+                                
+                                .mt-2
+                                    span.text-muted(ng-if="workflow.data.visibility == 'private'") This workflow is for your own use only.
+                                    span.text-muted(ng-if="workflow.data.visibility == 'public'") This workflow is shared with hub users.
+
+                .card.mb-4
+                    .card-header
+                        h4.card-title Logo
+                        .ml-auto
+                        .btn.btn-outline-danger.mr-2(ng-if="workflow.data.logo" ng-click="workflow.data.logo = ''") Delete
+                        .btn.btn-primary(ng-click="info.upload.logo()") Upload
+
+                    .card-body.p-3.text-center
+                        .avatar-area
+                            .avatar-container
+                                span.avatar(style="background-image: url({{workflow.data.logo}})" ng-cloak)
+
+                .card.mb-4
+                    .card-header
+                        h4.card-title Featured Image
+                        .ml-auto
+                        .btn.btn-outline-danger.mr-2(ng-if="workflow.data.featured" ng-click="workflow.data.featured = ''") Delete
+                        .btn.btn-primary(ng-click="info.upload.featured()") Upload
+                        
+                    .card-body.p-3
+                        img(ng-if="workflow.data.featured" ng-src="{{workflow.data.featured}}" style="width: 100%;")
+                                
+                .card.mb-4
+                    .card-header
+                        h4.card-title Workflow Description
+                        .ml-auto
+                        button.btn.btn-primary(ng-click="workflow.desc_editable = !workflow.desc_editable")
+                            i.fa-solid.fa-book(ng-if="workflow.desc_editable")
+                            i.fa-solid.fa-edit(ng-if="!workflow.desc_editable")
+
+                    .card-body.p-0
+                        .descarea.pb-0.pt-3.pr-3.pl-3(ng-if="!workflow.desc_editable && workflow.data.description" ng-bind-html="app.showdown(workflow.data.description)")
+                        div(ng-if="workflow.desc_editable" ng-model="workflow.data.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
+
+                .card.mb-4
+                    .card-header
+                        h4.card-title Delete Workflow
+
+                    .card-body
+                        .btn.btn-block.btn-outline-danger(ng-click="workflow.delete()") Delete
 
         .workspace-tab.codeflow(ng-if="menubar.is('codeflow')")
             .workspace-tab-header
@@ -102,20 +177,36 @@
                     i.fa-solid.fa-xmark
             
             .codeflow-body(ng-click="node.select(null, 'codeflow')")
-                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')")
+                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}}")
                     .codeflow-header
                         span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="item.inactive = !item.inactive")
                             span {{item.inactive ? 'manual' : 'auto'}}
-                        input(ng-model="workflow.data.apps[item.app_id].title")
+                        input(ng-model="workflow.data.apps[item.app_id].title" placeholder="app title here")
                         .ml-auto
-                        .btn.btn-sm.btn-white(ng-click="node.maximize(item.id)")
+                        .btn.btn-sm.btn-white(ng-click="node.maximize(item.id)" ng-if="item.id == node.selected.id")
                             i.fa-solid.fa-up-right-and-down-left-from-center
-                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)")
+                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)" ng-if="item.id == node.selected.id")
                             i.fa-solid.fa-arrow-up
-                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.down(item)")
+                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.down(item)" ng-if="item.id == node.selected.id")
                             i.fa-solid.fa-arrow-down
                         .btn.btn-sm.btn-primary(ng-click="node.delete(item.id)")
                             i.fa-solid.fa-xmark
+
+                    .codeflow-desc
+                        table.table.card-table.table-sm(ng-if="item.id == node.selected.id")
+                            thead
+                                tr
+                                    th.nowrap README
+                                    th.w-1.text-right
+                                        button.btn.btn-primary.btn-sm(ng-click="node.editable[item.id] = !node.editable[item.id]")
+                                            i.fa-solid.fa-book(ng-if="node.editable[item.id]")
+                                            i.fa-solid.fa-edit(ng-if="!node.editable[item.id]")
+                    
+                        .codeflow-descarea.pb-0.pt-3.pr-3.pl-3(ng-if="(item.id != node.selected.id || !node.editable[item.id]) && item.description" ng-bind-html="app.showdown(item.description)")
+                        
+                        .codeflow-descarea(ng-if="item.id == node.selected.id && node.editable[item.id]")
+                            .item-body
+                                div(ng-model="item.description" ui-monaco-opts="app.markdown" ui-monaco)
 
                     .codeflow-options
                         table.table.card-table.table-sm
@@ -182,15 +273,19 @@
                                             i.fa-solid.fa-up-down-left-right
 
                     .codeflow-item
+                        table.table.card-table.table-sm
+                            thead
+                                tr
+                                    th.w-1.nowrap Code
                         .codeflow-codearea
-                            .item-index [1]
+                            .item-index [{{workflow.status[item.id].index}}]
                             .item-body
                                 div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="app.monaco_opt" ui-monaco)
                 
                 .btn.btn-primary.btn-block(ng-click="workflow.add()")
                     i.fa-solid.fa-plus
 
-                .mb-6
+                .margin-area(style="height: 80vh;")
             
         .workspace-tab.uimode(ng-if="menubar.is('uimode')")
             .workspace-tab-header
@@ -204,10 +299,6 @@
             .workspace-tab-body
 
         .menu-area
-            .d-block
-                .btn(ng-click="menubar.toggle('hub')" class="{{menubar.btn_class('hub')}}")
-                    i.fa-brands.fa-hubspot
-
             .d-block
                 .btn(ng-click="menubar.toggle('info')" class="{{menubar.btn_class('info')}}")
                     i.fa-solid.fa-info
@@ -232,7 +323,12 @@
         
     div(ng-if="node.selected")
         style.
-            .{{node.selected.id}}, #codeflow-{{node.selected.id}} {
+            .drawflow-node {
+                opacity: 0.4;
+            }
+
+            .{{node.selected.id}} {
+                opacity: 1;
                 background: white;
                 -webkit-box-shadow: 0 2px 8px 2px #4ea9ff !important;
                 box-shadow: 0 2px 8px 2px #4ea9ff;

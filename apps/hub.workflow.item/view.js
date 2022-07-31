@@ -1,5 +1,7 @@
-let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
+let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $file) => {
     await $loading.show();
+
+    $scope.trustAsHtml = $sce.trustAsHtml;
 
     let API = async (fnname, data) => {
         if (!data) data = {};
@@ -106,6 +108,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
     window.info = $scope.info = (() => {
         let obj = {};
 
+        obj.upload = {};
+
+        obj.upload.logo = async () => {
+            let file = await $file.image({ size: 128, limit: 1024 * 100 });
+            workflow.data.logo = file;
+            await $render();
+        }
+
+        obj.upload.featured = async () => {
+            let file = await $file.image({ size: 512, limit: 1024 * 1024 });
+            workflow.data.featured = file;
+            await $render();
+        }
+
         return obj;
     })();
 
@@ -125,6 +141,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
         let obj = {};
 
         obj.monaco_opt = options.monaco('python');
+        obj.markdown = options.monaco('markdown');
 
         obj.struct = {
             title: 'new app',
@@ -146,6 +163,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
         };
 
         obj.data = [];
+        obj.ishide = {};
 
         obj.load = async () => {
             obj.data = [];
@@ -154,6 +172,13 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
                 obj.data.push(apps[app_id]);
             }
             await $render();
+        }
+
+        obj.showdown = (text) => {
+            let converter = new showdown.Converter();
+            html = converter.makeHtml(text);
+            html = $scope.trustAsHtml(html);
+            return html;
         }
 
         obj.get = async (app_id) => {
@@ -176,10 +201,25 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
             return newdata;
         }
 
-        obj.search = async () => {
+        obj.search = async (text) => {
+            text = text.toLowerCase();
             for (let i = 0; i < obj.data.length; i++) {
-                obj.data[i].hidden = true;
+                let isshow = [];
+                try {
+                    isshow.push(obj.data[i].title.toLowerCase().includes(text));
+                } catch (e) {
+                    isshow.push(true);
+                }
+
+                try {
+                    isshow.push(obj.data[i].description.toLowerCase().includes(text));
+                } catch (e) {
+                    isshow.push(false);
+                }
+                obj.ishide[obj.data[i].id] = !(isshow[0] || isshow[1]);
             }
+
+            await $render();
         }
 
         obj.validate = async (app_id) => {
@@ -275,18 +315,26 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
         obj.data = [];
         obj.selected = null;
         obj.last_timestamp = new Date().getTime();
+        obj.editable = {}
 
         obj.run = async (flow_id) => {
+            try {
+                if (workflow.status[flow_id].status == 'running') return;
+            } catch (e) {
+            }
+
             await $loading.show();
             $("#node-" + flow_id + " .debug-message").remove();
             workflow.debug[flow_id] = "";
             await workflow.save(true);
-            await API("run", { flow_id: flow_id });
+            let { code, data } = await API("run", { flow_id: flow_id });
             await $loading.hide();
+            if (code != 200)
+                await $alert(data);
         }
 
-        obj.stop = async (flow_id) => {
-            await API("stop", { flow_id: flow_id });
+        obj.stop = async () => {
+            await API("stop");
         }
 
         obj.get = async (node_id) => {
@@ -403,7 +451,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
             await $render();
         }
 
-        obj.create = async (app_id, pos_x, pos_y, nodeid, data, isdrop) => {
+        obj.create = async (app_id, pos_x, pos_y, nodeid, data, isdrop, flow) => {
             let drawflow = workflow.drawflow;
 
             if (!data) data = {};
@@ -431,6 +479,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
                 nodeid = item.id + "-" + new Date().getTime();
 
             let container = $("<div class='card-header'></div>");
+            if (flow && flow.inactive) container = $("<div class='card-header bg-blue-lt'></div>");
+
             let logo = item.logo ? 'url(' + item.logo + ')' : '#fff';
             container.append('<div class="avatar-area avatar-area-sm mr-2"><div class="avatar-container"><span class="avatar" style="background-image: ' + logo + ';"></span></div></div>')
             container.append('<h2 class="card-title" style="line-height: 1;">' + item.title + '<br/><small class="text-white" style="font-size: 10px; font-weight: 100; font-family: \'wiz-r\'">' + item.version + '</small></h2>');
@@ -540,17 +590,21 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
         obj.data = {};
         obj.url = wiz.API.url("download/" + obj.id);
 
-        obj.init = async () => {
-            let res = await API("data");
-            obj.data = res.data;
-
-            res = await API("flow_status");
+        obj.status_init = async () => {
+            let res = await API("flow_status");
             obj.status = res.data.status;
             for (let flow_id in res.data.log) {
                 let logdata = res.data.log[flow_id];
                 obj.debug[flow_id] = logdata.replace(/\n/gim, '<br>');
                 await socket.log(flow_id);
             }
+        }
+
+        obj.init = async () => {
+            let res = await API("data");
+            obj.data = res.data;
+
+            await obj.status_init();
 
             await obj.refresh();
             await obj.update();
@@ -601,7 +655,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
                     let outputs = [];
                     for (let outputkey in item.outputs) outputs.push(outputkey);
                     let app_id = item.id.split("-")[0];
-                    await node.create(app_id, item.pos_x, item.pos_y, item.id, item.data);
+                    await node.create(app_id, item.pos_x, item.pos_y, item.id, item.data, null, item);
                 }
 
                 for (let key in flowdata) {
@@ -674,6 +728,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
                 delete flows[flow_id].html;
                 let app_id = flow_id.split("-")[0];
                 flows[flow_id]['app_id'] = app_id;
+                flows[flow_id]['description'] = data.flow[flow_id].description;
+
                 let outputs = {};
                 for (let key in flows[flow_id].outputs) {
                     let item = flows[flow_id].outputs[key];
@@ -814,6 +870,17 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading) => {
         });
 
         obj.client.on("kernel.status", async (data) => {
+            if (data.data == 'stop') {
+                workflow.debug = {};
+                workflow.status = {};
+                await workflow.refresh();
+            }
+
+            if (data.data == 'error') {
+                await workflow.status_init();
+                await workflow.refresh();
+            }
+
             kernel.status = data.data;
             await $render();
             await $loading.hide();
