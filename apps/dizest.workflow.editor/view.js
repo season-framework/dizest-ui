@@ -287,16 +287,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.delete = async (app_id) => {
-            let res = await wiz.connect("component.modal")
-                .data({
-                    title: "Delete App",
-                    message: 'Are you sure to delete?',
-                    btn_close: 'Cancel',
-                    btn_action: "Delete",
-                    btn_class: "btn-danger"
-                })
-                .event("modal-show");
+            let res = await $alert('Are you sure to delete?');
             if (!res) return;
+
+            for (let flow_id in workflow.data.flow) {
+                let app_id_check = workflow.data.flow[flow_id].app_id;
+                if (app_id == app_id_check) {
+                    await node.delete(flow_id);
+                }
+            }
+
             delete workflow.data.apps[app_id];
             await workflow.update();
             await obj.load();
@@ -712,8 +712,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 await node.select(target.substring(5), 'drawflow');
             });
 
-            if (node.selected) {
-                await node.select(node.selected.id);
+            try {
+                if (node.selected) {
+                    await node.select(node.selected.id);
+                }
+            } catch (e) {
             }
 
             for (let flow_id in obj.debug) {
@@ -795,6 +798,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             await obj.refresh();
             await $render();
+
             return data;
         }
 
@@ -947,7 +951,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         return obj;
     })();
-
 
     window.shortcut = $scope.shortcut = (() => {
         let obj = {};

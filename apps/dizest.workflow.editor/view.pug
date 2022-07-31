@@ -170,7 +170,7 @@
         .workspace-tab.app-info(ng-if="menubar.is('appinfo')")
             .workspace-tab-header
                 .workspace-tab-header-title
-                    i.fa-solid.fa-rocket.mr-2
+                    i.fa-solid.fa-circle-info.mr-2
                     span App Info
                 .ml-auto
                 .text-white.close-btn(ng-click="menubar.toggle('appinfo')")
@@ -387,14 +387,11 @@
     div(ng-if="node.selected")
         style.
             .drawflow-node {
-                opacity: 0.4;
+                opacity: 0.3;
             }
 
             .{{node.selected.id}} {
                 opacity: 1;
-                background: white;
-                -webkit-box-shadow: 0 2px 8px 2px #4ea9ff !important;
-                box-shadow: 0 2px 8px 2px #4ea9ff;
             }
 
     div(ng-repeat="(key, value) in workflow.status")

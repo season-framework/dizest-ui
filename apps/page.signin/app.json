@@ -1,6 +1,6 @@
 {
     "id": "page.signin",
-    "category": "page",
+    "category": "hub",
     "script_type": "text/javascript",
     "theme": "dizest/base",
     "controller": "base",
@@ -12,5 +12,5 @@
     "title": "/auth/login",
     "viewuri": "/auth/login",
     "created": "2022-06-18 15:35:04",
-    "updated": "2022-07-30 21:38:42"
+    "updated": "2022-07-31 23:37:38"
 }
