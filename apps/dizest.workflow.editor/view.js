@@ -147,19 +147,15 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             title: 'new app',
             version: '1.0.0',
             description: '',
-            visibility: 'private',
-            mode: 'code',
             cdn: { js: [], css: [] },
             inputs: [],
             outputs: [],
             code: '',
-            sample: '',
             api: '',
             pug: '',
             js: '',
             css: '',
-            logo: '',
-            featured: ''
+            logo: ''
         };
 
         obj.data = [];
@@ -306,6 +302,24 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await obj.load();
         }
 
+        obj.info = async (app_id) => {
+            let app = await obj.get(app_id);
+            obj.selected = app;
+            obj.desc_editable = false;
+            await $render();
+            if (!menubar.is('appinfo')) {
+                await menubar.toggle('appinfo');
+            }
+        }
+
+        obj.upload = {};
+
+        obj.upload.logo = async () => {
+            let file = await $file.image({ size: 128, limit: 1024 * 100 });
+            obj.selected.logo = file;
+            await $render();
+        }
+
         return obj;
     })();
 
@@ -380,6 +394,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (diff > 100) {
                 if (!node_id) {
                     obj.selected = null;
+                    app.selected = null;
                     await $render();
                     return;
                 }
@@ -389,6 +404,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 }
 
                 obj.selected = item;
+                app.selected = await app.get(item.app_id);
 
                 if (item) {
                     let drawflow_position = async () => {
@@ -491,7 +507,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let actions = $('<div class="card-body actions d-flex p-0"></div>');
             actions.append('<span class="finish-indicator status-indicator"></span>')
             actions.append('<span class="pending-indicator status-indicator status-yellow status-indicator-animated"><span class="status-indicator-circle"><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span></span>')
-            if (item.mode == 'ui') actions.append('<div class="action-btn" onclick="node.display(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
+            if (item.pug) actions.append('<div class="action-btn" onclick="node.display(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
             actions.append('<div class="action-btn" onclick="app.info(\'' + app_id + '\')"><i class="fa-solid fa-info"></i></div>');
             actions.append('<div class="action-btn" onclick="node.code(\'' + nodeid + '\')"><i class="fa-solid fa-code"></i></div>');
             actions.append('<div class="action-btn action-btn-play" onclick="node.run(\'' + nodeid + '\')"><i class="fa-solid fa-play"></i></div>');
@@ -938,6 +954,14 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.configuration = (monaco) => {
             if (!monaco) monaco = { KeyMod: {}, KeyCode: {} };
             return {
+                'esc': {
+                    key: 'Escape',
+                    desc: 'esc',
+                    fn: async () => {
+                        menubar.view = null;
+                        await $render();
+                    }
+                },
                 'save': {
                     key: 'Ctrl KeyS',
                     desc: 'save',

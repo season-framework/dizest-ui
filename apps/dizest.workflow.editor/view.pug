@@ -80,7 +80,7 @@
         .workspace-tab.wp-info(ng-if="menubar.is('info')")
             .workspace-tab-header
                 .workspace-tab-header-title
-                    i.fa-solid.fa-info-circle.mr-2
+                    i.fa-solid.fa-rocket.mr-2
                     span Workflow Info
                 .ml-auto
                 .text-white.close-btn(ng-click="menubar.toggle('info')")
@@ -93,7 +93,7 @@
 
                     .card-body.p-4
                         .form-group.row.mb-3(ng-if="workflow.data.id")
-                            label.form-label.col-3.col-form-label App ID
+                            label.form-label.col-3.col-form-label Workflow ID
                             .col
                                 input.form-control(type="text" ng-model="workflow.data.id" disabled="disabled")
                         
@@ -166,6 +166,65 @@
 
                     .card-body
                         .btn.btn-block.btn-outline-danger(ng-click="workflow.delete()") Delete
+
+        .workspace-tab.app-info(ng-if="menubar.is('appinfo')")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-rocket.mr-2
+                    span App Info
+                .ml-auto
+                .text-white.close-btn(ng-click="menubar.toggle('appinfo')")
+                    i.fa-solid.fa-xmark
+
+            .workspace-tab-body.text-center.p-6(ng-if="!app.selected")
+                .mb-4(style="font-size: 60px;")
+                    i.fa-solid.fa-ban
+                h2 No App Selected
+
+            .workspace-tab-body(ng-if="app.selected")
+                .card.mb-4
+                    .card-header
+                        h4.card-title Information
+
+                    .card-body.p-4
+                        .form-group.row.mb-3(ng-if="workflow.data.id")
+                            label.form-label.col-3.col-form-label App ID
+                            .col
+                                input.form-control(type="text" ng-model="app.selected.id" disabled="disabled")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label App Title
+                            .col
+                                input.form-control(type="text" placeholder="App Title" ng-model="app.selected.title")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label App Version
+                            .col
+                                input.form-control(type="text" placeholder="1.0.0" ng-model="app.selected.version")
+
+                .card.mb-4
+                    .card-header
+                        h4.card-title Logo
+                        .ml-auto
+                        .btn.btn-outline-danger.mr-2(ng-if="app.selected.logo" ng-click="app.selected.logo = ''") Delete
+                        .btn.btn-primary(ng-click="app.upload.logo()") Upload
+
+                    .card-body.p-3.text-center
+                        .avatar-area
+                            .avatar-container
+                                span.avatar(style="background-image: url({{app.selected.logo}})" ng-cloak)
+
+                .card.mb-4
+                    .card-header
+                        h4.card-title App Description
+                        .ml-auto
+                        button.btn.btn-primary(ng-click="app.desc_editable = !app.desc_editable")
+                            i.fa-solid.fa-book(ng-if="app.desc_editable")
+                            i.fa-solid.fa-edit(ng-if="!app.desc_editable")
+
+                    .card-body.p-0
+                        .descarea.pb-0.pt-3.pr-3.pl-3(ng-if="!app.desc_editable && app.selected.description" ng-bind-html="app.showdown(app.selected.description)")
+                        div(ng-if="app.desc_editable" ng-model="app.selected.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
 
         .workspace-tab.codeflow(ng-if="menubar.is('codeflow')")
             .workspace-tab-header
@@ -301,6 +360,10 @@
         .menu-area
             .d-block
                 .btn(ng-click="menubar.toggle('info')" class="{{menubar.btn_class('info')}}")
+                    i.fa-solid.fa-rocket
+            
+            .d-block
+                .btn(ng-click="menubar.toggle('appinfo')" class="{{menubar.btn_class('appinfo')}}")
                     i.fa-solid.fa-info
 
             .d-block
