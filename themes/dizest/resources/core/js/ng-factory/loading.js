@@ -4,11 +4,11 @@ app.factory('$loading', () => {
         let wiz = window.season_wiz.load();
 
         obj.show = async () => {
-            await wiz.connect("component.loading").event("show");
+            await wiz.connect("dizest.component.loading").event("show");
         }
 
         obj.hide = async () => {
-            await wiz.connect("component.loading").event("hide");
+            await wiz.connect("dizest.component.loading").event("hide");
         }
 
         return obj;

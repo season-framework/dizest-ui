@@ -4,5 +4,5 @@
     "route": "/hub/<path:path>",
     "controller": "user",
     "created": "2022-06-18 16:01:30",
-    "updated": "2022-07-30 21:43:17"
+    "updated": "2022-07-31 22:22:51"
 }

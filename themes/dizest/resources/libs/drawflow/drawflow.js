@@ -197,6 +197,7 @@ class Drawflow {
 
     click(e) {
         this.dispatch('click', e);
+        if (e.target.parentElement.parentElement.classList[0] == 'value-wrapper') return;
 
         if (this.editor_mode === 'fixed') {
             if (e.target.classList[0] === 'parent-drawflow' || e.target.classList[0] === 'drawflow') {

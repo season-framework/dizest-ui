@@ -1,6 +1,6 @@
 {
-    "id": "component.loading",
-    "category": "component",
+    "id": "dizest.component.file",
+    "category": "dizest",
     "script_type": "text/javascript",
     "theme": "",
     "controller": "",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "Loading",
-    "created": "2022-07-29 17:59:26",
-    "updated": "2022-07-29 19:59:55"
+    "title": "File Uploader",
+    "created": "2022-07-29 20:38:36",
+    "updated": "2022-07-31 22:22:13"
 }

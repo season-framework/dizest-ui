@@ -6,5 +6,5 @@ manager = wiz.request.query("manager", True)
 wpid = wiz.request.query("workflow_id", True)
 data = wiz.request.query()
 to = manager + "-" + wpid
-socketio.emit(mode, data, to=to, namespace=f"{basenamespace}/hub.workflow.item", broadcast=True)
+socketio.emit(mode, data, to=to, namespace=f"{basenamespace}/dizest.workflow.editor", broadcast=True)
 wiz.response.status(200)

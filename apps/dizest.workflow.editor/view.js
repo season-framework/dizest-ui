@@ -538,7 +538,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         wrapper.append('<div class="value-data"><input class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
                     }
 
-
                     value_container.append(wrapper);
                     value_counter++;
                 }
@@ -724,11 +723,21 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             let flows = obj.drawflow.export().drawflow.Home.data;
 
+            let orders = {};
+            for (let i = 0; i < node.data.length; i++) {
+                orders[node.data[i].id] = i + 1;
+            }
+
             for (let flow_id in flows) {
                 delete flows[flow_id].html;
                 let app_id = flow_id.split("-")[0];
                 flows[flow_id]['app_id'] = app_id;
-                flows[flow_id]['description'] = data.flow[flow_id].description;
+
+                try {
+                    flows[flow_id]['description'] = data.flow[flow_id].description;
+                } catch (e) {
+                    flows[flow_id]['description'] = '';
+                }
 
                 let outputs = {};
                 for (let key in flows[flow_id].outputs) {
@@ -747,8 +756,19 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     inputs[key.substring(6)] = item
                 }
                 flows[flow_id].inputs = inputs;
-                if (data.flow[flow_id] && data.flow[flow_id].order) flows[flow_id].order = data.flow[flow_id].order;
-                else flows[flow_id].order = new Date().getTime();
+
+                try {
+                    if (orders[flow_id]) {
+                        flows[flow_id].order = orders[flow_id];
+                    } else if (data.flow[flow_id].order) {
+                        flows[flow_id].order = data.flow[flow_id].order;
+                    } else {
+                        flows[flow_id].order = new Date().getTime();
+                    }
+                } catch (e) {
+                    flows[flow_id].order = new Date().getTime();
+                }
+
                 if (data.flow[flow_id] && data.flow[flow_id].inactive) flows[flow_id].inactive = data.flow[flow_id].inactive;
             }
 
@@ -912,6 +932,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         return obj;
     })();
 
+
     window.shortcut = $scope.shortcut = (() => {
         let obj = {};
         obj.configuration = (monaco) => {
@@ -928,7 +949,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 'run': {
                     key: 'Shift Enter',
                     desc: 'run',
-                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.KEY_ENTER,
+                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.Enter,
                     fn: async () => {
                         await node.run(node.selected.id);
                     }
@@ -984,6 +1005,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             } else {
                 ev.preventDefault();
                 let data = ev.dataTransfer.getData("node");
+                if (!data) return;
                 node.create(data, ev.clientX, ev.clientY, null, null, true);
             }
 

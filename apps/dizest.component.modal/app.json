@@ -1,5 +1,5 @@
 {
-    "id": "component.modal",
+    "id": "dizest.component.modal",
     "title": "Modal",
     "properties": {
         "html": "pug",
@@ -8,8 +8,8 @@
     },
     "viewuri": "",
     "created": "2022-01-11 23:07:52",
-    "updated": "2022-07-29 18:57:40",
-    "category": "component",
+    "updated": "2022-07-31 22:22:19",
+    "category": "dizest",
     "controller": "",
     "theme": ""
 }

@@ -208,6 +208,16 @@
                             .item-body
                                 div(ng-model="item.description" ui-monaco-opts="app.markdown" ui-monaco)
 
+                    .codeflow-item
+                        table.table.card-table.table-sm
+                            thead
+                                tr
+                                    th.w-1.nowrap Code
+                        .codeflow-codearea
+                            .item-index [{{workflow.status[item.id].index}}]
+                            .item-body
+                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="app.monaco_opt" ui-monaco)
+
                     .codeflow-options
                         table.table.card-table.table-sm
                             thead
@@ -272,16 +282,6 @@
                                         .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
                                             i.fa-solid.fa-up-down-left-right
 
-                    .codeflow-item
-                        table.table.card-table.table-sm
-                            thead
-                                tr
-                                    th.w-1.nowrap Code
-                        .codeflow-codearea
-                            .item-index [{{workflow.status[item.id].index}}]
-                            .item-body
-                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="app.monaco_opt" ui-monaco)
-                
                 .btn.btn-primary.btn-block(ng-click="workflow.add()")
                     i.fa-solid.fa-plus
 

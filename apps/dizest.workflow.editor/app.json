@@ -1,6 +1,6 @@
 {
-    "id": "hub.workflow.item",
-    "category": "hub",
+    "id": "dizest.workflow.editor",
+    "category": "dizest",
     "script_type": "text/javascript",
     "theme": "dizest/base",
     "controller": "user",
@@ -11,5 +11,5 @@
     },
     "title": "/hub/workflow/item",
     "created": "2022-06-18 16:44:45",
-    "updated": "2022-07-31 21:29:07"
+    "updated": "2022-07-31 22:50:35"
 }
