@@ -331,9 +331,44 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.last_timestamp = new Date().getTime();
         obj.editable = {}
 
+        obj.next = async () => {
+            let find = 0;
+            if (obj.selected) {
+                for (let i = 0; i < obj.data.length; i++) {
+                    if (obj.data[i].id == obj.selected.id) {
+                        find = i;
+                        break;
+                    }
+                }
+                find = find + 1;
+            }
+
+            if (!obj.data[find]) find = 0;
+            await obj.select(obj.data[find].id, 'all');
+        }
+
+        obj.prev = async () => {
+            let find = 0;
+            if (obj.selected) {
+                for (let i = 0; i < obj.data.length; i++) {
+                    if (obj.data[i].id == obj.selected.id) {
+                        find = i;
+                        break;
+                    }
+                }
+                find = find - 1;
+            }
+
+            if (!obj.data[find]) find = obj.data.length - 1;
+            await obj.select(obj.data[find].id, 'all');
+        }
+
         obj.run = async (flow_id) => {
             try {
-                if (workflow.status[flow_id].status == 'running') return;
+                if (workflow.status[flow_id].status == 'running') {
+                    console.log("running");
+                    return;
+                }
             } catch (e) {
             }
 
@@ -429,13 +464,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                             ony = true;
                         }
 
-                        if (!onx || !ony) {
-                            workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 2.4) });
-                        }
+                        workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 3) });
+
                         return true;
                     }
 
-                    if (uifrom == 'codeflow') {
+                    if (uifrom == 'codeflow' || uifrom == 'all') {
                         let stat = await drawflow_position();
                         if (!stat) return;
                     }
@@ -454,11 +488,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         let checkstart = y_start < y && y < y_end;
                         let checkend = y_start < y_h && y_h < y_end;
                         if (!checkstart || !checkend) {
-                            $('.codeflow-body').scrollTop(y - 180);
+                            $('.codeflow-body').scrollTop(y - $('#codeflow-' + node_id + ' .codeflow-desc').height() - $('#codeflow-' + node_id + ' .codeflow-header').height());
                         }
                     }
 
-                    if (uifrom == 'drawflow') {
+                    if (uifrom == 'drawflow' || uifrom == 'all') {
                         await codeflow_position();
                     }
                 }
@@ -961,6 +995,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     key: 'Escape',
                     desc: 'esc',
                     fn: async () => {
+                        node.selected = null;
                         menubar.view = null;
                         await $render();
                     }
@@ -971,6 +1006,22 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
                     fn: async () => {
                         await workflow.save();
+                    }
+                },
+                'next': {
+                    key: 'Shift Space',
+                    desc: 'run',
+                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.Space,
+                    fn: async () => {
+                        await node.next();
+                    }
+                },
+                'prev': {
+                    key: 'Alt Space',
+                    desc: 'run',
+                    monaco: monaco.KeyMod.Alt | monaco.KeyCode.Space,
+                    fn: async () => {
+                        await node.prev();
                     }
                 },
                 'run': {

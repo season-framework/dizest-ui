@@ -1,7 +1,4 @@
-let wiz_controller = async ($sce, $scope, $timeout) => {
-    let _$timeout = $timeout;
-    $timeout = (timestamp) => new Promise((resolve) => _$timeout(resolve, timestamp));
-
+let wiz_controller = async ($sce, $scope, $render, $alert) => {
     $scope.login = async (user) => {
         user = angular.copy(user);
         let res = await wiz.API.async('login', user);
@@ -11,14 +8,11 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
             return;
         }
 
-        await wiz.connect("component.modal")
-            .data({
-                title: "Warning",
-                message: res.data,
-                btn_close: "Cancel",
-                btn_action: "Confirm",
-                btn_class: "btn-primary"
-            })
-            .event("modal-show");
+        await $alert(res.data, {
+            title: "Warning",
+            btn_close: "Cancel",
+            btn_action: "Confirm",
+            btn_class: "btn-red"
+        });
     }
 }
