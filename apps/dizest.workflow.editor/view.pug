@@ -357,6 +357,30 @@
             
             .workspace-tab-body
 
+        .workspace-tab.uimode(ng-if="menubar.is('shortcut')")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-keyboard.mr-2
+                    span Shortcut
+                .ml-auto
+                .text-white.close-btn(ng-click="menubar.toggle('uimode')")
+                    i.fa-solid.fa-xmark
+            
+            .workspace-tab-body
+                .card
+                    table.table.table-hover.table-bordered.table-shortcut.mb-0
+                        tr(ng-repeat="item in shortcut.list")
+                            th.w-1.nowrap
+                                .text(style="display: inline-block;" ng-repeat="key in item.key.split(' ') track by $index")
+                                    small.p-1.bg-primary(ng-if="!['Ctrl', 'ArrowRight', 'ArrowLeft'].includes(key)") {{key.replace('Digit', '').replace('Key', '').toLowerCase()}}
+                                    small.p-1.bg-primary(ng-if="'Ctrl' == key") {{ismac ? 'cmd' : 'ctrl'}}
+                                    small.p-1.bg-primary(ng-if="'ArrowRight' == key")
+                                        i.fa-solid.fa-arrow-right
+                                    small.p-1.bg-primary(ng-if="'ArrowLeft' == key")
+                                        i.fa-solid.fa-arrow-left
+                                    small.text-muted(style="margin: 0 2px; font-size: 12px;" ng-if="$index + 1 != item.key.split(' ').length") + 
+                            td {{item.desc}}
+
         .menu-area
             .d-block
                 .btn(ng-click="menubar.toggle('info')" class="{{menubar.btn_class('info')}}")
@@ -398,7 +422,8 @@
         div(ng-if="value.status == 'error'")
             style.
                 .{{value.flow_id}} {
-                    box-shadow: 0 2px 20px 2px #d63939 !important;
+                    border: none !important;
+                    box-shadow: 0 2px 20px 2px var(--wiz-color-red) !important;
                 }
 
         div(ng-if="value.status == 'pending'")
@@ -461,10 +486,6 @@
                         -webkit-transform: scale(1);
                         transform: scale(1);
                     }
-                }
-
-                .flow-{{value.flow_id}} {
-                    box-shadow: 0 2px 20px 2px #4ea9ff !important;
                 }
 
                 .flow-{{value.flow_id}} .action-btn-play {

@@ -128,6 +128,13 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.uimode = $scope.uimode = (() => {
         let obj = {};
 
+        obj.select = async (flow_id) => {
+            console.log(flow_id)
+            if (!menubar.is('uimode')) {
+                await menubar.toggle('uimode');
+            }
+        }
+
         return obj;
     })();
 
@@ -454,16 +461,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         let w = $('#drawflow').width() * zoom;
                         let h = $('#drawflow').height() * zoom;
 
-                        let onx = false;
-                        if (-canvas_x < x && x < -canvas_x + w) {
-                            onx = true;
-                        }
-
-                        let ony = false;
-                        if (-canvas_y < y && y < -canvas_y + h) {
-                            ony = true;
-                        }
-
                         workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 3) });
 
                         return true;
@@ -541,9 +538,9 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let actions = $('<div class="card-body actions d-flex p-0"></div>');
             actions.append('<span class="finish-indicator status-indicator"></span>')
             actions.append('<span class="pending-indicator status-indicator status-yellow status-indicator-animated"><span class="status-indicator-circle"><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span></span>')
-            if (item.pug) actions.append('<div class="action-btn" onclick="node.display(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
             actions.append('<div class="action-btn" onclick="app.info(\'' + app_id + '\')"><i class="fa-solid fa-info"></i></div>');
             actions.append('<div class="action-btn" onclick="node.code(\'' + nodeid + '\')"><i class="fa-solid fa-code"></i></div>');
+            actions.append('<div class="action-btn" onclick="uimode.select(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
             actions.append('<div class="action-btn action-btn-play" onclick="node.run(\'' + nodeid + '\')"><i class="fa-solid fa-play"></i></div>');
             actions.append('<div class="action-btn action-btn-stop" onclick="node.stop(\'' + nodeid + '\')"><i class="fa-solid fa-stop"></i></div>');
             html = html + actions.prop('outerHTML');
@@ -991,26 +988,34 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.configuration = (monaco) => {
             if (!monaco) monaco = { KeyMod: {}, KeyCode: {} };
             return {
+                'save': {
+                    key: 'Ctrl KeyS',
+                    desc: 'save workflow',
+                    monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
+                    fn: async () => {
+                        await workflow.save();
+                    }
+                },
+                 'run': {
+                    key: 'Shift Enter',
+                    desc: 'run selected app',
+                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.Enter,
+                    fn: async () => {
+                        await node.run(node.selected.id);
+                    }
+                },
                 'esc': {
                     key: 'Escape',
-                    desc: 'esc',
+                    desc: 'unselect and close menu',
                     fn: async () => {
                         node.selected = null;
                         menubar.view = null;
                         await $render();
                     }
                 },
-                'save': {
-                    key: 'Ctrl KeyS',
-                    desc: 'save',
-                    monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
-                    fn: async () => {
-                        await workflow.save();
-                    }
-                },
                 'next': {
                     key: 'Shift Space',
-                    desc: 'run',
+                    desc: 'move to next app',
                     monaco: monaco.KeyMod.Shift | monaco.KeyCode.Space,
                     fn: async () => {
                         await node.next();
@@ -1018,18 +1023,10 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 },
                 'prev': {
                     key: 'Alt Space',
-                    desc: 'run',
+                    desc: 'move to previous app',
                     monaco: monaco.KeyMod.Alt | monaco.KeyCode.Space,
                     fn: async () => {
                         await node.prev();
-                    }
-                },
-                'run': {
-                    key: 'Shift Enter',
-                    desc: 'run',
-                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.Enter,
-                    fn: async () => {
-                        await node.run(node.selected.id);
                     }
                 }
             }
