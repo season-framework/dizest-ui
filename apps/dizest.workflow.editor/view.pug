@@ -1,4 +1,8 @@
 .workspace.area-round(ng-cloak)
+    div(style="display: none;")
+        form#file-form
+            input#file-uploader.form-control(type='file' name='file[]' multiple)
+
     .workspace-header
         .page-header.d-print-none
             .row.align-items-center
@@ -100,7 +104,8 @@
                                     i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
                         td.text-left.filename(ng-if="!file.edit" ng-click="event.check(file)")
                             div
-                                a(ng-click="drive.click(file)") {{file.name}}
+                                a(ng-click="drive.click(file)" ng-if="file.type == 'folder'") {{file.name}}
+                                a(ng-href="{{drive.api.download(file)}}" target="_blank" ng-if="file.type == 'file'") {{file.name}}
                             div
                                 small.text-muted {{drive.timer(file.ctime)}}
                                 small.text-muted.mr-1.ml-1 /
@@ -122,11 +127,11 @@
                                             i.fa-solid.fa-pen-to-square
                                             span Rename
                                     li
-                                        a.dropdown-item(ng-href="{{download(file)}}" target="_blank")
+                                        a.dropdown-item(ng-href="{{drive.api.download(file)}}" target="_blank")
                                             i.fa-solid.fa-download
                                             span Download
                                     li
-                                        a.dropdown-item(ng-click="api.remove(file)")
+                                        a.dropdown-item(ng-click="drive.api.remove(file)")
                                             i.fa-solid.fa-trash
                                             span Delete
 
@@ -468,14 +473,6 @@
 
         .menu-area
             .d-block
-                .btn(ng-click="leftmenu.toggle('app')" class="{{leftmenu.btn_class('app')}}")
-                    i.fa-solid.fa-rocket
-
-            .d-block
-                .btn(ng-click="drive.toggle()" class="{{leftmenu.btn_class('drive')}}")
-                    i.fa-solid.fa-folder-tree
-
-            .d-block
                 .btn(ng-click="menubar.toggle('appinfo')" class="{{menubar.btn_class('appinfo')}}")
                     i.fa-solid.fa-info
 
@@ -486,6 +483,10 @@
             .d-block(ng-if="node.selected")
                 .btn(ng-click="menubar.toggle('uimode')" class="{{menubar.btn_class('uimode')}}")
                     i.fa-solid.fa-display
+
+            .d-block
+                .btn(ng-click="drive.toggle()" class="{{leftmenu.btn_class('drive')}}")
+                    i.fa-solid.fa-folder-tree
 
             .mt-auto
 

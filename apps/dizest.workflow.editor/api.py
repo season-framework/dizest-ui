@@ -28,8 +28,6 @@ try:
 except:
     pass
 
-print(storage_path)
-
 db = wiz.model("orm").use(dbname)
 dizest = wiz.model("dizest").load(manager_id)
 manager = dizest.manager()
@@ -156,7 +154,18 @@ def drive_api():
     elif fnname == 'rename':
         data = wiz.request.query()
         resp = workflow.drive_api.rename(path, data)
-        
+    elif fnname == 'remove':
+        data = wiz.request.query()
+        resp = workflow.drive_api.remove(path, data)
+    elif fnname == 'upload':
+        files = wiz.request.files()
+        for f in files:
+            fd = (f.filename, f.stream, f.content_type, f.headers)
+            workflow.drive_api.upload(path, method=request.method, files={"file": fd})
+        wiz.response.status(200)
+    elif fnname == 'download':
+        resp = workflow.drive_api.download(path)
+
     if resp is None:
         wiz.response.status(404)
     

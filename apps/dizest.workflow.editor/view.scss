@@ -104,9 +104,16 @@
         border-right: 1px solid var(--wiz-color-border);
         border-left: none;
         max-width: 360px;
+        display: flex;
+        flex-direction: column;
 
         .list-back {
             height: 37px;
+        }
+
+        .workspace-tab-body {
+            flex: auto;
+            height: 100%;
         }
 
         .w-1 {

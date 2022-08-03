@@ -15,7 +15,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         let obj = {};
 
         obj.url = (fnname) => {
-            let url = wiz.API.url("drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + fnname);
+            let url = wiz.API.url("drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + fnname);
             return url;
         }
 
@@ -1156,6 +1156,10 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
+        obj.upload = async () => {
+            $('#file-uploader').click();
+        }
+
         obj.click = async (file) => {
             if (file.type == 'folder') {
                 await obj.cd(file.name);
@@ -1181,6 +1185,10 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.api = {};
 
+        obj.api.download = (file) => {
+            return DRIVE_API.url('download' + obj.current + "/" + encodeURIComponent(file.name));
+        }
+
         obj.api.ls = async () => {
             let { code, data } = await DRIVE_API.call('ls' + obj.current);
             if (code != 200) return;
@@ -1195,6 +1203,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.api.rename = async (file) => {
+            if (file.name == file.rename) {
+                file.edit = false;
+                await $render();
+                return;
+            }
             if (!file.rename || file.rename.length == 0) return await $alert('filename length must 1 chars');
             let fdata = angular.copy(file);
             let { code, data } = await DRIVE_API.call('rename' + obj.current, { name: fdata.name, rename: fdata.rename });
@@ -1206,6 +1219,29 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let fdata = angular.copy(file);
             await DRIVE_API.call('remove' + obj.current, { name: fdata.name });
             await obj.api.ls();
+        }
+
+        obj.api.upload = async (fd) => {
+            await $loading.show();
+
+            let fn = (fd) => new Promise((resolve) => {
+                let url = DRIVE_API.url('upload' + obj.current);
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: fd,
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).always(function (res) {
+                    console.log(res);
+                    resolve(res);
+                });
+            });
+
+            await fn(fd);
+            await obj.api.ls();
+            await $loading.hide();
         }
 
         return obj;
@@ -1413,4 +1449,9 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     await shortcut.bind();
 
     await $loading.hide();
+
+    document.getElementById('file-uploader').onchange = async () => {
+        let fd = new FormData($('#file-form')[0]);
+        await drive.api.upload(fd);
+    };
 }
