@@ -100,11 +100,127 @@
         }
     }
 
+    .drive-area {
+        border-right: 1px solid var(--wiz-color-border);
+        border-left: none;
+        max-width: 360px;
+
+        .list-back {
+            height: 37px;
+        }
+
+        .w-1 {
+            width: 8px;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .filename {
+            word-break: break-all;
+        }
+
+        th {
+            text-align: center;
+        }
+
+        tr {
+            .d-flex {
+                .form-control {
+                    border-radius: 36px;
+                }
+            }
+            
+            .actions {
+                font-size: 24px;
+                
+                .dropdown {
+                    display: inline-block;
+                    
+                    ul {
+                        display: none;
+
+                        i {
+                            width: 20px;
+                            margin-right: 4px;
+                        }
+                    }
+                }
+
+                .dropdown, .btn {
+                    opacity: 0;
+                    min-width: 48px;
+                    margin: 0;
+                }
+            }
+
+            &:hover {
+                .dropdown {
+                    display: inline-block;
+
+                    ul.show {
+                        display: block;
+                    }
+                }
+                
+                .dropdown, .btn {
+                    opacity: 1;
+                }
+            }
+        }
+
+        th, td {
+            padding: 8px 12px;
+            cursor: initial;
+
+            .icon-box {
+                display: inline-block;
+            }
+
+            a {
+                color: #2F374E;
+                cursor: pointer;
+            }
+            
+            .avatar-container {
+                display: flex;
+                align-items: center;
+                height: 32px;
+                width: 32px;
+                border-radius: 4px;
+                text-align: center;
+                vertical-align: middle;
+                background-color: var(--wiz-color-border);
+                color: #666;
+
+                &.folder {
+                    background-color: #92CEFF;
+                    color: #51ACF6;
+                }
+
+                i {
+                    width: 32px;
+                    text-align: center;
+                }
+            }
+        }
+    }
+
     .uimode {
+        &.maximized {
+            max-width: 100%;
+        }
+
         .workspace-tab-body {
             overflow: hidden;
         }
         
+        .spinner-border {
+            width: 48px;
+            height: 48px;
+            border: 6px solid currentColor;
+            border-right-color: transparent;
+        }
+
         iframe {
             width: 100%;
             height: 100%;
@@ -708,5 +824,4 @@
             }
         }
     }
-
 }

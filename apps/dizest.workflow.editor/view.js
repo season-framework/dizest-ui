@@ -11,6 +11,22 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         return await wiz.API.async(fnname, data);
     }
 
+    let DRIVE_API = (() => {
+        let obj = {};
+
+        obj.url = (fnname) => {
+            let url = wiz.API.url("drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + fnname);
+            return url;
+        }
+
+        obj.call = async (fnname, data) => {
+            let url = "drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + fnname;
+            return await wiz.API.async(url, data);
+        }
+
+        return obj;
+    })();
+
     window.options = $scope.options = (() => {
         let obj = {};
         obj.editor = {};
@@ -115,6 +131,31 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         return obj;
     })();
 
+    window.leftmenu = $scope.leftmenu = (() => {
+        let obj = {};
+        obj.view = 'app';
+
+        obj.is = (view) => {
+            return obj.view == view;
+        }
+
+        obj.toggle = async (view) => {
+            if (obj.view == view) {
+                obj.view = '';
+            } else {
+                obj.view = view;
+            }
+            await $render();
+        }
+
+        obj.btn_class = (view) => {
+            if (view == obj.view) return 'btn-primary';
+            return 'btn-white';
+        }
+
+        return obj;
+    })();
+
     window.menubar = $scope.menubar = (() => {
         let obj = {};
         obj.view = null;
@@ -165,12 +206,14 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         let obj = {};
 
         obj.iframe = false;
+        obj.iframe_loaded = false;
 
         obj.render = async () => {
             if (!node.selected) return;
             if (!menubar.is('uimode')) return;
             let url = wiz.API.url("render/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + node.selected.id);
 
+            obj.iframe_loaded = false;
             obj.iframe = false;
             await $render();
 
@@ -179,7 +222,23 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             $('#uimode-iframe').attr('src', url);
             $('#uimode-iframe').on('load', async () => {
+                obj.iframe_loaded = true;
+                await $render();
             });
+        }
+
+        obj.maximized = false;
+
+        obj.maximize = async (maximized) => {
+            if (maximized) {
+                obj.maximized = true;
+                await workflow.hide();
+            } else {
+                obj.maximized = false;
+                if (obj.activetab.length == 0)
+                    await workflow.show();
+            }
+            await $render();
         }
 
         obj.select = async (flow_id) => {
@@ -753,6 +812,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.show = async () => {
+            if (obj.display) return;
             obj.display = true;
             await obj.refresh();
         }
@@ -1056,6 +1116,96 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $loading.show();
             await API("restart");
             await $loading.hide();
+        }
+
+        return obj;
+    })();
+
+    window.drive = $scope.drive = (() => {
+        let obj = {};
+
+        obj.current = "";
+        obj.files = [];
+
+        obj.toggle = async () => {
+            leftmenu.toggle('drive');
+            if (leftmenu.is('drive')) {
+                await obj.api.ls();
+            }
+            await $render();
+        }
+
+        obj.filesize = (value) => {
+            if (!value) return "0B";
+            let kb = value / 1024;
+            if (kb < 1) return value + "B";
+            let mb = kb / 1024;
+            if (mb < 1) return Math.round(kb * 100) / 100 + "KB";
+            let gb = mb / 1024;
+            if (gb < 1) return Math.round(mb * 100) / 100 + "MB";
+            return Math.round(gb * 100) / 100 + "GB";
+        }
+
+        obj.timer = (value) => {
+            return moment(new Date(value * 1000)).format("YYYY-MM-DD HH:mm:ss");
+        }
+
+        obj.rename = async (file) => {
+            file.rename = file.name;
+            file.edit = true;
+            await $render();
+        }
+
+        obj.click = async (file) => {
+            if (file.type == 'folder') {
+                await obj.cd(file.name);
+                return;
+            }
+
+            console.log(file);
+        }
+
+        obj.cd = async (path) => {
+            let root = obj.current.split("/");
+            paths = path.split("/");
+            for (let i = 0; i < paths.length; i++) {
+                let fname = paths[i];
+                if (!fname) continue;
+                if (fname == '.') continue;
+                if (fname == '..') root.pop();
+                else root.push(fname);
+            }
+            obj.current = root.join("/");
+            await obj.api.ls();
+        }
+
+        obj.api = {};
+
+        obj.api.ls = async () => {
+            let { code, data } = await DRIVE_API.call('ls' + obj.current);
+            if (code != 200) return;
+            data.sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            });
+            data.sort((a, b) => {
+                return b.type.localeCompare(a.type);
+            });
+            obj.files = data;
+            await $render();
+        }
+
+        obj.api.rename = async (file) => {
+            if (!file.rename || file.rename.length == 0) return await $alert('filename length must 1 chars');
+            let fdata = angular.copy(file);
+            let { code, data } = await DRIVE_API.call('rename' + obj.current, { name: fdata.name, rename: fdata.rename });
+            if (code == 401) return await $alert('file name already exists');
+            await obj.api.ls();
+        }
+
+        obj.api.remove = async (file) => {
+            let fdata = angular.copy(file);
+            await DRIVE_API.call('remove' + obj.current, { name: fdata.name });
+            await obj.api.ls();
         }
 
         return obj;

@@ -7,7 +7,7 @@ from flask import Response
 action = wiz.request.uri().split("/")[4]
 user_id = wiz.session.get("id")
 
-if action not in ["api", "render"]:
+if action not in ["api", "render", "drive_api"]:
     workflow_id = wiz.request.query("workflow_id", True)
     manager_id = wiz.request.query("manager_id", True)
     dbname = wiz.request.query("db", True)
@@ -21,11 +21,14 @@ config = wiz.model("dizest").config()
 storage_path = config.storage_path
 if storage_path is None:
     storage_path = os.path.join(config.path, 'storage')
-storage_path = os.path.join(storage_path, manager_id, workflow_id)
+# storage_path = os.path.join(storage_path, manager_id, workflow_id)
+storage_path = os.path.join(storage_path, user_id)
 try:
     season.util.os.FileSystem(storage_path).makedirs()
 except:
     pass
+
+print(storage_path)
 
 db = wiz.model("orm").use(dbname)
 dizest = wiz.model("dizest").load(manager_id)
@@ -142,6 +145,25 @@ def stop():
 def delete():
     db.delete(id=workflow_id)
     wiz.response.status(200)
+
+def drive_api():
+    fnname= wiz.request.uri().split("/")[8]
+    path = "/".join(wiz.request.uri().split("/")[9:])
+    request = wiz.request.request()
+    resp = None
+    if fnname == 'ls':
+        resp = workflow.drive_api.ls(path)
+    elif fnname == 'rename':
+        data = wiz.request.query()
+        resp = workflow.drive_api.rename(path, data)
+        
+    if resp is None:
+        wiz.response.status(404)
+    
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+    response = Response(resp.content, resp.status_code, headers)
+    wiz.response.response(response)
 
 def api():
     flow_id = wiz.request.uri().split("/")[8]
