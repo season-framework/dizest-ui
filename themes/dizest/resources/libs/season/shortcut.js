@@ -36,12 +36,12 @@ window.season.shortcut = function (element, config) {
 
         let lasttime = new Date().getTime();
 
-        $(element).keydown(function (ev) {
+        $(element).keydown(async (ev) => {
             let diff = new Date().getTime() - lasttime;
             lasttime = new Date().getTime();
 
             if (diff > 3000) {
-                self.holdings = {};    
+                self.holdings = {};
                 return;
             }
 
@@ -80,7 +80,7 @@ window.season.shortcut = function (element, config) {
             }
         });
 
-        $(element).keyup(function (ev) {
+        $(element).keyup(async (ev) => {
             let keycode = ev.code;
             delete self.holdings[keycode];
         });

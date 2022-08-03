@@ -1,12 +1,33 @@
+import os
 import season
 import json
 import datetime
+from flask import Response
 
-workflow_id = wiz.request.query("workflow_id", True)
-manager_id = wiz.request.query("manager_id", True)
+action = wiz.request.uri().split("/")[4]
 user_id = wiz.session.get("id")
 
-db = wiz.model("orm").use("workflow")
+if action not in ["api", "render"]:
+    workflow_id = wiz.request.query("workflow_id", True)
+    manager_id = wiz.request.query("manager_id", True)
+    dbname = wiz.request.query("db", True)
+else:
+    workflow_id = wiz.request.uri().split("/")[7]
+    manager_id = wiz.request.uri().split("/")[6]
+    dbname = wiz.request.uri().split("/")[5]
+
+# create storage directory
+config = wiz.model("dizest").config()
+storage_path = config.storage_path
+if storage_path is None:
+    storage_path = os.path.join(config.path, 'storage')
+storage_path = os.path.join(storage_path, manager_id, workflow_id)
+try:
+    season.util.os.FileSystem(storage_path).makedirs()
+except:
+    pass
+
+db = wiz.model("orm").use(dbname)
 dizest = wiz.model("dizest").load(manager_id)
 manager = dizest.manager()
 
@@ -18,7 +39,7 @@ if wpdata['user_id'] != user_id: wiz.response.status(401, 'Unauthorized')
 
 # load workflow instance
 workflow = manager.workflow(wpdata)
-
+    
 def data():
     wiz.response.status(200, wpdata)
 
@@ -70,6 +91,11 @@ def update():
         if 'created' not in data:
             data['created'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         data['updated'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            del data['language']
+        except:
+            pass
+        workflow.update(data)
         db.update(data, id=workflow_id)
     except Exception as e:
         wiz.response.status(500, str(e))
@@ -82,7 +108,7 @@ def start():
     if spec not in specs:
         wiz.response.status(500, f'not supported kernel spec')
     
-    workflow.spawn(kernel_name=spec, cwd='/home/season')
+    workflow.spawn(kernel_name=spec, cwd=storage_path)
     wiz.response.status(200)
 
 def kill():
@@ -95,10 +121,8 @@ def kill():
 def run():
     try:
         fids = wiz.request.query("flow_id", None)
-        if fids is None: return
-
-        workflow.update(wpdata)
-        
+        if fids is None:
+            raise Exception("Flow id not defined")
         fids = fids.split(",")
         for fid in fids:
             flow = workflow.flow(fid)
@@ -114,3 +138,59 @@ def stop():
     except:
         pass
     wiz.response.status(200)
+
+def delete():
+    db.delete(id=workflow_id)
+    wiz.response.status(200)
+
+def api():
+    flow_id = wiz.request.uri().split("/")[8]
+    fnname = "/".join(wiz.request.uri().split("/")[9:])
+    flow = workflow.flow(flow_id)    
+    request = wiz.request.request()
+
+    resp = flow.api(fnname, \
+        method=request.method, \
+        headers={key: value for (key, value) in request.headers if key != 'Host'}, \
+        data=request.values, \
+        cookies=request.cookies, \
+        files=request.files)
+    
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+    response = Response(resp.content, resp.status_code, headers)
+    
+    wiz.response.response(response)
+
+def render():
+    flow_id = wiz.request.uri().split("/")[8]
+    url = "/".join(wiz.request.uri().split("/")[:4] + ['api', dbname, manager_id, workflow_id, flow_id])
+    flow = workflow.flow(flow_id)
+    headjs = '''
+    <script type="text/javascript">
+    window.API = (()=> {
+        let obj = {};
+        obj.url = (fnname)=> "{url}/" + fnname;
+        obj.async = obj.function = obj.call = async(fnname, data, opts = {})=> {
+            let _url = obj.url(fnname);
+            
+            let ajax = {
+                url: _url,
+                type: "POST",
+                data: data,
+                ...opts
+            };
+
+            return new Promise((resolve) => {
+                $.ajax(ajax).always(function (a, b, c) {
+                    resolve(a, b, c);
+                });
+            });
+        };
+        return obj;
+    })();
+    </script>
+    '''.replace('{url}', url)
+
+    view = flow.render(head=headjs)
+    wiz.response.send(view, content_type="text/html")

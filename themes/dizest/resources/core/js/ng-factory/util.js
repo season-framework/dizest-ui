@@ -1,7 +1,7 @@
 app.factory('$util', () => {
     return (() => {
         let obj = {};
-        
+
         obj.random = (stringLength) => {
             const fchars = 'abcdefghiklmnopqrstuvwxyz';
             const chars = '0123456789abcdefghiklmnopqrstuvwxyz';

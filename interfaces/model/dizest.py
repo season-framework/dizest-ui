@@ -1,9 +1,9 @@
 import os
 import sys
 import season
-import dizest
 import urllib
 import requests
+import dizest
 
 BASEPATH = os.path.realpath(season.path.project + "/..")
 

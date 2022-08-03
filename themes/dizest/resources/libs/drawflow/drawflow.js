@@ -294,6 +294,7 @@ class Drawflow {
                 }
 
                 this.editor_selected = true;
+                this.bind('click')('background');
                 break;
 
             case 'drawflow':

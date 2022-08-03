@@ -7,13 +7,15 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         if (!data) data = {};
         data['workflow_id'] = workflow.id;
         data['manager_id'] = workflow.manager_id;
+        data['db'] = wiz.data.db;
         return await wiz.API.async(fnname, data);
     }
 
     window.options = $scope.options = (() => {
         let obj = {};
+        obj.editor = {};
 
-        obj.monaco = (language) => {
+        obj.monaco = (language, editor_id) => {
             let opt = {
                 value: '',
                 language: language,
@@ -60,6 +62,39 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         await shortcut.bind();
                     });
                 }
+
+                if (editor_id) {
+                    obj.editor[editor_id] = editor;
+                }
+            }
+
+            return opt;
+        }
+
+        obj.monaco_code = (language) => {
+            let opt = {
+                value: '',
+                language: language,
+                theme: "vs",
+                fontSize: 14,
+                automaticLayout: true,
+                minimap: {
+                    enabled: false
+                }
+            };
+
+            opt.onLoad = async (editor) => {
+                let shortcuts = shortcut.configuration(window.monaco);
+                for (let shortcutname in shortcuts) {
+                    let monacokey = shortcuts[shortcutname].monaco;
+                    let fn = shortcuts[shortcutname].fn;
+                    if (!monacokey) continue;
+
+                    editor.addCommand(monacokey, async () => {
+                        await fn();
+                        await shortcut.bind();
+                    });
+                }
             }
 
             return opt;
@@ -89,6 +124,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.toggle = async (view) => {
+            if (obj.view == 'uimode') uimode.close();
             if (obj.view == view) {
                 obj.view = '';
             } else {
@@ -128,11 +164,82 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.uimode = $scope.uimode = (() => {
         let obj = {};
 
+        obj.iframe = false;
+
+        obj.render = async () => {
+            if (!node.selected) return;
+            if (!menubar.is('uimode')) return;
+            let url = wiz.API.url("render/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + node.selected.id);
+
+            obj.iframe = false;
+            await $render();
+
+            obj.iframe = true;
+            await $render();
+
+            $('#uimode-iframe').attr('src', url);
+            $('#uimode-iframe').on('load', async () => {
+            });
+        }
+
         obj.select = async (flow_id) => {
-            console.log(flow_id)
-            if (!menubar.is('uimode')) {
+            if (flow_id) await node.select(flow_id);
+            if (!menubar.is('uimode'))
                 await menubar.toggle('uimode');
+            await obj.render();
+            await $render();
+        }
+
+        obj.sortable = { handle: '.uimode-codeselect' };
+
+        obj.loaded = false;
+
+        obj.activetab = [];
+        obj.tab = {};
+
+        let tab_builder = (mode, lang, display) => {
+            let self = {};
+
+            self.mode = mode;
+            self.lang = lang;
+            self.name = display ? display : mode;
+            self.active = false;
+            self.close = async () => {
+                obj.activetab.remove(self.mode);
+                self.active = false;
+                obj.loaded = false;
+                if (obj.activetab.length == 0)
+                    await workflow.show();
+                await $render();
+                obj.loaded = true;
+                await $render();
             }
+
+            self.open = async () => {
+                if (obj.activetab.includes(self.mode)) return;
+                obj.activetab.push(self.mode);
+                self.active = true;
+                obj.loaded = false;
+                await workflow.hide();
+                await $render();
+                obj.loaded = true;
+                await $render();
+            }
+
+            return self;
+        };
+
+        obj.tab.head = tab_builder('head', 'pug', 'head (pug)');
+        obj.tab.pug = tab_builder('pug', 'pug', 'body (pug)');
+        obj.tab.js = tab_builder('js', 'javascript');
+        obj.tab.css = tab_builder('css', 'scss', 'scss');
+        obj.tab.api = tab_builder('api', 'python');
+
+        obj.close = async () => {
+            for (let key in obj.tab) {
+                await obj.tab[key].close();
+            }
+            await workflow.show();
         }
 
         return obj;
@@ -146,9 +253,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
     window.app = $scope.app = (() => {
         let obj = {};
-
-        obj.monaco_opt = options.monaco('python');
-        obj.markdown = options.monaco('markdown');
 
         obj.struct = {
             title: 'new app',
@@ -226,8 +330,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.validate = async (app_id) => {
-            // obj.data.description = obj.desc_editor.data.get();
-
             let data = angular.copy(await obj.get(app_id));
 
             if (!data.title || data.title.length == 0) {
@@ -294,7 +396,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.delete = async (app_id) => {
-            let res = await $alert('Are you sure to delete?');
+            let res = await $alert('Are you sure to delete?', { btn_action: 'Delete', btn_close: "Cancel" });
             if (!res) return;
 
             for (let flow_id in workflow.data.flow) {
@@ -309,9 +411,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await obj.load();
         }
 
-        obj.info = async (app_id) => {
-            let app = await obj.get(app_id);
-            obj.selected = app;
+        obj.info = async () => {
             obj.desc_editable = false;
             await $render();
             if (!menubar.is('appinfo')) {
@@ -323,7 +423,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.upload.logo = async () => {
             let file = await $file.image({ size: 128, limit: 1024 * 100 });
-            obj.selected.logo = file;
+            workflow.data.apps[node.selected.app_id].logo = file;
             await $render();
         }
 
@@ -350,7 +450,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 find = find + 1;
             }
 
-            if (!obj.data[find]) find = 0;
+            if (!obj.data[find]) return;
             await obj.select(obj.data[find].id, 'all');
         }
 
@@ -366,14 +466,14 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 find = find - 1;
             }
 
-            if (!obj.data[find]) find = obj.data.length - 1;
+            if (!obj.data[find]) return;
             await obj.select(obj.data[find].id, 'all');
         }
 
         obj.run = async (flow_id) => {
+            if (!flow_id) return;
             try {
                 if (workflow.status[flow_id].status == 'running') {
-                    console.log("running");
                     return;
                 }
             } catch (e) {
@@ -435,8 +535,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (diff > 100) {
                 if (!node_id) {
+                    if (menubar.is("uimode")) {
+                        await uimode.close();
+                        menubar.view = null;
+                    }
+
                     obj.selected = null;
-                    app.selected = null;
                     await $render();
                     return;
                 }
@@ -446,7 +550,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 }
 
                 obj.selected = item;
-                app.selected = await app.get(item.app_id);
+
+                if (menubar.is("uimode"))
+                    await uimode.render();
+
+                await $render();
 
                 if (item) {
                     let drawflow_position = async () => {
@@ -454,21 +562,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                             return false;
                         let x = $('#node-' + node_id).position().left;
                         let y = $('#node-' + node_id).position().top;
-                        let canvas_x = workflow.drawflow.canvas_x;
-                        let canvas_y = workflow.drawflow.canvas_y;
                         let zoom = workflow.drawflow.zoom;
 
                         let w = $('#drawflow').width() * zoom;
                         let h = $('#drawflow').height() * zoom;
 
-                        workflow.drawflow.move({ canvas_x: -x + (w / 2.4), canvas_y: -y + (h / 3) });
+                        let tx = Math.round(-x + (w / 2.4));
+                        let ty = Math.round(-y + (h / 3));
 
+                        workflow.drawflow.move({ canvas_x: tx, canvas_y: ty });
                         return true;
                     }
 
                     if (uifrom == 'codeflow' || uifrom == 'all') {
-                        let stat = await drawflow_position();
-                        if (!stat) return;
+                        await drawflow_position();
                     }
 
                     let codeflow_position = async () => {
@@ -481,7 +588,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         let y = $('#codeflow-' + node_id).position().top + y_start;
                         let y_h = y + $('#codeflow-' + node_id).height() + y_start;
 
-                        // check on area
                         let checkstart = y_start < y && y < y_end;
                         let checkend = y_start < y_h && y_h < y_end;
                         if (!checkstart || !checkend) {
@@ -491,6 +597,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
                     if (uifrom == 'drawflow' || uifrom == 'all') {
                         await codeflow_position();
+                    }
+
+                    try {
+                        options.editor['codeflow-' + node_id].focus();
+                    } catch (e) {
                     }
                 }
 
@@ -563,8 +674,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         wrapper.append('<div class="value-data"><input type="date" class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
                     } else if (value.inputtype == 'password') {
                         wrapper.append('<div class="value-data"><input type="password" class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
-                    } else if (value.inputtype == 'memo') {
-                        wrapper.append('<div class="value-data"><textarea rows=5 class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '></textarea></div>');
                     } else if (value.inputtype == 'list') {
                         let vals = value.description;
                         vals = vals.replace(/\n/gim, "").split(",");
@@ -628,6 +737,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.workflow = $scope.workflow = (() => {
         let obj = {};
 
+        obj.display = true;
+
         obj.status = {};
         obj.debug = {};
 
@@ -635,6 +746,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.id = wiz.data.workflow_id;
         obj.data = {};
         obj.url = wiz.API.url("download/" + obj.id);
+
+        obj.hide = async () => {
+            obj.display = false;
+            await $render();
+        }
+
+        obj.show = async () => {
+            obj.display = true;
+            await obj.refresh();
+        }
 
         obj.status_init = async () => {
             let res = await API("flow_status");
@@ -649,6 +770,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.init = async () => {
             let res = await API("data");
             obj.data = res.data;
+            obj.data.language = 'python';
 
             await obj.status_init();
 
@@ -664,6 +786,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.refresh = async () => {
+            if (!obj.display) return;
             obj.clear = true;
             await $render();
             obj.clear = false;
@@ -776,6 +899,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let orders = {};
             for (let i = 0; i < node.data.length; i++) {
                 orders[node.data[i].id] = i + 1;
+                data.flow[node.data[i].id].description = node.data[i].description;
             }
 
             for (let flow_id in flows) {
@@ -823,6 +947,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             }
 
             data.flow = flows;
+
             obj.data = data;
             if (!donot_node_reload)
                 await node.build();
@@ -831,6 +956,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
 
             return data;
+        }
+
+        obj.download = async () => {
+            let data = await obj.update(true);
+            await $file.download(data, data.title + ".dwp");
         }
 
         obj.save = async (hide_result) => {
@@ -852,6 +982,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             res = await API("update", { data: JSON.stringify(data) });
             if (res.code == 200 && !hide_result) toastr.success("Saved");
             else if (res.code != 200) toastr.error("Error");
+
+            await uimode.render();
+        }
+
+        obj.delete = async () => {
+            let res = await $alert('Are you sure to delete?', { btn_action: 'Delete', btn_close: "Cancel" });
+            if (!res) return;
+
+            await API("delete");
+            location.href = wiz.data.url;
         }
 
         return obj;
@@ -899,10 +1039,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.start = async () => {
-            let { code, data } = await API("start", { spec: obj.spec });
-            if (code != 200) return await $alert(data);
-
             await $loading.show();
+            let { code, data } = await API("start", { spec: obj.spec });
+            if (code != 200) {
+                await $loading.hide();
+                return await $alert(data);
+            }
             await $render();
         }
 
@@ -980,6 +1122,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         });
 
+        obj.client.on("flow.api", async (message) => {
+            let { flow_id, data } = message;
+            console.log(data);
+            // data = data.replace(/\n/gim, '<br>');
+            // if (workflow.debug[flow_id]) workflow.debug[flow_id] = workflow.debug[flow_id] + '<br>' + data;
+            // else workflow.debug[flow_id] = data;
+            // await obj.log(flow_id);
+            // await $render();
+        });
+
         return obj;
     })();
 
@@ -989,42 +1141,53 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (!monaco) monaco = { KeyMod: {}, KeyCode: {} };
             return {
                 'save': {
-                    key: 'Ctrl KeyS',
+                    key: 'ctrl+s,command+s',
                     desc: 'save workflow',
                     monaco: monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S,
                     fn: async () => {
                         await workflow.save();
                     }
                 },
-                 'run': {
-                    key: 'Shift Enter',
+                'run': {
+                    key: 'shift+enter',
                     desc: 'run selected app',
                     monaco: monaco.KeyMod.Shift | monaco.KeyCode.Enter,
                     fn: async () => {
-                        await node.run(node.selected.id);
+                        if (node.selected) {
+                            await node.run(node.selected.id);
+                        }
                     }
                 },
                 'esc': {
-                    key: 'Escape',
+                    key: 'esc',
                     desc: 'unselect and close menu',
                     fn: async () => {
-                        node.selected = null;
-                        menubar.view = null;
+                        if (['uimode'].includes(menubar.view))
+                            return;
+
+                        if (node.selected) {
+                            node.selected = null;
+                            if (!['codeflow', 'appinfo'].includes(menubar.view))
+                                menubar.view = null;
+                        } else {
+                            menubar.view = null;
+                        }
+
                         await $render();
                     }
                 },
                 'next': {
-                    key: 'Shift Space',
+                    key: 'tab,pagedown',
                     desc: 'move to next app',
-                    monaco: monaco.KeyMod.Shift | monaco.KeyCode.Space,
+                    monaco: monaco.KeyCode.PageDown,
                     fn: async () => {
                         await node.next();
                     }
                 },
                 'prev': {
-                    key: 'Alt Space',
+                    key: 'shift+tab,pageup',
                     desc: 'move to previous app',
-                    monaco: monaco.KeyMod.Alt | monaco.KeyCode.Space,
+                    monaco: monaco.KeyCode.PageUp,
                     fn: async () => {
                         await node.prev();
                     }
@@ -1033,7 +1196,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         };
 
         obj.bind = async () => {
-            $(window).unbind();
+            hotkeys.unbind();
 
             let shortcut_opts = {};
             let shortcuts = obj.configuration(window.monaco);
@@ -1047,9 +1210,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     ev.preventDefault();
                     await fn();
                 };
-            }
 
-            season.shortcut(window, shortcut_opts);
+                hotkeys(keycode, () => {
+                    fn();
+                    return false;
+                });
+            }
         }
 
         return obj;

@@ -18,31 +18,31 @@
                             span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
                             span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec}}
                         
-                        ul.dropdown-menu
+                        ul.dropdown-menu.dropdown-menu-dark
                             li(ng-repeat="spec in kernel.specs")
                                 a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
                     
-                    .btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
+                    a.btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
                         i.fa-solid.fa-play.mr-2
                         span Start Kernel
 
-                    .btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
+                    a.btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
 
-                    .btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
+                    a.btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
                         i.fa-solid.fa-stop.mr-2
                         span Stop Kernel
 
-                    .btn.btn-primary(ng-click="workflow.save()")
+                    a.btn.btn-primary(ng-click="workflow.save()")
                         i.fa-solid.fa-save
 
-                    .btn.btn-primary
+                    a.btn.btn-primary(ng-click="workflow.download()")
                         i.fa-solid.fa-cloud-arrow-down
 
-                    a.btn.btn-primary.btn-circle(href="/hub/workflow/list")
+                    a.btn.btn-primary.btn-circle(href=url)
                         i.fa-solid.fa-xmark
 
     .workspace-body
-        .app
+        .app(ng-if="workflow.display")
             .app-search
                 input.form-control.search-form(placeholder="enter for search" ng-model="app.query" ng-change="app.search(app.query)")
 
@@ -64,7 +64,7 @@
                         button.btn.btn-primary.btn-sm(ng-click="workflow.add(item.id)")
                             i.fa-solid.fa-plus
 
-        .workflow
+        .workflow(ng-if="workflow.display")
             .workflow-canvas.noselect(ng-if="!workflow.clear")
                 #drawflow(ondrop="dragdrop.drop(event)" ondragover="dragdrop.allowDrop(event)")
 
@@ -76,21 +76,21 @@
                         i.fa-solid.fa-magnifying-glass
                     .btn.btn-primary(ng-click="workflow.drawflow.zoom_in()")
                         i.fa-solid.fa-magnifying-glass-plus
-        
-        .workspace-tab.wp-info(ng-if="menubar.is('info')")
+
+        .workspace-tab.app-info(ng-if="menubar.is('appinfo')")
             .workspace-tab-header
-                .workspace-tab-header-title
+                .workspace-tab-header-title(ng-if="workflow.data.apps[node.selected.app_id]")
+                    i.fa-solid.fa-circle-info.mr-2
+                    span App Info
+                .workspace-tab-header-title(ng-if="!workflow.data.apps[node.selected.app_id]")
                     i.fa-solid.fa-rocket.mr-2
                     span Workflow Info
                 .ml-auto
-                .text-white.close-btn(ng-click="menubar.toggle('info')")
+                .text-white.close-btn(ng-click="menubar.toggle('appinfo')")
                     i.fa-solid.fa-xmark
-            
-            .workspace-tab-body
-                .card.mb-4
-                    .card-header
-                        h4.card-title Information
 
+            .workspace-tab-body(ng-if="!workflow.data.apps[node.selected.app_id]")
+                .card.mb-4
                     .card-body.p-4
                         .form-group.row.mb-3(ng-if="workflow.data.id")
                             label.form-label.col-3.col-form-label Workflow ID
@@ -167,21 +167,7 @@
                     .card-body
                         .btn.btn-block.btn-outline-danger(ng-click="workflow.delete()") Delete
 
-        .workspace-tab.app-info(ng-if="menubar.is('appinfo')")
-            .workspace-tab-header
-                .workspace-tab-header-title
-                    i.fa-solid.fa-circle-info.mr-2
-                    span App Info
-                .ml-auto
-                .text-white.close-btn(ng-click="menubar.toggle('appinfo')")
-                    i.fa-solid.fa-xmark
-
-            .workspace-tab-body.text-center.p-6(ng-if="!app.selected")
-                .mb-4(style="font-size: 60px;")
-                    i.fa-solid.fa-ban
-                h2 No App Selected
-
-            .workspace-tab-body(ng-if="app.selected")
+            .workspace-tab-body(ng-if="workflow.data.apps[node.selected.app_id]")
                 .card.mb-4
                     .card-header
                         h4.card-title Information
@@ -190,29 +176,29 @@
                         .form-group.row.mb-3(ng-if="workflow.data.id")
                             label.form-label.col-3.col-form-label App ID
                             .col
-                                input.form-control(type="text" ng-model="app.selected.id" disabled="disabled")
+                                input.form-control(type="text" ng-model="workflow.data.apps[node.selected.app_id].id" disabled="disabled")
                         
                         .form-group.row.mb-3
                             label.form-label.col-3.col-form-label App Title
                             .col
-                                input.form-control(type="text" placeholder="App Title" ng-model="app.selected.title")
+                                input.form-control(type="text" placeholder="App Title" ng-model="workflow.data.apps[node.selected.app_id].title")
                         
                         .form-group.row.mb-3
                             label.form-label.col-3.col-form-label App Version
                             .col
-                                input.form-control(type="text" placeholder="1.0.0" ng-model="app.selected.version")
+                                input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.apps[node.selected.app_id].version")
 
                 .card.mb-4
                     .card-header
                         h4.card-title Logo
                         .ml-auto
-                        .btn.btn-outline-danger.mr-2(ng-if="app.selected.logo" ng-click="app.selected.logo = ''") Delete
+                        .btn.btn-outline-danger.mr-2(ng-if="workflow.data.apps[node.selected.app_id].logo" ng-click="workflow.data.apps[node.selected.app_id].logo = ''") Delete
                         .btn.btn-primary(ng-click="app.upload.logo()") Upload
 
                     .card-body.p-3.text-center
                         .avatar-area
                             .avatar-container
-                                span.avatar(style="background-image: url({{app.selected.logo}})" ng-cloak)
+                                span.avatar(style="background-image: url({{workflow.data.apps[node.selected.app_id].logo}})" ng-cloak)
 
                 .card.mb-4
                     .card-header
@@ -223,8 +209,8 @@
                             i.fa-solid.fa-edit(ng-if="!app.desc_editable")
 
                     .card-body.p-0
-                        .descarea.pb-0.pt-3.pr-3.pl-3(ng-if="!app.desc_editable && app.selected.description" ng-bind-html="app.showdown(app.selected.description)")
-                        div(ng-if="app.desc_editable" ng-model="app.selected.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
+                        .descarea.pb-0.pt-3.pr-3.pl-3(ng-if="!app.desc_editable && workflow.data.apps[node.selected.app_id].description" ng-bind-html="app.showdown(workflow.data.apps[node.selected.app_id].description)")
+                        div(ng-if="app.desc_editable" ng-model="workflow.data.apps[node.selected.app_id].description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
 
         .workspace-tab.codeflow(ng-if="menubar.is('codeflow')")
             .workspace-tab-header
@@ -265,7 +251,7 @@
                         
                         .codeflow-descarea(ng-if="item.id == node.selected.id && node.editable[item.id]")
                             .item-body
-                                div(ng-model="item.description" ui-monaco-opts="app.markdown" ui-monaco)
+                                div(ng-model="item.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
 
                     .codeflow-item
                         table.table.card-table.table-sm
@@ -275,7 +261,7 @@
                         .codeflow-codearea
                             .item-index [{{workflow.status[item.id].index}}]
                             .item-body
-                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="app.monaco_opt" ui-monaco)
+                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
 
                     .codeflow-options
                         table.table.card-table.table-sm
@@ -304,7 +290,6 @@
                                             option(value="number") Number
                                             option(value="date") Date
                                             option(value="list") List
-                                            option(value="memo") Memo
                                     td.w-1
                                         input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="obj.name")
                                     td
@@ -346,18 +331,38 @@
 
                 .margin-area(style="height: 80vh;")
             
+        .workspace-tab.uimode-editor(ng-if="uimode.activetab.length > 0" ui-sortable='uimode.activetab' ng-model="uimode.activetab")
+            .ui-editor(ng-repeat="name in uimode.activetab" ng-if="uimode.tab[name].active")
+                .uimode-codeselect
+                    a {{uimode.tab[name].name}}
+                    .ml-auto
+                    a(ng-click="uimode.tab[name].close()")
+                        i.fa-solid.fa-xmark
+                
+                .uimode-code.p-0
+                    div(ng-if="uimode.tab[name].lang && uimode.loaded" ng-model="workflow.data.apps[node.selected.app_id][uimode.tab[name].mode]" ui-monaco-opts="options.monaco_code(uimode.tab[name].lang)" ui-monaco)
+
         .workspace-tab.uimode(ng-if="menubar.is('uimode')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-display.mr-2
-                    span UI Mode
+                    span {{workflow.data.apps[node.selected.app_id].title}}
                 .ml-auto
+                .dropdown
+                    button.btn.btn-white.btn-sm.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                        span Code
+                    
+                    ul.dropdown-menu.dropdown-menu-dark
+                        li(ng-repeat="(name, tab) in uimode.tab" ng-if="!tab.active")
+                            a.dropdown-item(ng-click="tab.open()") {{uimode.tab[name].name}}
+                .mr-3
                 .text-white.close-btn(ng-click="menubar.toggle('uimode')")
                     i.fa-solid.fa-xmark
             
-            .workspace-tab-body
+            .workspace-tab-body.p-0(ng-if="workflow.data.apps[node.selected.app_id].pug")
+                iframe#uimode-iframe(ng-if="uimode.iframe")
 
-        .workspace-tab.uimode(ng-if="menubar.is('shortcut')")
+        .workspace-tab.shortcut-view(ng-if="menubar.is('shortcut')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-keyboard.mr-2
@@ -371,36 +376,34 @@
                     table.table.table-hover.table-bordered.table-shortcut.mb-0
                         tr(ng-repeat="item in shortcut.list")
                             th.w-1.nowrap
-                                .text(style="display: inline-block;" ng-repeat="key in item.key.split(' ') track by $index")
-                                    small.p-1.bg-primary(ng-if="!['Ctrl', 'ArrowRight', 'ArrowLeft'].includes(key)") {{key.replace('Digit', '').replace('Key', '').toLowerCase()}}
-                                    small.p-1.bg-primary(ng-if="'Ctrl' == key") {{ismac ? 'cmd' : 'ctrl'}}
-                                    small.p-1.bg-primary(ng-if="'ArrowRight' == key")
-                                        i.fa-solid.fa-arrow-right
-                                    small.p-1.bg-primary(ng-if="'ArrowLeft' == key")
-                                        i.fa-solid.fa-arrow-left
-                                    small.text-muted(style="margin: 0 2px; font-size: 12px;" ng-if="$index + 1 != item.key.split(' ').length") + 
+                                .mb-2(ng-repeat="hotkey in item.key.split(',')")
+                                    .text(style="display: inline-block;" ng-repeat="key in hotkey.split('+') track by $index")
+                                        small.p-1.bg-primary(ng-if="!['Ctrl', 'ArrowRight', 'ArrowLeft'].includes(key)") {{key.replace('Digit', '').replace('Key', '').toLowerCase()}}
+                                        small.p-1.bg-primary(ng-if="'Ctrl' == key") {{ismac ? 'cmd' : 'ctrl'}}
+                                        small.p-1.bg-primary(ng-if="'ArrowRight' == key")
+                                            i.fa-solid.fa-arrow-right
+                                        small.p-1.bg-primary(ng-if="'ArrowLeft' == key")
+                                            i.fa-solid.fa-arrow-left
+                                        small.text-muted(style="margin: 0 2px; font-size: 12px;" ng-if="$index + 1 != hotkey.split('+').length") + 
+
                             td {{item.desc}}
 
         .menu-area
-            .d-block
-                .btn(ng-click="menubar.toggle('info')" class="{{menubar.btn_class('info')}}")
-                    i.fa-solid.fa-rocket
-            
             .d-block
                 .btn(ng-click="menubar.toggle('appinfo')" class="{{menubar.btn_class('appinfo')}}")
                     i.fa-solid.fa-info
 
             .d-block
-                .btn(ng-click="menubar.toggle('codeflow')" class="{{menubar.btn_class('codeflow')}}")
-                    i.fa-solid.fa-code
-            
-            .d-block
-                .btn(ng-click="menubar.toggle('uimode')" class="{{menubar.btn_class('uimode')}}")
-                    i.fa-solid.fa-display
-            
-            .d-block
                 .btn(ng-click="menubar.toggle('storage')" class="{{menubar.btn_class('storage')}}")
                     i.fa-solid.fa-folder-tree
+
+            .d-block
+                .btn(ng-click="menubar.toggle('codeflow')" class="{{menubar.btn_class('codeflow')}}")
+                    i.fa-solid.fa-code
+                        
+            .d-block(ng-if="node.selected")
+                .btn(ng-click="menubar.toggle('uimode')" class="{{menubar.btn_class('uimode')}}")
+                    i.fa-solid.fa-display
 
             .mt-auto
 
@@ -415,6 +418,14 @@
             }
 
             .{{node.selected.id}} {
+                opacity: 1;
+            }
+
+            .workspace-tab.codeflow .card {
+                opacity: 0.6;
+            }
+
+            .workspace-tab.codeflow .card.codeflow-selected {
                 opacity: 1;
             }
 
@@ -503,8 +514,8 @@
     div(ng-if="workflow.active_flow_id")
         style.
             .{{workflow.active_flow_id}} {
-                    background: white;
-                    border: 1px solid #4ea9ff;
-                    -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
-                    box-shadow: 0 2px 20px 2px #4ea9ff;
+                background: white;
+                border: 1px solid #4ea9ff;
+                -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                box-shadow: 0 2px 20px 2px #4ea9ff;
             }

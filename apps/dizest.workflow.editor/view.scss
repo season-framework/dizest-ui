@@ -98,7 +98,65 @@
             height: calc(100% - 40px);
             overflow: auto;
         }
+    }
 
+    .uimode {
+        .workspace-tab-body {
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .uimode-editor {
+        display: flex;
+        flex: 1;
+        max-width: 100%;
+        border-left: none;
+
+        .ui-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--wiz-color-border);
+
+            &:first-child {
+                border-left: none;
+            }
+        }
+
+        .uimode-code {
+            width: 100%;
+            flex: auto;
+        }
+
+        .uimode-codeselect {
+            display: flex;
+            background-color: var(--wiz-color-blue);
+            color: white;
+            height: 40px;
+            align-items: center;
+            padding: 0 8px;
+            cursor: grab;
+
+            a {
+                padding: 0 8px;
+                cursor: pointer;
+                color: white;
+
+                &.active {
+                    background-color: white;
+                    color: var(--wiz-color-blue);
+                }
+
+                i {
+                    font-size: 16px;
+                }
+            }
+        }
     }
 
     .codeflow {
@@ -631,9 +689,11 @@
 
                 .value-data {
                     flex: auto;
+
                     textarea, select, input {
                         width: 100%;
                         height: auto;
+                        min-height: 24px;
                     }
                 }
 
