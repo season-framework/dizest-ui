@@ -151,6 +151,9 @@ def drive_api():
     resp = None
     if fnname == 'ls':
         resp = workflow.drive_api.ls(path)
+    elif fnname == 'create':
+        data = wiz.request.query()
+        resp = workflow.drive_api.create(path, data)
     elif fnname == 'rename':
         data = wiz.request.query()
         resp = workflow.drive_api.rename(path, data)

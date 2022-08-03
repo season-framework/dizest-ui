@@ -71,7 +71,7 @@
         .workspace-tab.drive-area(ng-if="leftmenu.is('drive')")
             .workspace-tab-header
                 .workspace-tab-header-title
-                    i.fa-solid.fa-folder-tree.mr-2
+                    input.form-check-input.mr-2(type="checkbox" ng-click="drive.check()" ng-model="drive.checked_all")
                     span Drive
                 .ml-auto
                 .btn.btn-white.btn-sm.mr-2(ng-click="drive.create()")
@@ -83,8 +83,14 @@
                 .text-white.close-btn(ng-click="leftmenu.toggle('app')")
                     i.fa-solid.fa-xmark
             
+            .list-back
+                table.table.table-sm.table-vcenter.mb-0
+                    tr
+                        td.text-muted.bg-dark-lt(style="padding: 4px 12px;")
+                            small {{drive.current? drive.current : '/'}}
+
             .list-back(ng-if="drive.current != ''")
-                table.table.table-sm.table-hover.table-vcenter
+                table.table.table-sm.table-hover.table-vcenter.mb-0
                     tr
                         td.text-left.cursor-pointer.bg-primary-lt(ng-click="drive.cd('..')")
                             svg.icon.mr-2(xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round")
@@ -93,16 +99,28 @@
                             span ...
 
             .workspace-tab-body.p-0
-                table.table.table-sm.table-hover.table-vcenter
+                table.table.table-sm.table-hover.table-vcenter.mb-5
+                    tr(ng-if="drive.is_create")
+                        td.w-1.pr-0
+                        td.w-1.pr-0
+                            .avatar-area.avatar-area-sm
+                                .avatar-container.folder
+                                    i.fa-solid.fa-folder
+                        td(colspan=2)
+                            .d-flex
+                                input.form-control(ng-model="drive.create_name" ng-enter="drive.api.create()" placeholder="folder name")
+                                .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="drive.api.create()")
+                                    i.fa-solid.fa-check
+
                     tr(ng-repeat="file in drive.files")
                         td.w-1.pr-0
-                            input.form-check-input(type="checkbox" ng-model="file.checked" ng-click="event.check(file)")
-                        td.w-1.pr-0(ng-click="event.check(file)")
+                            input.form-check-input(type="checkbox" ng-model="file.checked" ng-click="drive.check(file)")
+                        td.w-1.pr-0(ng-click="drive.check(file)")
                             .avatar-area.avatar-area-sm
                                 .avatar-container(class="{{file.type == 'folder' ? 'folder' : ''}}")
                                     i.fa-solid.fa-file(ng-if="file.type == 'file'")
                                     i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
-                        td.text-left.filename(ng-if="!file.edit" ng-click="event.check(file)")
+                        td.text-left.filename(ng-if="!file.edit" ng-click="drive.check(file)")
                             div
                                 a(ng-click="drive.click(file)" ng-if="file.type == 'folder'") {{file.name}}
                                 a(ng-href="{{drive.api.download(file)}}" target="_blank" ng-if="file.type == 'file'") {{file.name}}
@@ -134,6 +152,11 @@
                                         a.dropdown-item(ng-click="drive.api.remove(file)")
                                             i.fa-solid.fa-trash
                                             span Delete
+
+            .drive-footer(ng-if="drive.checked.length > 0")
+                .btn.btn-red.btn-block(ng-click="drive.api.remove_all()")
+                    i.fa-solid.fa-trash.mr-2
+                    span Delete
 
         .workflow(ng-if="workflow.display")
             .workflow-canvas.noselect(ng-if="!workflow.clear")

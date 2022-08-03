@@ -1126,12 +1126,52 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.current = "";
         obj.files = [];
+        obj.is_create = false;
+        obj.create_name = '';
+        obj.checked = [];
+        obj.checked_all = false;
 
         obj.toggle = async () => {
             leftmenu.toggle('drive');
             if (leftmenu.is('drive')) {
                 await obj.api.ls();
             }
+            await $render();
+        }
+
+        obj.check = async (file) => {
+            if (!file) {
+                let checkstatus = true;
+                if (obj.checked.length > 0) {
+                    checkstatus = false;
+                    obj.checked = [];
+                }
+
+                for (let i = 0; i < obj.files.length; i++) {
+                    obj.files[i].checked = checkstatus;
+                    if (checkstatus)
+                        obj.checked.push(obj.files[i].name);
+                }
+
+                obj.checked_all = checkstatus;
+                await $render();
+                return;
+            }
+
+            file.checked = !file.checked;
+            if (file.checked && !obj.checked.includes(file.name)) {
+                obj.checked.push(file.name);
+            }
+            if (!file.checked) {
+                obj.checked.remove(file.name);
+            }
+
+            obj.checked_all = obj.checked.length > 0;
+            await $render();
+        }
+
+        obj.create = async () => {
+            obj.is_create = true;
             await $render();
         }
 
@@ -1185,6 +1225,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.api = {};
 
+        obj.api.create = async () => {
+            if (!obj.create_name || obj.create_name.length == 0) {
+                obj.is_create = false;
+                await $render();
+                return;
+            }
+
+            let { code, data } = await DRIVE_API.call('create' + obj.current, { name: obj.create_name });
+            if (code == 401) return await $alert('file name already exists');
+            obj.create_name = '';
+            obj.is_create = false;
+            await obj.api.ls();
+        }
+
         obj.api.download = (file) => {
             return DRIVE_API.url('download' + obj.current + "/" + encodeURIComponent(file.name));
         }
@@ -1199,6 +1253,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 return b.type.localeCompare(a.type);
             });
             obj.files = data;
+            obj.checked = [];
+            obj.checked_all = false;
             await $render();
         }
 
@@ -1215,10 +1271,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await obj.api.ls();
         }
 
-        obj.api.remove = async (file) => {
+        obj.api.remove = async (file, donotreload) => {
             let fdata = angular.copy(file);
             await DRIVE_API.call('remove' + obj.current, { name: fdata.name });
-            await obj.api.ls();
+            if (!donotreload)
+                await obj.api.ls();
         }
 
         obj.api.upload = async (fd) => {
@@ -1240,6 +1297,18 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             });
 
             await fn(fd);
+            await obj.api.ls();
+            $('#file-uploader').val(null);
+            await $loading.hide();
+        }
+
+        obj.api.remove_all = async () => {
+            await $loading.show();
+            for (let i = 0; i < obj.files.length; i++) {
+                if (obj.checked.includes(obj.files[i].name)) {
+                    await obj.api.remove(obj.files[i], true);
+                }
+            }
             await obj.api.ls();
             await $loading.hide();
         }

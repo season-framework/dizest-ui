@@ -107,13 +107,22 @@
         display: flex;
         flex-direction: column;
 
+        .drive-footer {
+            height: 32px;
+
+            .btn {
+                border-radius: 0;
+            }
+        }
+
         .list-back {
-            height: 37px;
+            height: auto;
         }
 
         .workspace-tab-body {
             flex: auto;
             height: 100%;
+            background-color: white;
         }
 
         .w-1 {
