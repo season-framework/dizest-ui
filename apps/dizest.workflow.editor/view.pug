@@ -3,6 +3,30 @@
         form#file-form
             input#file-uploader.form-control(type='file' name='file[]' multiple)
 
+    .workspace-kernel-selector(ng-if="kernel.status == 'stop'")
+        .kernel-select-box
+            h3.text-center Kernel is not started yet
+            .text-center.text-muted select and start kernel for use workflow
+            .mb-4
+            .d-flex
+                .dropdown(ng-if="kernel.is('stop')")
+                    button.btn.btn-white.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                        span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
+                        span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec}}
+                    
+                    ul.dropdown-menu.dropdown-menu-dark
+                        li(ng-repeat="spec in kernel.specs")
+                            a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
+                .mr-2
+                a.btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
+                    i.fa-solid.fa-play.mr-2
+                    span Start Kernel
+            
+            .mb-3
+            a.btn.btn-link.btn-block(href=url)
+                i.fa-solid.fa-circle-chevron-left.mr-2
+                span return workflow list
+
     .workspace-header
         .page-header.d-print-none
             .row.align-items-center
@@ -17,19 +41,6 @@
                         span {{workflow.data.title}}
 
                 .col-auto.actions
-                    .dropdown(ng-if="kernel.is('stop')")
-                        button.btn.btn-white.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
-                            span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
-                            span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec}}
-                        
-                        ul.dropdown-menu.dropdown-menu-dark
-                            li(ng-repeat="spec in kernel.specs")
-                                a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
-                    
-                    a.btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
-                        i.fa-solid.fa-play.mr-2
-                        span Start Kernel
-
                     a.btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
 
                     a.btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
@@ -55,7 +66,7 @@
                     i.fa-solid.fa-cube
                     .mt-2 No Apps
 
-                .app-info(ng-repeat="item in app.data" ng-if="!app.ishide[item.id]" draggable="true" ondragstart="dragdrop.drag(event)" data-node="{{item.id}}")
+                .app-info(ng-repeat="item in app.data" ng-if="!app.ishide[item.id]" draggable="true" ondragstart="dragdrop.drag(event)" data-node="{{item.id}}" ng-mouseover="app.hover = item.id" ng-mouseleave="app.hover = null")
                     .avatar-area.avatar-area-sm.mr-3
                         .avatar-container
                             span.avatar(style="background-image: {{ item.logo ? 'url(' + item.logo + ')' : '#fff' }}" ng-cloak)
@@ -63,7 +74,7 @@
                         .app-header.mb-1.pb-1 {{item.title}}
                         .app-namespace.text-muted {{item.version}}
                     .ml-auto
-                        button.btn.btn-white.btn-sm.mr-1(ng-click="app.delete(item.id)")
+                        button.btn.btn-white.btn-sm(ng-click="app.delete(item.id)")
                             i.fa-solid.fa-xmark
                         button.btn.btn-primary.btn-sm(ng-click="workflow.add(item.id)")
                             i.fa-solid.fa-plus
@@ -98,7 +109,7 @@
                                 path(d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4")
                             span ...
 
-            .workspace-tab-body.p-0
+            .workspace-tab-body.p-0(ng-drop="drive.drop")
                 table.table.table-sm.table-hover.table-vcenter.mb-5
                     tr(ng-if="drive.is_create")
                         td.w-1.pr-0
@@ -516,7 +527,7 @@
             .d-block
                 .btn.btn-white(ng-click="menubar.toggle('shortcut')" class="{{menubar.btn_class('shortcut')}}")
                     i.fa-solid.fa-keyboard
-        
+    
     div(ng-if="node.selected")
         style.
             .drawflow-node {
@@ -532,6 +543,16 @@
             }
 
             .workspace-tab.codeflow .card.codeflow-selected {
+                opacity: 1;
+            }
+
+    div(ng-if="app.hover")
+        style.
+            .drawflow-node {
+                opacity: 0.3;
+            }
+
+            .drawflow-node.{{app.hover}} {
                 opacity: 1;
             }
 

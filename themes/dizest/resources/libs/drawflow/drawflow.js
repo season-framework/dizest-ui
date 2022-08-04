@@ -604,6 +604,11 @@ class Drawflow {
     }
 
     contextmenu(e) {
+        if (e.target.classList[0] == 'debug-message')
+            return;
+        if (e.target.parentElement.classList[0] == 'debug-message')
+            return;
+
         this.dispatch('contextmenu', e);
         e.preventDefault();
 

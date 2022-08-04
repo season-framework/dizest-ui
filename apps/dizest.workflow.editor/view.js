@@ -627,7 +627,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         let h = $('#drawflow').height() * zoom;
 
                         let tx = Math.round(-x + (w / 2.4));
-                        let ty = Math.round(-y + (h / 3));
+                        let ty = Math.round(-y + (h / 4));
 
                         workflow.drawflow.move({ canvas_x: tx, canvas_y: ty });
                         return true;
@@ -1060,7 +1060,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.kernel = $scope.kernel = (() => {
         let obj = {};
 
-        obj.status = 'stop';
+        obj.status = null;
         obj.spec = null;
 
         obj.init = async () => {
@@ -1099,11 +1099,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.start = async () => {
+            obj.status = null;
+            await $render();
             await $loading.show();
             let { code, data } = await API("start", { spec: obj.spec });
             if (code != 200) {
                 await $loading.hide();
-                return await $alert(data);
+                await $alert(data);
+                obj.status = 'stop';
+                await $render();
+                return;
             }
             await $render();
         }
@@ -1130,6 +1135,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.create_name = '';
         obj.checked = [];
         obj.checked_all = false;
+
+        obj.drop = {
+            text: "Drop File Here!",
+            ondrop: async (e, files) => {
+                let fd = new FormData();
+                let filepath = [];
+                for (let i = 0; i < files.length; i++) {
+                    fd.append('file[]', files[i]);
+                    filepath.push(files[i].filepath);
+                }
+                fd.append("filepath", JSON.stringify(filepath));
+                await drive.api.upload(fd);
+            }
+        };
 
         obj.toggle = async () => {
             leftmenu.toggle('drive');
@@ -1377,14 +1396,34 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         });
 
+        let Style = {
+            base: [
+                "color: #fff",
+                "background-color: #444",
+                "padding: 2px 4px",
+                "border-radius: 2px"
+            ],
+            warning: [
+                "color: #eee",
+                "background-color: red"
+            ],
+            success: [
+                "background-color: green"
+            ]
+        }
+
         obj.client.on("flow.api", async (message) => {
             let { flow_id, data } = message;
-            console.log(data);
-            // data = data.replace(/\n/gim, '<br>');
-            // if (workflow.debug[flow_id]) workflow.debug[flow_id] = workflow.debug[flow_id] + '<br>' + data;
-            // else workflow.debug[flow_id] = data;
-            // await obj.log(flow_id);
-            // await $render();
+            let html_decode = (input) => {
+                let doc = new DOMParser().parseFromString(input, "text/html");
+                return doc.documentElement.textContent;
+            }
+
+            data = html_decode(data);
+
+            let style = Style.base.join(';') + ';';
+            style += Style.success.join(';');
+            console.log(`%cdizest.py`, style, data);
         });
 
         return obj;

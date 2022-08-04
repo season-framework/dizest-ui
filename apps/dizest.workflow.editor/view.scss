@@ -2,6 +2,25 @@
     overflow: hidden;
 }
 
+.workspace-kernel-selector {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3000;
+    background-color: rgba(0,0,0,.7);
+    width: 100vw;
+    height: 100vh;
+
+    .kernel-select-box {
+        background-color: #fff;
+        padding: 32px;
+        margin: 0 auto;
+        border-radius: 24px;
+    }
+}
+
 .workspace-header {
     padding: 6px 24px;
     height: 54px;
@@ -493,14 +512,21 @@
                     background: var(--wiz-color-blue-lt);
                 }
 
-                .app-header {
-                    font-size: 16px;
-                    font-weight: 1000;
+                .title-area {
                     flex: auto;
-                }
-
-                .app-namespace {
-                    font-size: 14px;
+                    
+                    .app-header {
+                        font-size: 14px;
+                        font-weight: 1000;
+                        width: 128px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    
+                    .app-namespace {
+                        font-size: 12px;
+                    }
                 }
 
                 &:hover {
@@ -734,6 +760,13 @@
                 -moz-user-select: text;
                 -ms-user-select: text;
                 user-select: text;
+
+                pre {
+                    padding: 0;
+                    margin: 0;
+                    border: none;
+                    background: transparent;
+                }
             }
         }
 

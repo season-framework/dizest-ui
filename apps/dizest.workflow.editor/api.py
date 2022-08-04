@@ -161,10 +161,16 @@ def drive_api():
         data = wiz.request.query()
         resp = workflow.drive_api.remove(path, data)
     elif fnname == 'upload':
+        filepath = wiz.request.query("filepath", "[]")
+        filepath = json.loads(filepath)
         files = wiz.request.files()
-        for f in files:
+        for i in range(len(files)):
+            f = files[i]
             fd = (f.filename, f.stream, f.content_type, f.headers)
-            workflow.drive_api.upload(path, method=request.method, files={"file": fd})
+            fdd = dict()
+            if len(filepath) > 0: 
+                fdd['filepath'] = filepath[i]
+            workflow.drive_api.upload(path, method=request.method, files={"file": fd}, data=fdd)
         wiz.response.status(200)
     elif fnname == 'download':
         resp = workflow.drive_api.download(path)
@@ -202,6 +208,30 @@ def render():
     flow = workflow.flow(flow_id)
     headjs = '''
     <script type="text/javascript">
+    let _log = console.log;
+    
+    let Style = {
+        base: [
+            "color: #fff",
+            "background-color: #444",
+            "padding: 2px 4px",
+            "border-radius: 2px"
+        ],
+        warning: [
+            "color: #eee",
+            "background-color: red"
+        ],
+        success: [
+            "background-color: green"
+        ]
+    }
+
+    console.log = function() {
+        let style = Style.base.join(';') + ';';
+        style += Style.base.join(';');
+        _log(`%cdizest.js`, style, ...arguments);
+    }
+
     window.API = (()=> {
         let obj = {};
         obj.url = (fnname)=> "{url}/" + fnname;

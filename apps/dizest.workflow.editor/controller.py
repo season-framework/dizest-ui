@@ -8,6 +8,9 @@ wiz.res.theme("dizest") \
     .js('libs/ansi/ansi.js') \
     .js('libs/monaco/ui-monaco.js') \
     .ng('ui.monaco') \
+    .js('libs/season/dragger.js') \
+    .js('libs/season/dragger.ng.js') \
+    .ng('season.dragger') \
     .js('libs/monaco/min/vs/loader.js', onload=True) \
     .script("require.config({ paths: { vs: '/resources/themes/dizest/libs/monaco/min/vs' } });")
 
