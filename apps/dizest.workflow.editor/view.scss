@@ -311,6 +311,10 @@
     }
 
     .codeflow {
+        .status-indicator-circle {
+            --tblr-status-circle-size: 8px !important;
+        }
+
         .codeflow-body {
             padding: 16px;
             height: calc(100% - 40px);

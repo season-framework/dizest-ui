@@ -121,7 +121,7 @@
                         tr
                             td.text-center(style="height: 100%; vertical-align: middle;")
                                 .spinner-border.text-blue
-                                h4.pt-4 The drive is not available while the kernel is running
+                                h4.pt-4 Drive is not available while the kernel is running
 
             .workspace-tab-body.p-0(ng-drop="drive.drop" ng-if="!kernel.is('running')")
                 table.table.table-sm.table-hover.table-vcenter.mb-5
@@ -378,7 +378,12 @@
                                 tr
                                     th.w-1.nowrap Code
                         .codeflow-codearea
-                            .item-index [{{workflow.status[item.id].index}}]
+                            .item-index(ng-if="workflow.status[item.id].index != '*'") [{{workflow.status[item.id].index}}]
+                            .item-index(ng-if="workflow.status[item.id].index == '*'" style="padding-left: 4px;")
+                                span.status-indicator.status-indicator-animated.status-primary
+                                    span.status-indicator-circle
+                                    span.status-indicator-circle
+                                    span.status-indicator-circle
                             .item-body
                                 div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
 
@@ -482,7 +487,7 @@
                 .text-white.close-btn(ng-click="menubar.toggle('uimode')")
                     i.fa-solid.fa-xmark
             
-            .workspace-tab-body.p-0(ng-if="workflow.data.apps[node.selected.app_id].pug")
+            .workspace-tab-body.p-0(ng-if="workflow.data.apps[node.selected.app_id].pug && !kernel.is('running')")
                 iframe#uimode-iframe(ng-if="uimode.iframe" ng-show="uimode.iframe_loaded")
                 div(ng-if="!uimode.iframe_loaded" style="width: 100%; height: 100%;")
                     table(style="width: 100%; height: 100%;")
@@ -490,9 +495,10 @@
                             td.text-center(style="height: 100%; vertical-align: middle;")
                                 .spinner-border.text-blue
             
-            .workspace-tab-body.p-6.text-center(ng-if="!workflow.data.apps[node.selected.app_id].pug")
-                h1 Not support UI
-
+            .workspace-tab-body.p-6.text-center(ng-if="!workflow.data.apps[node.selected.app_id].pug || kernel.is('running')")
+                h2(ng-if="!kernel.is('running')") Not support UI
+                h2(ng-if="kernel.is('running')") UI is not available while the kernel is running
+                
         .workspace-tab.shortcut-view(ng-if="menubar.is('shortcut')")
             .workspace-tab-header
                 .workspace-tab-header-title

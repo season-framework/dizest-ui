@@ -20,8 +20,10 @@ class Controller(wiz.controller("base")):
 
         wiz.menu.main \
             .add(title='Workspace', ko="작업공간", type="header") \
-            .add(title='Dashboard', ko="대시보드", url='/hub/dashboard', icon="fa-solid fa-table-columns") \
-            .add(title='Workflow', ko="워크플로우", url='/hub/workflow/list', icon="fa-solid fa-cubes")
+            .add(title='Dashboard', url='/hub/dashboard', icon="fa-solid fa-table-columns") \
+            .add(title='Workflow', url='/hub/workflow/list', icon="fa-solid fa-cubes") \
+            .add(title='Explore', url='/hub/explore', icon="fa-solid fa-magnifying-glass") \
+            .add(title='Featured', url='/hub/featured', icon="fa-solid fa-star")
 
         if wiz.session.get("role") == 'admin':
             wiz.menu.main \

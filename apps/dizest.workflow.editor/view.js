@@ -1043,6 +1043,9 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.save = async (hide_result) => {
+            let tiemstamp = new Date().getTime();
+            if (kernel.is("running")) return;
+
             let data = await obj.update(true);
 
             if (!data.title || data.title.length == 0) {
@@ -1063,6 +1066,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             else if (res.code != 200) toastr.error("Error");
 
             await uimode.render();
+
+            obj.last_updated = new Date().getTime();
         }
 
         obj.delete = async () => {

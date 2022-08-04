@@ -62,7 +62,6 @@ let wiz_controller = async ($scope, $loading, $render) => {
     setInterval(async () => {
         if (monitor.active) {
             await monitor.load();
-            await workflow.load();
         }
     }, 1000);
 }

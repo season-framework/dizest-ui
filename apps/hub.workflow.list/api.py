@@ -40,7 +40,6 @@ def create():
         data['created'] = datetime.datetime.now()
         data['updated'] = datetime.datetime.now()
         res = db.insert(data)
-        print(res)
     except Exception as e:
         wiz.response.status(500, str(e))
     wiz.response.status(200)
