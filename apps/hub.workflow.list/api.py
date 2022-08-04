@@ -3,6 +3,11 @@ import json
 import math
 import datetime
 
+manager_id = wiz.request.query("manager_id", "main")
+
+dizest = wiz.model("dizest").load(manager_id)    
+manager = dizest.manager()
+
 db = wiz.model("orm").use("workflow")
 user_id = wiz.session.get("id")
 
@@ -16,7 +21,14 @@ def list():
     if len(text) > 0:
         where['title'] = text
         where['like'] = 'title'
-    rows = db.rows(orderby='title', order='ASC', page=page, dump=dump, **where)
+    rows = db.rows(orderby='updated', order='DESC', page=page, dump=dump, **where)
+    for row in rows:
+        wpid = row['id']
+        workflow = manager.workflow_by_id(wpid)
+        status = "stop"
+        if workflow is not None:
+            status = workflow.status()
+        row['status'] = status        
     total = db.count(**where)
     wiz.response.status(200, rows=rows, lastpage=math.ceil(total/dump), page=page)
 

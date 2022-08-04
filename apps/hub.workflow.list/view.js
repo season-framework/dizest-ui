@@ -1,6 +1,6 @@
 let wiz_controller = async ($scope, $render, $loading, $file, $alert) => {
     await $loading.show();
-    
+
     let workflow = $scope.workflow = (() => {
         let obj = {};
         obj.data = [];
@@ -25,6 +25,12 @@ let wiz_controller = async ($scope, $render, $loading, $file, $alert) => {
             if (obj.query.page * 1 === page * 1) return;
             obj.query.page = page;
             await obj.search();
+        }
+
+        obj.status_class = (item) => {
+            if (item.status == 'stop') return 'bg-secondary';
+            if (item.status == 'running') return 'bg-primary';
+            return 'bg-yellow';
         }
 
         obj.search = async (refresh) => {
@@ -76,6 +82,14 @@ let wiz_controller = async ($scope, $render, $loading, $file, $alert) => {
             }
             location.reload();
         }
+
+        return obj;
+    })();
+
+    let explore = $scope.explore = (() => {
+        let obj = {};
+
+        
 
         return obj;
     })();

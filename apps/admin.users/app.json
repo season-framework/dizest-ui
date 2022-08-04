@@ -1,6 +1,6 @@
 {
-    "id": "hub.workflow.list",
-    "category": "hub",
+    "id": "admin.users",
+    "category": "admin",
     "script_type": "text/javascript",
     "theme": "dizest/aside",
     "controller": "user",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "/hub/workflow/list",
-    "created": "2022-06-18 16:13:49",
-    "updated": "2022-08-04 19:14:09"
+    "title": "/hub/admin/users",
+    "created": "2022-08-04 19:05:50",
+    "updated": "2022-08-04 23:28:28"
 }

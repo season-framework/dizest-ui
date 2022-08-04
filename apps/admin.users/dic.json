@@ -1,0 +1,10 @@
+{
+    "default": {
+        "title": "Users",
+        "desc": "admin / manage hub user"
+    },
+    "ko": {
+        "title": "\uc0ac\uc6a9\uc790 \uad00\ub9ac",
+        "desc": "\uad00\ub9ac\uc790 / \uc0ac\uc6a9\uc790 \uad00\ub9ac"
+    }
+}

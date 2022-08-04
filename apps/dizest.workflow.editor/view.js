@@ -20,6 +20,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.call = async (fnname, data) => {
+            if (kernel.is('running')) return {};
             let url = "drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + fnname;
             return await wiz.API.async(url, data);
         }
@@ -839,6 +840,24 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
+        obj.run = async () => {
+            try {
+                if (obj.status[flow_id].status == 'running') {
+                    return;
+                }
+            } catch (e) {
+            }
+
+            await $loading.show();
+            $(".drawflow-node .debug-message").remove();
+            obj.debug = {};
+            await obj.save(true);
+            let { code, data } = await API("run");
+            await $loading.hide();
+            if (code != 200)
+                await $alert(data);
+        }
+
         obj.add = async (app_id) => {
             await obj.update();
             await node.create(app_id);
@@ -1049,7 +1068,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.delete = async () => {
             let res = await $alert('Are you sure to delete?', { btn_action: 'Delete', btn_close: "Cancel" });
             if (!res) return;
-
+            await $loading.show();
             await API("delete");
             location.href = wiz.data.url;
         }
@@ -1339,6 +1358,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         let obj = {};
         obj.client = wiz.socket.get();
         obj.running_status = {};
+        obj.timestamp = new Date().getTime();
 
         obj.log = async (flow_id) => {
             let node_id = '#node-' + flow_id;
@@ -1357,6 +1377,9 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         });
 
         obj.client.on("kernel.status", async (data) => {
+            let timestamp = new Date().getTime();
+            obj.timestamp = timestamp * 1;
+
             if (data.data == 'stop') {
                 workflow.debug = {};
                 workflow.status = {};
@@ -1366,6 +1389,13 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (data.data == 'error') {
                 await workflow.status_init();
                 await workflow.refresh();
+            }
+
+            if (data.data == 'ready') {
+                await $render(1000);
+                if (timestamp < obj.timestamp) {
+                    return;
+                }
             }
 
             kernel.status = data.data;

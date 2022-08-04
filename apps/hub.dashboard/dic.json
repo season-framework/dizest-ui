@@ -1,5 +1,6 @@
 {
     "default": {
-        "hello": "Hello, World!"
+        "title": "Dashboard",
+        "desc": "system status"
     }
 }

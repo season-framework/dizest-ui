@@ -21,7 +21,6 @@ config = wiz.model("dizest").config()
 storage_path = config.storage_path
 if storage_path is None:
     storage_path = os.path.join(config.path, 'storage')
-# storage_path = os.path.join(storage_path, manager_id, workflow_id)
 storage_path = os.path.join(storage_path, user_id)
 try:
     season.util.os.FileSystem(storage_path).makedirs()
@@ -123,11 +122,12 @@ def run():
     try:
         fids = wiz.request.query("flow_id", None)
         if fids is None:
-            raise Exception("Flow id not defined")
-        fids = fids.split(",")
-        for fid in fids:
-            flow = workflow.flow(fid)
-            flow.run()
+            workflow.run()
+        else:
+            fids = fids.split(",")
+            for fid in fids:
+                flow = workflow.flow(fid)
+                flow.run()
     except Exception as e:
         wiz.response.status(500, str(e))
     
@@ -141,6 +141,7 @@ def stop():
     wiz.response.status(200)
 
 def delete():
+    workflow.kill()
     db.delete(id=workflow_id)
     wiz.response.status(200)
 

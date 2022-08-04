@@ -11,7 +11,6 @@ class Controller(wiz.controller("base")):
             wiz.response.redirect("/")
 
         wiz.menu.top \
-            .add(title='WIZ', url='/wiz') \
             .add(title='Mypage', ko="마이페이지", url='/mypage') \
             .add(title='Logout', ko="로그아웃", url='/auth/logout') \
             .add(title='Language', url='/language') \
@@ -21,7 +20,13 @@ class Controller(wiz.controller("base")):
 
         wiz.menu.main \
             .add(title='Workspace', ko="작업공간", type="header") \
-            .add(title='Dashboard', ko="대시보드", url='/hub/dashboard', icon="fa-solid fa-cubes") \
-            .add(title='Workflow', ko="워크플로우", url='/hub/workflow/list', icon="fa-solid fa-cubes") \
-            .add(title='Drive', ko="드라이브", url='/hub/drive', icon="fa-solid fa-folder-tree")        
+            .add(title='Dashboard', ko="대시보드", url='/hub/dashboard', icon="fa-solid fa-table-columns") \
+            .add(title='Workflow', ko="워크플로우", url='/hub/workflow/list', icon="fa-solid fa-cubes")
+
+        if wiz.session.get("role") == 'admin':
+            wiz.menu.main \
+                .add(title='Admin', ko="관리자", type="header") \
+                .add(title='Setting', ko="설정", url='/hub/admin/setting', icon="fa-solid fa-cogs") \
+                .add(title='Users', ko="사용자", url='/hub/admin/users', icon="fa-solid fa-users") \
+                .add(title='Kernel', ko="커널", url='/hub/admin/kernel', icon="fa-solid fa-microchip")
         wiz.menu.main.build()

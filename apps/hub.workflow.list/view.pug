@@ -3,10 +3,8 @@
         .page-header.d-print-none
             .row.align-items-center
                 .col-auto
-                    span.status-indicator.status-indicator-animated.status-primary
-                        span.status-indicator-circle
-                        span.status-indicator-circle
-                        span.status-indicator-circle
+                    .text-blue.mr-1(style="font-size: 28px;")
+                        i.fa-solid.fa-cubes
                 .col
                     h2.page-title= dic("title")
                     .text-muted
@@ -14,12 +12,12 @@
                             li.list-inline-item= dic("desc")
 
                 .col-auto.actions.area-round
-                    input.form-control.mr-1(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
+                    input.form-control(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
                 
                 .col-auto.actions.area-round
-                    a.btn.btn-primary.mr-1(ng-click="workflow.import()")
+                    a.btn.btn-primary(ng-click="workflow.import()")
                         i.fa-solid.fa-cloud-arrow-up
-                    a.btn.btn-primary(href="/hub/workflow/item/new")
+                    a.btn.btn-primary(ng-click="explore.open()")
                         i.fa-solid.fa-plus
 
     .workflow-list-item
@@ -27,7 +25,10 @@
             .row.row-deck.row-cards
                 .col-md-3.p-3(ng-repeat="item in workflow.data")
                     .card(ng-click="workflow.click(item)")
-                        .card-body.p-0
+                        .card-body.p-0.featured-area
+                            .status-area(ng-if="item.status != 'stop'" class="{{workflow.status_class(item)}}")
+                                span {{item.status}}
+                                
                             .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
                                 svg(viewBox="0 0 16 9")
                                     rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
@@ -38,8 +39,8 @@
                                     span.avatar(style="background-image: url({{item.logo}})")
                             .text-area
                                 h3.card-title.mb-0
-                                    .text-reset(style="white-space: normal; word-break: break-all;") {{item.title}}
-                                .text-muted {{item.updated}}
+                                    .text-reset(style="font-size: 16px; white-space: nowrap; word-break: break-all; width: 168px; overflow: hidden; text-overflow: ellipsis;") {{item.title}}
+                                small.text-muted {{item.updated}}
     
     .workflow-pagenation
         .pagenation.text-center.area-round(ng-if="workflow.pager.pages.length > 0")
