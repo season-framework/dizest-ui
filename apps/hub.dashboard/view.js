@@ -28,11 +28,12 @@ let wiz_controller = async ($scope, $loading, $render) => {
     let workflow = $scope.workflow = (() => {
         let obj = {};
 
+        obj.ids = '[]';
         obj.list = [];
-        
-        obj.status_class = (item) => {
-            if (item.status == 'stop') return 'bg-secondary';
-            if (item.status == 'running') return 'bg-primary';
+
+        obj.status_class = (status) => {
+            if (status == 'stop') return 'bg-secondary';
+            if (status == 'running') return 'bg-primary';
             return 'bg-yellow';
         }
 
@@ -44,6 +45,12 @@ let wiz_controller = async ($scope, $loading, $render) => {
             let { code, data } = await wiz.API.async("workflow");
             if (code != 200) return;
             obj.list = data;
+
+            obj.ids = [];
+            for (let i = 0; i < obj.list.length; i++)
+                obj.ids.push(obj.list[i].id);
+            obj.ids = JSON.stringify(obj.ids);
+
             await $render();
         }
 
@@ -51,6 +58,13 @@ let wiz_controller = async ($scope, $loading, $render) => {
             await $loading.show();
             await wiz.API.async("stop");
             await $loading.hide();
+        }
+
+        obj.get_status = async () => {
+            let { code, data } = await wiz.API.async('status', { id: obj.ids });
+            if (code != 200) return;
+            obj.status = data;
+            await $render();
         }
 
         return obj;
@@ -62,6 +76,7 @@ let wiz_controller = async ($scope, $loading, $render) => {
     setInterval(async () => {
         if (monitor.active) {
             await monitor.load();
+            await workflow.get_status();
         }
     }, 1000);
 }

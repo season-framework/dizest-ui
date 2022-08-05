@@ -5,7 +5,10 @@ aside.navbar.navbar-vertical.navbar-expand-lg.navbar-side
 
         a.navbar-brand.p-0.m-0(href='/')
             .text-center
-                img.d-block.m-1.mt-0.mb-0(src='/resources/images/brand/dizest-hub-white.png' style="height: 32px;")
+                - if hubconfig.logo
+                    img.m-0(src='{$hubconfig.logo$}' style='height:32px; margin: 5px 0 !important;')
+                - else
+                    img.m-0(src='/resources/images/brand/dizest-hub-white.png' style='height:32px; margin: 5px 0 !important;')
 
     #navbar-menu.navbar-collapse.collapse
         ul.navbar-nav

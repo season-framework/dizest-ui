@@ -16,10 +16,7 @@ class Model:
         return cls(tablename=tablename)
 
     def create(self):
-        try:
-            self.orm.create_table()
-        except Exception as e:
-            pass
+        self.orm.create_table()
 
     def random(self, length=16):
         string_pool = _string.ascii_letters + _string.digits
@@ -80,7 +77,7 @@ class Model:
             return query[0].cnt
         except:
             pass
-        return 0
+        return None
 
     def rows(self, query=None, order='ASC', orderby=None, page=None, dump=10, fields=None, like=None, **where):
         db = self.orm

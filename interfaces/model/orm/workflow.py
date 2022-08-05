@@ -19,3 +19,4 @@ class Model(base):
 
     apps = base.JSONField()
     flow = base.JSONField()
+    extra = base.JSONObject()

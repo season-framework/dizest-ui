@@ -41,3 +41,15 @@ class Model(pw.Model):
             except Exception as e:
                 pass
             return []
+
+    class JSONObject(pw.TextField):
+        def db_value(self, value):
+            return json.dumps(value)
+
+        def python_value(self, value):
+            try:
+                if value is not None:
+                    return json.loads(value)
+            except Exception as e:
+                pass
+            return {}

@@ -85,8 +85,8 @@
                 .col-md-3.p-3(ng-repeat="item in workflow.list")
                     .card(ng-click="workflow.click(item)")
                         .card-body.p-0.featured-area
-                            .status-area(ng-if="item.status != 'stop'" class="{{workflow.status_class(item)}}")
-                                span {{item.status}}
+                            .status-area(ng-if="workflow.status[item.id] && workflow.status[item.id] != 'stop'" class="{{workflow.status_class(workflow.status[item.id])}}")
+                                span {{workflow.status[item.id]}}
                             .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
                                 svg(viewBox="0 0 16 9")
                                     rect(width="16" height="12" style="fill:rgba(255,255,255,0);")

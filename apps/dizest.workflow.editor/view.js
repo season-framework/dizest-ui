@@ -1047,7 +1047,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (kernel.is("running")) return;
 
             let data = await obj.update(true);
-
             if (!data.title || data.title.length == 0) {
                 await $alert("Workflow title is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');

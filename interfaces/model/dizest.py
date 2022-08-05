@@ -32,12 +32,15 @@ class Model:
         return cls(name)
 
     @staticmethod
-    def config():
+    def config(config=None):
         try:
             fs = dizest.util.os.storage(BASEPATH)
-            config = fs.read.json("dizest.json")
-            config = season.stdClass(config)
-            return config
+            if config is None:
+                config = fs.read.json("dizest.json")
+                config = season.stdClass(config)
+                return config
+            
+            fs.write.json("dizest.json", config)
         except:
             return None
     

@@ -1,6 +1,6 @@
 {
-    "id": "hub.dashboard",
-    "category": "hub",
+    "id": "admin.setting",
+    "category": "admin",
     "script_type": "text/javascript",
     "theme": "dizest/aside",
     "controller": "user",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "/hub/dashboard",
-    "created": "2022-06-18 16:03:03",
-    "updated": "2022-08-06 01:09:43"
+    "title": "/hub/admin/setting",
+    "created": "2022-08-06 01:13:15",
+    "updated": "2022-08-06 01:46:34"
 }

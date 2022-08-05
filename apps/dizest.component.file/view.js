@@ -43,7 +43,7 @@ let wiz_controller = async ($scope, $render, $alert) => {
         };
 
         let output = function (canvas, callback) {
-            let blob = canvas.toDataURL('image/jpeg', quality);
+            let blob = canvas.toDataURL('image/png', quality);
             callback(blob);
         }
 

@@ -7,5 +7,6 @@ if wiz.match("/hub/workflow/<path:path>") is not None:
 
 if wiz.session.get("role") == "admin":
     wiz.response.render("/hub/admin/users", "admin.users")
+    wiz.response.render("/hub/admin/setting", "admin.setting")
 
 wiz.response.redirect("/hub/dashboard")
