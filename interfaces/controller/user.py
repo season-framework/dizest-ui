@@ -30,5 +30,6 @@ class Controller(wiz.controller("base")):
                 .add(title='Admin', ko="관리자", type="header") \
                 .add(title='Setting', ko="설정", url='/hub/admin/setting', icon="fa-solid fa-cogs") \
                 .add(title='Users', ko="사용자", url='/hub/admin/users', icon="fa-solid fa-users") \
-                .add(title='Kernel', ko="커널", url='/hub/admin/kernel', icon="fa-solid fa-microchip")
+                .add(title='Kernel', ko="커널", url='/hub/admin/kernel', icon="fa-solid fa-microchip") \
+                .add(title='Web Resources', ko="Web Resources", url='/hub/admin/webresources', icon="fa-brands fa-html5")
         wiz.menu.main.build()

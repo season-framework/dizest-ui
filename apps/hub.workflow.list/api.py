@@ -85,7 +85,7 @@ def run():
     workflow_id = wiz.request.query("workflow_id", True)
     try:
         workflow = manager.workflow_by_id(workflow_id)
-        if workflow is None:
+        if workflow is None or workflow.status() == 'stop':
             raise Exception("kernel not selected")
         workflow.run()
     except Exception as e:
