@@ -1,6 +1,6 @@
 {
     "default": {
-        "title": "Workflows",
+        "title": "Workflow",
         "desc": "My workflow",
         "importerror": "Not supported file format"
     },

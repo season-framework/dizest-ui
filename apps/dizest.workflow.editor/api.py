@@ -16,16 +16,7 @@ else:
     manager_id = wiz.request.uri().split("/")[6]
     dbname = wiz.request.uri().split("/")[5]
 
-# create storage directory
-config = wiz.model("dizest").config()
-storage_path = config.storage_path
-if storage_path is None:
-    storage_path = os.path.join(config.path, 'storage')
-storage_path = os.path.join(storage_path, user_id)
-try:
-    season.util.os.FileSystem(storage_path).makedirs()
-except:
-    pass
+drive = wiz.model("dizest").drive()
 
 db = wiz.model("orm").use(dbname)
 dizest = wiz.model("dizest").load(manager_id)
@@ -45,12 +36,17 @@ def data():
 
 def kernelspecs():
     data = manager.kernelspecs()
-    wiz.response.status(200, data)
+    rows = []
+    for item in data:
+        item = manager.kernelspec(item)
+        rows.append(item)
+    wiz.response.status(200, rows)
 
 def status():
     try:
         stat = workflow.status()
         spec = workflow.kernelspec()
+        spec = manager.kernelspec(spec)
     except Exception as e:
         wiz.response.status(500, str(e))
     wiz.response.status(200, status=stat, spec=spec)
@@ -76,7 +72,7 @@ def flow_status():
 
             try:
                 logs = flow.log()
-                log[flow_id] = "\n".join(logs)
+                log[flow_id] = "".join(logs)
             except:
                 pass
     except:
@@ -108,7 +104,7 @@ def start():
     if spec not in specs:
         wiz.response.status(500, f'not supported kernel spec')
     
-    workflow.spawn(kernel_name=spec, cwd=storage_path)
+    workflow.spawn(kernel_name=spec, cwd=drive.abspath())
     wiz.response.status(200)
 
 def kill():
@@ -147,9 +143,11 @@ def delete():
 
 def drive_api():
     fnname= wiz.request.uri().split("/")[8]
-    path = "/".join(wiz.request.uri().split("/")[9:])
+    path = "/".join(wiz.request.uri().split("/")[9:])    
+    
     request = wiz.request.request()
     resp = None
+    
     if fnname == 'ls':
         resp = workflow.drive_api.ls(path)
     elif fnname == 'create':

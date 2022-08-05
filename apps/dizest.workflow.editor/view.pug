@@ -12,11 +12,11 @@
                 .dropdown(ng-if="kernel.is('stop')")
                     button.btn.btn-white.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
                         span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
-                        span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec}}
+                        span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec.title}}
                     
                     ul.dropdown-menu.dropdown-menu-dark
                         li(ng-repeat="spec in kernel.specs")
-                            a.dropdown-item(ng-click="kernel.select(spec)") {{spec}}
+                            a.dropdown-item(ng-click="kernel.select(spec)") {{spec.title}}
                 .mr-2
                 a.btn.btn-primary(ng-click="kernel.start()" ng-if="kernel.is('stop')")
                     i.fa-solid.fa-play.mr-2
@@ -41,7 +41,7 @@
                         span {{workflow.data.title}}
 
                 .col-auto.actions
-                    a.btn.btn-white(ng-if="!kernel.is('stop')" style="width: 120px; overflow: hidden;") {{kernel.spec}}
+                    a.btn.btn-white(ng-if="!kernel.is('stop')" style="width: 160px; overflow: hidden;") {{kernel.spec.title}}
 
                     a.btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
                         i.fa-solid.fa-stop.mr-2

@@ -7,6 +7,18 @@ import dizest
 
 BASEPATH = os.path.realpath(season.path.project + "/..")
 
+class Drive(dizest.util.os.storage):
+    def __init__(self, basepath, cwd):
+        super().__init__(basepath)
+        self.cwd = cwd
+    
+    def abspath(self, filepath=""):
+        path = super().abspath(filepath)
+        cwd = self.cwd
+        if path[:len(cwd)] != cwd:
+            raise Exception("Unauthroized")
+        return path
+
 class Model:
     def __init__(self, name):
         self.name = name
@@ -43,9 +55,27 @@ class Model:
             return False
         return True
 
+    @staticmethod
+    def drive(path=""):
+        config = wiz.config("dizest")
+        cwd = config.cwd()
+        path = os.path.join(cwd, path)
+        return Drive(path, cwd)
+
     def manager(self):
         name = self.name
-        manager = dizest.load(name, path=os.path.join(BASEPATH, 'kernelspec'), broker=self.broker)
+        config = self.config()
+        spawner_class = dizest.kernel.spawner.SimpleSpawner
+        if config.spawner_class is not None:
+            spawner_class = config.spawner_class
+        manager = dizest.load(name, broker=self.broker, spawner_class=spawner_class)
+
+        kernelspecs = config.kernelspec
+        if kernelspecs is not None:
+            manager.clear_kernelspec()
+            for kernelspec in kernelspecs:
+                manager.set_kernelspec(**kernelspec)
+        
         manager.start()
         return manager
 

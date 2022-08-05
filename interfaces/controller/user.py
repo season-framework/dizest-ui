@@ -23,7 +23,8 @@ class Controller(wiz.controller("base")):
             .add(title='Dashboard', url='/hub/dashboard', icon="fa-solid fa-table-columns") \
             .add(title='Workflow', url='/hub/workflow/list', icon="fa-solid fa-cubes") \
             .add(title='Explore', url='/hub/explore', icon="fa-solid fa-magnifying-glass") \
-            .add(title='Featured', url='/hub/featured', icon="fa-solid fa-star")
+            .add(title='Featured', url='/hub/featured', icon="fa-solid fa-star") \
+            .add(title='Dataset', url='/hub/dataset', icon="fa-solid fa-database")
 
         if wiz.session.get("role") == 'admin':
             wiz.menu.main \

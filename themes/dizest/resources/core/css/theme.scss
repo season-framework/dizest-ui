@@ -153,7 +153,7 @@ body {
     .wiz-content {
         display: flex;
         flex-direction: column;
-        flex: auto;
+        flex: 1;
         height: 100vh;
 
         .wiz-top-menu {
@@ -181,6 +181,7 @@ body {
             flex: auto;
             overflow: auto;
             background: var(--wiz-color-background-lt);
+            height: 0;
         }
     }
 }

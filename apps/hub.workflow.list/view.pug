@@ -1,95 +1,171 @@
-.workflow-list(ng-cloak)
-    .workflow-list-header
-        .page-header.d-print-none
-            .row.align-items-center
-                .col-auto
-                    .text-blue.mr-1(style="font-size: 28px;")
-                        i.fa-solid.fa-cubes
-                .col
-                    h2.page-title= dic("title")
-                    .text-muted
-                        ul.list-inline.list-inline-dots.mb-0
-                            li.list-inline-item= dic("desc")
-
-                .col-auto.actions.area-round
-                    input.form-control(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
-                
-                .col-auto.actions.area-round
-                    a.btn.btn-primary(ng-click="workflow.import()")
-                        i.fa-solid.fa-cloud-arrow-up
-                    a.btn.btn-primary(ng-click="explore.open()")
-                        i.fa-solid.fa-plus
-
-    .workflow-list-item
-        .container.pt-4
-            .row.row-deck.row-cards
-                .col-md-3.p-3(ng-repeat="item in workflow.data")
-                    .card(ng-click="workflow.click(item)")
-                        .card-body.p-0.featured-area
-                            .status-area(ng-if="item.status != 'stop'" class="{{workflow.status_class(item)}}")
-                                span {{item.status}}
-                                
-                            .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
-                                svg(viewBox="0 0 16 9")
-                                    rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
-
-                        .card-footer.d-flex(style="align-items: center;")
-                            .avatar-area.avatar-area-sm.mr-3
-                                .avatar-container
-                                    span.avatar(style="background-image: url({{item.logo}})")
-                            .text-area
-                                h3.card-title.mb-0
-                                    .text-reset(style="font-size: 16px; white-space: nowrap; word-break: break-all; width: 168px; overflow: hidden; text-overflow: ellipsis;") {{item.title}}
-                                small.text-muted {{item.updated}}
-    
-    .workflow-pagenation
-        .pagenation.text-center.area-round(ng-if="workflow.pager.pages.length > 0")
-            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.floor((workflow.query.page-1) / 10) * 10 - 9)" ng-class="(workflow.query.page-1)/10 < 1 ? 'disabled' : ''")
-                i.fas.fa-angle-double-left
-            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1-1)" ng-class="workflow.query.page == 1 ? 'disabled' : ''")
-                i.fas.fa-angle-left
-            button.btn.btn-square.btn-sm.mr-1.ml-1(ng-repeat="p in workflow.pager.pages" ng-class="p == workflow.query.page ? 'btn-primary' : ''" ng-click="workflow.page(p)") {{p}}
-            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1+1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
-                i.fas.fa-angle-right
-            button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.ceil((workflow.query.page) / 10) * 10 + 1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
-                i.fas.fa-angle-double-right
-
-    .modal.fade#import-modal(tabindex="-1")
-        .modal-dialog
-            .modal-content
-                .modal-header
-                    h5.modal-title Workflow Import
-                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
-                .modal-body.bg-white
-                    .form-group.row.mb-3
-                        label.form-label.col-3.col-form-label Title
-                        .col
-                            input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.importdata.title")
+.workspace-area(ng-cloak)
+    .workspace-kernel-selector(ng-if="kernel.active")
+        .kernel-select-box
+            h3.text-center Kernel is not started yet
+            .text-center.text-muted select and start kernel for use workflow
+            .mb-4
+            .d-flex
+                .dropdown
+                    button.btn.btn-white.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
+                        span(style="width: 120px; overflow: hidden;" ng-if="!kernel.spec") Select kernel
+                        span(style="width: 120px; overflow: hidden;" ng-if="kernel.spec") {{kernel.spec.title}}
                     
-                    .form-group.row.mb-3
-                        label.form-label.col-3.col-form-label Version
-                        .col
-                            input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.importdata.version")
+                    ul.dropdown-menu.dropdown-menu-dark
+                        li(ng-repeat="spec in kernel.specs")
+                            a.dropdown-item(ng-click="kernel.select(spec)") {{spec.title}}
+                .mr-2
+                a.btn.btn-primary(ng-click="kernel.start()")
+                    i.fa-solid.fa-play.mr-2
+                    span Start Kernel
+            
+            .mb-3
+            a.btn.btn-link.btn-block(ng-click="kernel.close()")
+                i.fa-solid.fa-xmark.mr-2
+                span Close
 
-                    .form-group.row
-                        label.form-label.col-3.col-form-label Visibility
+    .workspace-list
+        .workflow-list-header
+            .workspace-list-header
+                .page-header.d-print-none
+                    .row.align-items-center
+                        .col-auto
+                            .text-blue.mr-1(style="font-size: 28px;")
+                                i.fa-solid.fa-cubes
                         .col
-                            .form-selectgroup
-                                label.form-selectgroup-item
-                                    input.form-selectgroup-input(type="radio" name="visibility" value="public" ng-model="workflow.importdata.visibility")
-                                    span.form-selectgroup-label
-                                        i.fa-solid.fa-share-nodes.mr-2
-                                        span Public
+                            h2.page-title= dic("title")
+                            .text-muted
+                                ul.list-inline.list-inline-dots.mb-0
+                                    li.list-inline-item= dic("desc")
 
-                                label.form-selectgroup-item
-                                    input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="workflow.importdata.visibility")
-                                    span.form-selectgroup-label
-                                        i.fa-solid.fa-lock.mr-2
-                                        span Private
+                        .col-auto.actions.area-round.if-desktop
+                            input.form-control(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
+                        
+                        .col-auto.actions.area-round.if-desktop
+                            a.btn.btn-primary(ng-click="workflow.import()")
+                                i.fa-solid.fa-cloud-arrow-up
+                            a.btn.btn-primary(ng-click="viewer.create()")
+                                i.fa-solid.fa-plus
+
+        .workspace-list-item
+            .container.pt-4
+                .row.row-deck.row-cards
+                    .p-3(ng-repeat="item in workflow.data" ng-class="tab.active ? 'col-md-4' : 'col-md-3'")
+                        .card(ng-click="viewer.select(item)" id="item-{{item.id}}")
+                            .card-body.p-0.featured-area
+                                .status-area(ng-if="workflow.status[item.id] && workflow.status[item.id] != 'stop'" class="{{workflow.status_class(workflow.status[item.id])}}")
+                                    span {{workflow.status[item.id]}}
+                                    
+                                .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
+                                    svg(viewBox="0 0 16 9")
+                                        rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
+
+                            .card-footer.d-flex(style="align-items: center;")
+                                .avatar-area.avatar-area-sm.mr-3
+                                    .avatar-container
+                                        span.avatar(style="background-image: url({{item.logo}})")
+                                .text-area
+                                    h3.card-title.mb-0
+                                        a.text-reset(style="font-size: 16px; white-space: nowrap; word-break: break-all; width: 168px; overflow: hidden; text-overflow: ellipsis;" ng-click="workflow.click(item, $event)") {{item.title}}
+                                    small.text-muted {{item.updated}}
+        
+        .workspace-list-pagenation
+            .pagenation.text-center.area-round(ng-if="workflow.pager.pages.length > 0")
+                button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.floor((workflow.query.page-1) / 10) * 10 - 9)" ng-class="(workflow.query.page-1)/10 < 1 ? 'disabled' : ''")
+                    i.fas.fa-angle-double-left
+                button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1-1)" ng-class="workflow.query.page == 1 ? 'disabled' : ''")
+                    i.fas.fa-angle-left
+                button.btn.btn-square.btn-sm.mr-1.ml-1(ng-repeat="p in workflow.pager.pages" ng-class="p == workflow.query.page ? 'btn-primary' : ''" ng-click="workflow.page(p)") {{p}}
+                button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(workflow.query.page*1+1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
+                    i.fas.fa-angle-right
+                button.btn.btn-square.btn-sm.btn-light.pt-1.pb-1(ng-click="workflow.page(Math.ceil((workflow.query.page) / 10) * 10 + 1)" ng-class="workflow.query.page == workflow.pager.lastpage ? 'disabled' : ''")
+                    i.fas.fa-angle-double-right
+
+    div(ng-if="tab.is('viewer') && viewer.data.id")
+        style.
+            .workspace-list-item .card {
+                opacity: 0.3;
+            }
+
+            .workspace-list-item #item-{{viewer.data.id}} {
+                opacity: 1;
+            }
+
+    .workspace-tab(ng-if="tab.is('viewer')")
+        .workspace-tab-body.item-panel
+            .card.card-featured
+                .card-cover.card-cover-blurred.text-center(style="background-image: url({{viewer.data.featured}})" ng-if="viewer.data.featured")
+                    span.avatar.avatar-xl.avatar-thumb.avatar-rounded(style="background-image: url({{viewer.data.logo}})" ng-if="viewer.data.logo")
+
+            .title-area.text-center
+                .title-area-head
+                    h2.card-title.mb-1 {{viewer.data.title}}
+                    div {{viewer.data.version}}
+                .title-area-actions
+                    a.action(href="/hub/workflow/item/{{viewer.data.id}}")
+                        span Open
+                        i.fa-solid.fa-square-arrow-up-right.ml-2
+                    a.action(ng-click="viewer.copy()")
+                        span Duplicate
+                        i.fa-solid.fa-clone.ml-2
+                    a.action(ng-click="workflow.run(viewer.data.id)" ng-if="workflow.status[viewer.data.id] != 'running'")
+                        span Run
+                        i.fa-solid.fa-play.ml-2
+                    a.action(ng-click="workflow.kill(viewer.data.id)" ng-if="workflow.status[viewer.data.id] == 'running' || workflow.status[viewer.data.id] == 'ready'")
+                        span Stop
+                        i.fa-solid.fa-stop.ml-2
+                    a.action(ng-click="workflow.delete(viewer.data)")
+                        span Delete
+                        i.fa-solid.fa-trash.ml-2
+            
+            .btn.btn-white.text-dark.tab-close-btn(ng-click="tab.close()")
+                i.fa-solid.fa-xmark
+
+            .descarea.p-5(ng-bind-html="viewer.showdown(viewer.data.description)" ng-if="viewer.data.description")
+            .descarea.p-5.text-center(ng-if="!viewer.data.description")
+                h2 No description
+
+    .workspace-tab(ng-if="tab.is('import')")
+        .workspace-tab-header
+            h3(ng-if="workflow.importmode == 'import'") Import Workflow
+            h3(ng-if="workflow.importmode == 'copy'") Duplicate Workflow
+            h3(ng-if="workflow.importmode == 'new'") New Workflow
+            .ml-auto
+            .text-white.close-btn(ng-click="tab.close()")
+                i.fa-solid.fa-xmark
+        
+        .workspace-tab-body
+            .container
+                .card.mt-4
+                    .card-body
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Title
+                            .col
+                                input.form-control(type="text" placeholder="Workflow Title" ng-model="workflow.importdata.title")
+                        
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Version
+                            .col
+                                input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.importdata.version")
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Visibility
+                            .col
+                                .form-selectgroup
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="visibility" value="public" ng-model="workflow.importdata.visibility")
+                                        span.form-selectgroup-label
+                                            i.fa-solid.fa-share-nodes.mr-2
+                                            span Public
+
+                                    label.form-selectgroup-item
+                                        input.form-selectgroup-input(type="radio" name="visibility" value="private" ng-model="workflow.importdata.visibility")
+                                        span.form-selectgroup-label
+                                            i.fa-solid.fa-lock.mr-2
+                                            span Private
                 
-                .modal-body.bg-white.p-1
-
-                .modal-footer.d-flex.bg-white
-                    button.btn.btn-white(style="border-radius: 16px;" type="button" data-bs-dismiss="modal") Cancel
-                    .mr-auto
-                    button.btn.btn-primary(style="border-radius: 16px;" type="button" ng-click="workflow.create()") Import
+                    .card-footer.d-flex.p-2
+                        .mr-auto
+                        button.btn.btn-primary(style="border-radius: 16px;" type="button" ng-click="workflow.create()")
+                            span(ng-if="workflow.importmode == 'new'") Create
+                            span(ng-if="workflow.importmode == 'import'") Import
+                            span(ng-if="workflow.importmode == 'copy'") Duplicate

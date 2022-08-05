@@ -1126,7 +1126,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             obj.status = null;
             await $render();
             await $loading.show();
-            let { code, data } = await API("start", { spec: obj.spec });
+            let { code, data } = await API("start", { spec: obj.spec.name });
             if (code != 200) {
                 await $loading.hide();
                 await $alert(data);
@@ -1248,8 +1248,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 await obj.cd(file.name);
                 return;
             }
-
-            console.log(file);
         }
 
         obj.cd = async (path) => {
@@ -1334,7 +1332,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     contentType: false,
                     processData: false
                 }).always(function (res) {
-                    console.log(res);
                     resolve(res);
                 });
             });
@@ -1425,8 +1422,10 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.client.on("flow.log", async (message) => {
             let { flow_id, data } = message;
             data = data.replace(/\n/gim, '<br>');
-            if (workflow.debug[flow_id]) workflow.debug[flow_id] = workflow.debug[flow_id] + '<br>' + data;
+            if (workflow.debug[flow_id]) workflow.debug[flow_id] = workflow.debug[flow_id] + data;
             else workflow.debug[flow_id] = data;
+            let d = workflow.debug[flow_id].split("<br>");
+            workflow.debug[flow_id] = d.splice(d.length - 51 > 0 ? d.length - 51 : 0).join("<br>");
             await obj.log(flow_id);
             await $render();
         });
