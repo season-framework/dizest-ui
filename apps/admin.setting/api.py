@@ -20,10 +20,14 @@ def checkdb():
     data = wiz.request.query("data", True)
     data = json.loads(data)
 
-    model = wiz.model("orm").use('userf')
-    users = model.rows()
-    model = wiz.model("orm").use('workflow')
-    workflow = model.rows()
+    datamigration = True
+    try:
+        model = wiz.model("orm").use('userf')
+        users = model.rows()
+        model = wiz.model("orm").use('workflow')
+        workflow = model.rows()
+    except:
+        datamigration = False
     
     wiz.model("dizest").package(data)
     try:
@@ -38,7 +42,7 @@ def checkdb():
         if count is None:
             raise Exception("Not connected")
         
-        if count == 0:
+        if count == 0 and datamigration:
             model = wiz.model("orm").use('userf')
             for user in users: model.insert(user)
             model = wiz.model("orm").use('workflow')

@@ -4,5 +4,4 @@ if config:
         wiz.response.redirect("/hub")
     else:
         wiz.response.redirect("/auth/login")
-
-wiz.response.render("page.installation")
+wiz.response.render("admin.installation")

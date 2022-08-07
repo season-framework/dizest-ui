@@ -1,0 +1,15 @@
+{
+    "id": "admin.installation",
+    "category": "admin",
+    "script_type": "text/javascript",
+    "theme": "dizest/base",
+    "controller": "base",
+    "properties": {
+        "html": "pug",
+        "css": "css",
+        "js": "javascript"
+    },
+    "title": "/installation",
+    "created": "2022-08-07 22:31:18",
+    "updated": "2022-08-07 23:10:32"
+}

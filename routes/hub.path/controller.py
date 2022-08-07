@@ -1,3 +1,6 @@
+if wiz.model("dizest").status() == False:
+    wiz.response.redirect("/")
+
 server_id = "main-" + wiz.session.get("id")
 
 wiz.response.render("/hub/mypage", "hub.mypage")

@@ -14,7 +14,11 @@ def users():
 
         obj = dict()
         obj['status'] = server.is_running()
-        obj['count'] = len(server.workflows())
+        counter = 0
+        for wp in server.workflows():
+            wpstatus = server.workflow(wp).status()
+            if wpstatus != 'stop': counter = counter + 1
+        obj['count'] = counter
         status[row['id']] = obj
 
     wiz.response.status(200, users=rows, status=status)

@@ -23,8 +23,9 @@ try:
     PACKAGE_INSTALLER = kernel['package_install'].replace("$EXECUTABLE", EXECUTABLE)
     PACKAGE_LIST = kernel['package_list'].replace("$EXECUTABLE", EXECUTABLE)
     PACKAGE_LIST = PACKAGE_LIST.split(" ")
-except:
-    wiz.response.status(404)
+except Exception as e:
+    print(e)
+    wiz.response.status(500)
 
 def package_installer():
     try:

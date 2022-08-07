@@ -49,7 +49,7 @@ class Model:
         try:
             db = wiz.model("orm").use("user")
             count = db.count()
-            if count == 0:
+            if count == 0 or count == None:
                 return False
         except:
             return False
