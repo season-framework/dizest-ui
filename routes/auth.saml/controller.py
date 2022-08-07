@@ -4,11 +4,10 @@ import datetime
 from urllib.parse import urlparse
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 
-model = wiz.model("orm").use("users")
+model = wiz.model("mysql").use("user")
 
 action = wiz.request.segment.action
-
-SAML_PATH = wiz.path("config/saml/webinar")
+SAML_PATH = wiz.path("config/saml/season")
 
 def build_auth():
     request = wiz.request.request()
@@ -48,72 +47,47 @@ elif action == 'acs':
             wiz.session.delete('AuthNRequestID')
         
         userinfo = auth.get_attributes()
-
-        if userinfo is not None:
-            eppn = userinfo['eduPersonPrincipalName'][0]
-            username = userinfo['displayName'][0]
-            email = userinfo['mail'][0]
-            nameid = auth.get_nameid()
-            nameidformat = auth.get_nameid_format()
-            nameid_nq = auth.get_nameid_nq()
-            nameid_spnq = auth.get_nameid_spnq()
-
-            user = model.rows(edupersonprincipal=eppn)
-            if len(user) == 0:
-                insert_data = dict()
-                insert_data['idp_id'] = 'https://saml.kafe.or.kr/idp/simplesamlphp'
-                insert_data['userid'] = nameid
-                insert_data['edupersonprincipal'] = eppn
-                insert_data['email'] = email
-                insert_data['username'] = username
-                insert_data['last_access'] = datetime.datetime.now()
-                insert_data['role'] = 'user'
-                model.insert(insert_data)
-                user = model.rows(edupersonprincipal=eppn)
-                user = user[0]
-            else:
-                user = user[0]
-                insert_data = dict()
-                insert_data['idp_id'] = 'https://saml.kafe.or.kr/idp/simplesamlphp'
-                insert_data['userid'] = nameid
-                insert_data['email'] = email
-                insert_data['username'] = username
-                insert_data['last_access'] = datetime.datetime.now()
-                model.update(insert_data, id=user['id'])
-
-            
-            affi = eppn.split("@")[1]
-            orgs = wiz.model("orm").use('options').get(key="orgs")
+        uinfodict = {'uid': 'id', 'name': 'username'}
+        sessiondata = dict()
+        for key in userinfo:
             try:
-                orgs = orgs['value']
-                orgs = orgs.split("\n")
-                for i in range(len(orgs)):
-                    orgs[i] = orgs[i].strip().replace(" ", "")
+                v = userinfo[key][0]
+                if key in uinfodict: 
+                    key = uinfodict[key]
+                sessiondata[key] = v
             except:
-                orgs = []
+                pass
 
-            user['auth'] = 'premium'
-            if affi in orgs:
-                user['auth'] = 'normal'
-            if user['role'] == 'admin':
-                user['auth'] = 'premium'
+        userinfo = model.get(id=sessiondata['id'])
+        if userinfo is None:
+            userinfo = dict()
+            userinfo['id'] = sessiondata['id']
+            userinfo['username'] = sessiondata['username']
+            userinfo['email'] = sessiondata['email']
+            userinfo['created'] = datetime.datetime.now()
+            userinfo['last_access'] = datetime.datetime.now()
+            userinfo['role'] = 'user'
+            model.upsert(userinfo)
+        else:
+            userinfo['last_access'] = datetime.datetime.now()
+            model.upsert(userinfo)
+
+        sessiondata['role'] = userinfo['role']
  
         relaystate = wiz.request.query('RelayState')
         redirect = wiz.session.get('SAML_REDIRECT', '/')
         wiz.session.delete('SAML_REDIRECT')
 
-        user['samlNameId'] = auth.get_nameid()
-        user['samlNameIdFormat'] = auth.get_nameid_format()
-        user['samlNameIdNameQualifier'] = auth.get_nameid_nq()
-        user['samlNameIdSPNameQualifier'] = auth.get_nameid_spnq()
-        user['samlSessionIndex'] = auth.get_session_index()
-        user['name'] = user['username']
-        user['code'] = user['edupersonprincipal']
+        sessiondata['samlNameId'] = auth.get_nameid()
+        sessiondata['samlNameIdFormat'] = auth.get_nameid_format()
+        sessiondata['samlNameIdNameQualifier'] = auth.get_nameid_nq()
+        sessiondata['samlNameIdSPNameQualifier'] = auth.get_nameid_spnq()
+        sessiondata['samlSessionIndex'] = auth.get_session_index()
 
-        wiz.session.set(**user)
+        wiz.session.set(**sessiondata)
         wiz.response.redirect(redirect)
 
-    wiz.response.redirect('/')
+    wiz.response.redirect('/auth/error')
 
 elif action == 'logout':
     auth = build_auth()

@@ -1,6 +1,6 @@
 {
-    "id": "admin.users",
-    "category": "admin",
+    "id": "hub.mypage",
+    "category": "hub",
     "script_type": "text/javascript",
     "theme": "dizest/aside",
     "controller": "user",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "/hub/admin/users",
-    "created": "2022-08-04 19:05:50",
-    "updated": "2022-08-07 19:54:35"
+    "title": "/hub/mypage",
+    "created": "2022-08-07 20:19:47",
+    "updated": "2022-08-07 21:41:59"
 }

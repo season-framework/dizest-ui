@@ -139,7 +139,7 @@ class Controller:
             wiz.response.lang(lang)
             wiz.response.redirect(wiz.request.uri())
         
-        config = wiz.model("dizest").config()
+        config = wiz.model("dizest").package()
         if config is None: config = dict()
         wiz.response.data.set(hubconfig=config)
 

@@ -12,7 +12,7 @@ db = season.stdClass()
 db.workflow = wiz.model("orm").use("workflow")
 db.user = wiz.model("orm").use("user")
 
-config = wiz.model("dizest").config()
+config = wiz.model("dizest").package()
 process = psutil.Process(os.getpid())
 
 data = season.stdClass()

@@ -9,14 +9,14 @@ def update():
     data = json.loads(data)
 
     if dbupdate == 'false':
-        prev = wiz.model("dizest").config()
+        prev = wiz.model("dizest").package()
         data['db'] = prev.db
 
-    wiz.model("dizest").config(data)
+    wiz.model("dizest").package(data)
     wiz.response.status(200)
 
 def checkdb():
-    prev = wiz.model("dizest").config()
+    prev = wiz.model("dizest").package()
     data = wiz.request.query("data", True)
     data = json.loads(data)
 
@@ -25,7 +25,7 @@ def checkdb():
     model = wiz.model("orm").use('workflow')
     workflow = model.rows()
     
-    wiz.model("dizest").config(data)
+    wiz.model("dizest").package(data)
     try:
         model = wiz.model("orm").use('userf')
         count = model.count()
@@ -47,7 +47,7 @@ def checkdb():
     except Exception as e:
         count = -1
 
-    wiz.model("dizest").config(prev)
+    wiz.model("dizest").package(prev)
     
     if count == -1:
         wiz.response.status(500, count)

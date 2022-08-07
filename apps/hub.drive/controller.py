@@ -6,4 +6,4 @@ wiz.res.theme("dizest") \
     .js('libs/season/dragger.ng.js') \
     .ng('season.dragger')
 
-if 'server_id' not in kwargs: kwargs['server_id'] = 'main'
+if 'server_id' not in kwargs: kwargs['server_id'] = 'main-' + wiz.session.get("id")

@@ -6,10 +6,13 @@ let wiz_controller = async ($scope, $render, $alert) => {
 
         obj.list = [];
         obj.selected = null;
+        obj.status = {};
 
         obj.load = async () => {
             let { code, data } = await wiz.API.async('users');
-            obj.list = data;
+            let {users, status} = data;
+            obj.list = users;
+            obj.status = status;
             await $render();
         }
 

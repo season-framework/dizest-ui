@@ -123,7 +123,6 @@ def run():
                 flow = workflow.flow(fid)
                 flow.run()
     except Exception as e:
-        raise e
         wiz.response.status(500, str(e))
     
     wiz.response.status(200)

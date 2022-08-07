@@ -11,7 +11,7 @@ class Controller(wiz.controller("base")):
             wiz.response.redirect("/")
 
         wiz.menu.top \
-            .add(title='Mypage', ko="마이페이지", url='/mypage') \
+            .add(title='Mypage', ko="마이페이지", url='/hub/mypage') \
             .add(title='Logout', ko="로그아웃", url='/auth/logout') \
             .add(title='Language', url='/language') \
                 .child(title="English", url="?lang=en") \
@@ -29,7 +29,6 @@ class Controller(wiz.controller("base")):
             wiz.menu.main \
                 .add(title='Admin', ko="관리자", type="header") \
                 .add(title='Setting', ko="설정", url='/hub/admin/setting', icon="fa-solid fa-cogs") \
-                .add(title='Users', ko="사용자", url='/hub/admin/users', icon="fa-solid fa-users") \
-                .add(title='Kernel', ko="커널", url='/hub/admin/kernel', icon="fa-solid fa-microchip") \
-                .add(title='Web Resources', ko="Web Resources", url='/hub/admin/webresources', icon="fa-brands fa-html5")
+                .add(title='Users', ko="사용자관리", url='/hub/admin/users', icon="fa-solid fa-users") \
+                .add(title='Package', ko="패키지관리", url='/hub/admin/package', icon="fa-solid fa-boxes-packing")
         wiz.menu.main.build()

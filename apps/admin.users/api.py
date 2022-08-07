@@ -4,9 +4,20 @@ if wiz.session.get("role") != "admin":
 def users():
     db = wiz.model("orm").use("user")
     rows = db.rows()
+    status = dict()
     for row in rows:
         del row['password']
-    wiz.response.status(200, rows)
+
+        server_id = "main-" + row['id']
+        dizest = wiz.model("dizest").load(server_id)
+        server = dizest.server(False)
+
+        obj = dict()
+        obj['status'] = server.is_running()
+        obj['count'] = len(server.workflows())
+        status[row['id']] = obj
+
+    wiz.response.status(200, users=rows, status=status)
 
 def update():
     data = wiz.request.query()
@@ -38,9 +49,15 @@ def create():
     db.insert(data)
     wiz.response.status(200)
 
-def delete():
+def delete():    
     db = wiz.model("orm").use("user")
     user_id = wiz.request.query("id", True)
+
+    dizest = wiz.model("dizest").load("main-" + user_id)
+    server = dizest.server(False)
+    if server.is_running():
+        server.stop()
+
     db.delete(id=user_id)
     db = wiz.model("orm").use("workflow")
     db.delete(user_id=user_id)

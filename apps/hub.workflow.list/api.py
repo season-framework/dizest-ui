@@ -3,7 +3,7 @@ import json
 import math
 import datetime
 
-server_id = "main"
+server_id = "main-" + wiz.session.get("id")
 dbname = "workflow"
 
 dizest = wiz.model("dizest").load(server_id)    

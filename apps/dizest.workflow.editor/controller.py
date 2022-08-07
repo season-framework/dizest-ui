@@ -22,5 +22,5 @@ if workflow is not None:
         wiz.response.redirect("/")
 
 kwargs['workflow_id'] = wpid
-if 'server_id' not in kwargs: kwargs['server_id'] = 'main'
+if 'server_id' not in kwargs: kwargs['server_id'] = 'main-' + wiz.session.get("id")
 if 'url' not in kwargs: kwargs['url'] = '/'

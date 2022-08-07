@@ -1,0 +1,7 @@
+{
+    "default": {
+        "title": "My Page",
+        "desc": "change my data",
+        "importerror": "Not supported file format"
+    }
+}

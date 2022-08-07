@@ -7,18 +7,6 @@ import dizest
 
 BASEPATH = os.path.realpath(season.path.project + "/..")
 
-class Drive(dizest.util.os.storage):
-    def __init__(self, basepath, cwd):
-        super().__init__(basepath)
-        self.cwd = cwd
-    
-    def abspath(self, filepath=""):
-        path = super().abspath(filepath)
-        cwd = self.cwd
-        if path[:len(cwd)] != cwd:
-            raise Exception("Unauthroized")
-        return path
-
 class Model:
     def __init__(self, name):
         self.name = name
@@ -32,21 +20,30 @@ class Model:
         return cls(name)
 
     @staticmethod
-    def config(config=None):
+    def config():
+        fs = dizest.util.os.storage(BASEPATH)
+        code = fs.read("config.py")
+        env = season.stdClass()
+        env.wiz = wiz
+        exec(compile(code, fs.abspath(), 'exec'), env)
+        return env
+
+    @staticmethod
+    def package(package=None):
         try:
             fs = dizest.util.os.storage(BASEPATH)
-            if config is None:
-                config = fs.read.json("dizest.json")
-                config = season.stdClass(config)
-                return config
+            if package is None:
+                package = fs.read.json("dizest.json")
+                package = season.stdClass(package)
+                return package
             
-            fs.write.json("dizest.json", config)
+            fs.write.json("dizest.json", package)
         except:
             return None
     
     @staticmethod
     def status():
-        config = Model.config()
+        config = Model.package()
         if config is None:
             return False
         try:
@@ -74,24 +71,23 @@ class Model:
         except Exception as e:
             pass
 
-    def server(self):
+    def server(self, load=True):
         name = self.name
-
-        configpy = wiz.config("dizest")
-        name = configpy.server(name)
+        configpy = self.config()
         cwd = configpy.cwd()
         spawner_class = dizest.spawner.SimpleSpawner
         if configpy.spawner_class is not None:
             spawner_class = configpy.spawner_class
 
-        server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd)
+        server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"))
         
-        config = self.config()
+        config = self.package()
         kernelspecs = config.kernelspec
         if kernelspecs is not None:
             server.clear_kernelspec()
             for kernelspec in kernelspecs:
                 server.set_kernelspec(**kernelspec)
         
-        server.start()
+        if load:
+            server.start()
         return server

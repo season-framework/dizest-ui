@@ -3,12 +3,7 @@ import json
 import math
 import datetime
 
-server_id = "main"
 dbname = "workflow"
-
-dizest = wiz.model("dizest").load(server_id)    
-server = dizest.server()
-
 db = wiz.model("orm").use(dbname)
 user_id = wiz.session.get("id")
 
@@ -18,7 +13,6 @@ def list():
     dump = 12
 
     where = dict()
-    where['user_id'] = user_id
     if len(text) > 0:
         where['title'] = text
         where['like'] = 'title'

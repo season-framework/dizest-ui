@@ -7,7 +7,7 @@ import platform
 import resource
 import json
 
-server_id = "main"
+server_id = "main-" + wiz.session.get("id")
 dbname = "workflow"
 
 def health():

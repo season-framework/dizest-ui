@@ -1095,7 +1095,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             obj.status = data.status;
             obj.spec = data.spec;
-
+            try {
+                workflow.data.language = obj.spec.language;
+            } catch (e) {
+                workflow.data.language = 'python';
+            }
             await $render();
         }
 
@@ -1112,11 +1116,18 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.select = async (spec) => {
             obj.spec = spec;
+            try {
+                workflow.data.language = obj.spec.language;
+            } catch (e) {
+                workflow.data.language = 'python';
+            }
             await $render();
         }
 
         obj.kill = async () => {
+            await $loading.show();
             await API("kill");
+            await $loading.hide();
             await $render();
         }
 

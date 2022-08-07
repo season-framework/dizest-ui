@@ -1,4 +1,6 @@
 let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $file) => {
+    await $loading.show();
+
     let DRIVE_API = (() => {
         let obj = {};
 
@@ -14,7 +16,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         return obj;
     })();
-
 
     window.drive = $scope.drive = (() => {
         let obj = {};
@@ -227,4 +228,5 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     };
 
     await drive.api.ls();
+    await $loading.hide();
 }

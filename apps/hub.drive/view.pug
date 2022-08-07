@@ -53,7 +53,7 @@
                                     .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="drive.api.create()")
                                         i.fa-solid.fa-check
 
-                        tr(ng-repeat="file in drive.files")
+                        tr(ng-repeat="file in drive.files" ng-if="file.name[0] != '.'")
                             td.w-1.pr-0
                                 input.form-check-input(type="checkbox" ng-model="file.checked" ng-click="drive.check(file)")
                             td.w-1.pr-0(ng-click="drive.check(file)")
