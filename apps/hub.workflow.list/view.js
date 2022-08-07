@@ -193,7 +193,7 @@ let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
         }
 
         obj.create = async () => {
-            let data = { apps: {}, description: '', featured: '', flow: {}, logo: '', title: '', version: '', visibility: 'private' };
+            let data = { apps: {}, description: '', featured: '', flow: {}, logo: '', title: '', version: '', visibility: 'private', extra: {} };
             workflow.importdata = data;
             workflow.importmode = 'new';
 

@@ -55,6 +55,7 @@ let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
 
         obj.create = async () => {
             let pd = angular.copy(obj.importdata);
+            if (!pd.extra) pd.extra = {};
             let { code, data } = await wiz.API.async("create", { data: JSON.stringify(pd) });
             if (code != 200) {
                 return await $alert(data);
