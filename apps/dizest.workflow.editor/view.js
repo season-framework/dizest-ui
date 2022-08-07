@@ -6,7 +6,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     let API = async (fnname, data) => {
         if (!data) data = {};
         data['workflow_id'] = workflow.id;
-        data['manager_id'] = workflow.manager_id;
+        data['server_id'] = workflow.server_id;
         data['db'] = wiz.data.db;
         return await wiz.API.async(fnname, data);
     }
@@ -15,13 +15,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         let obj = {};
 
         obj.url = (fnname) => {
-            let url = wiz.API.url("drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + fnname);
+            let url = wiz.API.url("drive_api/" + wiz.data.db + "/" + workflow.server_id + "/" + workflow.id + "/" + fnname);
             return url;
         }
 
         obj.call = async (fnname, data) => {
-            if (kernel.is('running')) return {};
-            let url = "drive_api/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + fnname;
+            let url = "drive_api/" + wiz.data.db + "/" + workflow.server_id + "/" + workflow.id + "/" + fnname;
             return await wiz.API.async(url, data);
         }
 
@@ -212,7 +211,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.render = async () => {
             if (!node.selected) return;
             if (!menubar.is('uimode')) return;
-            let url = wiz.API.url("render/" + wiz.data.db + "/" + workflow.manager_id + "/" + workflow.id + "/" + node.selected.id);
+            let url = wiz.API.url("render/" + wiz.data.db + "/" + workflow.server_id + "/" + workflow.id + "/" + node.selected.id);
 
             obj.iframe_loaded = false;
             obj.iframe = false;
@@ -802,7 +801,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.status = {};
         obj.debug = {};
 
-        obj.manager_id = wiz.data.manager_id;
+        obj.server_id = wiz.data.server_id;
         obj.id = wiz.data.workflow_id;
         obj.data = {};
         obj.url = wiz.API.url("download/" + obj.id);
@@ -1126,8 +1125,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
             await $loading.show();
             let { code, data } = await API("start", { spec: obj.spec.name });
+            await $loading.hide();
             if (code != 200) {
-                await $loading.hide();
                 await $alert(data);
                 obj.status = 'stop';
                 await $render();
@@ -1175,9 +1174,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.toggle = async () => {
             leftmenu.toggle('drive');
-            if (leftmenu.is('drive')) {
+            if (leftmenu.is('drive'))
                 await obj.api.ls();
-            }
             await $render();
         }
 
@@ -1374,7 +1372,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         };
 
         obj.client.on("connect", async () => {
-            socket.client.emit("join", workflow.manager_id + '-' + workflow.id);
+            socket.client.emit("join", workflow.server_id + '-' + workflow.id);
         });
 
         obj.client.on("kernel.status", async (data) => {

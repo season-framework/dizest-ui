@@ -13,3 +13,7 @@ def cwd():
         storage_path = os.path.join(season.path.project, 'storage')
     
     return os.path.join(storage_path, user_id)
+
+def server(namespace):
+    user_id = wiz.session.get("id")
+    return namespace + "-" + user_id

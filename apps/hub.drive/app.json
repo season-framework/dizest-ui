@@ -1,6 +1,6 @@
 {
-    "id": "admin.setting",
-    "category": "admin",
+    "id": "hub.drive",
+    "category": "hub",
     "script_type": "text/javascript",
     "theme": "dizest/aside",
     "controller": "user",
@@ -9,7 +9,7 @@
         "css": "scss",
         "js": "javascript"
     },
-    "title": "/hub/admin/setting",
-    "created": "2022-08-06 01:13:15",
-    "updated": "2022-08-07 14:53:46"
+    "title": "/hub/drive",
+    "created": "2022-08-07 14:53:36",
+    "updated": "2022-08-07 15:19:09"
 }

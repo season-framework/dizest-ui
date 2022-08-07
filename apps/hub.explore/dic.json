@@ -1,0 +1,7 @@
+{
+    "default": {
+        "title": "Explore",
+        "desc": "Explore user's workflow",
+        "importerror": "Not supported file format"
+    }
+}

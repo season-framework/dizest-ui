@@ -1,5 +1,8 @@
 import json
 
+if wiz.session.get("role") != "admin":
+    wiz.response.abort(401)
+
 def update():
     dbupdate = wiz.request.query("db", False)
     data = wiz.request.query("data", True)

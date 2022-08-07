@@ -1,0 +1,7 @@
+{
+    "default": {
+        "title": "Drive",
+        "desc": "File management",
+        "importerror": "Not supported file format"
+    }
+}

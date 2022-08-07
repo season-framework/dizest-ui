@@ -58,38 +58,14 @@ class Model:
             return False
         return True
 
-    @staticmethod
-    def drive(path=""):
-        config = wiz.config("dizest")
-        cwd = config.cwd()
-        path = os.path.join(cwd, path)
-        return Drive(path, cwd)
-
-    def manager(self):
-        name = self.name
-        config = self.config()
-        spawner_class = dizest.kernel.spawner.SimpleSpawner
-        if config.spawner_class is not None:
-            spawner_class = config.spawner_class
-        manager = dizest.load(name, broker=self.broker, spawner_class=spawner_class)
-
-        kernelspecs = config.kernelspec
-        if kernelspecs is not None:
-            manager.clear_kernelspec()
-            for kernelspec in kernelspecs:
-                manager.set_kernelspec(**kernelspec)
-        
-        manager.start()
-        return manager
-
-    def broker(self, spawner, flow_id, mode, data):
+    def broker(self, workflow, flow_id, mode, data):
         try:
             host = self.host
-            workflow_id = spawner.workflow.id()
+            workflow_id = workflow.id()
 
             pd = dict()
             pd['mode'] = mode
-            pd['manager'] = self.name
+            pd['server'] = self.name
             pd['workflow_id'] = workflow_id
             pd['flow_id'] = flow_id
             pd['data'] = data
@@ -98,3 +74,24 @@ class Model:
         except Exception as e:
             pass
 
+    def server(self):
+        name = self.name
+
+        configpy = wiz.config("dizest")
+        name = configpy.server(name)
+        cwd = configpy.cwd()
+        spawner_class = dizest.spawner.SimpleSpawner
+        if configpy.spawner_class is not None:
+            spawner_class = configpy.spawner_class
+
+        server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd)
+        
+        config = self.config()
+        kernelspecs = config.kernelspec
+        if kernelspecs is not None:
+            server.clear_kernelspec()
+            for kernelspec in kernelspecs:
+                server.set_kernelspec(**kernelspec)
+        
+        server.start()
+        return server

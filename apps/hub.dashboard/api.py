@@ -7,7 +7,7 @@ import platform
 import resource
 import json
 
-manager_id = "main"
+server_id = "main"
 dbname = "workflow"
 
 def health():
@@ -34,13 +34,13 @@ def workflow():
     db = wiz.model("orm").use(dbname)
     rows = db.rows(user_id=user_id, fields="id,title,updated", orderby="updated", order="DESC")
     
-    dizest = wiz.model("dizest").load(manager_id)
-    manager = dizest.manager()
+    dizest = wiz.model("dizest").load(server_id)
+    server = dizest.server()
 
     wps = []
     for row in rows:
         wpid = row['id']
-        wp = manager.workflow_by_id(wpid)
+        wp = server.workflow_by_id(wpid)
         if wp is None: continue
         status = wp.status()
         if status == 'stop': continue
@@ -55,11 +55,11 @@ def status():
     workflow_ids = json.loads(workflow_ids)
     res = dict()
 
-    dizest = wiz.model("dizest").load(manager_id)
-    manager = dizest.manager()
+    dizest = wiz.model("dizest").load(server_id)
+    server = dizest.server()
 
     for workflow_id in workflow_ids:
-        workflow = manager.workflow_by_id(workflow_id)
+        workflow = server.workflow_by_id(workflow_id)
         status = "stop"
         if workflow is not None:
             status = workflow.status()
@@ -71,12 +71,12 @@ def stop():
     db = wiz.model("orm").use(dbname)
     rows = db.rows(user_id=user_id, fields="id")
     
-    dizest = wiz.model("dizest").load(manager_id)
-    manager = dizest.manager()
+    dizest = wiz.model("dizest").load(server_id)
+    server = dizest.server()
 
     for row in rows:
         wpid = row['id']
-        wp = manager.workflow_by_id(wpid)
+        wp = server.workflow_by_id(wpid)
         if wp is None: continue
         status = wp.status()
         if status == 'stop': continue

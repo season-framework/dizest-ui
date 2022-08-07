@@ -1,0 +1,98 @@
+.workspace-area(ng-cloak)
+    div(style="display: none;")
+        form#file-form
+            input#file-uploader.form-control(type='file' name='file[]' multiple)
+
+    .workspace-list
+        .workflow-list-header
+            .workspace-list-header
+                .page-header.d-print-none
+                    .row.align-items-center
+                        .col-auto
+                            .text-blue.mr-1(style="font-size: 28px;")
+                                i.fa-solid.fa-magnifying-glass
+                        .col
+                            h2.page-title= dic("title")
+                            .text-muted
+                                ul.list-inline.list-inline-dots.mb-0
+                                    li.list-inline-item= dic("desc")
+
+                        .col-auto.actions.area-round.if-desktop
+                            a.btn.btn-red(ng-if="drive.checked.length > 0" ng-click="drive.api.remove_all()")
+                                i.fa-solid.fa-trash.mr-2
+                                span Delete
+                            a.btn.btn-primary(ng-click="drive.create()")
+                                i.fa-solid.fa-plus.mr-2
+                                span Create Folder
+                            a.btn.btn-primary(ng-click="drive.upload()")
+                                i.fa-solid.fa-upload.mr-2
+                                span Upload File
+
+        .workspace-list-item
+            .drive-area.p-0
+                .list-back(ng-if="drive.current != ''")
+                    table.table.table-sm.table-hover.table-vcenter.mb-0
+                        tr
+                            td.text-left.cursor-pointer.bg-primary-lt(ng-click="drive.cd('..')")
+                                svg.icon.mr-2(xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round")
+                                    path(stroke="none" d="M0 0h24v24H0z" fill="none")
+                                    path(d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4")
+                                span ...
+
+                .workspace-tab-body.p-0(ng-drop="drive.drop")
+                    table.table.table-sm.table-hover.table-vcenter.mb-5
+                        tr(ng-if="drive.is_create")
+                            td.w-1.pr-0
+                            td.w-1.pr-0
+                                .avatar-area.avatar-area-sm
+                                    .avatar-container.folder
+                                        i.fa-solid.fa-folder
+                            td(colspan=2)
+                                .d-flex
+                                    input.form-control(ng-model="drive.create_name" ng-enter="drive.api.create()" placeholder="folder name")
+                                    .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="drive.api.create()")
+                                        i.fa-solid.fa-check
+
+                        tr(ng-repeat="file in drive.files")
+                            td.w-1.pr-0
+                                input.form-check-input(type="checkbox" ng-model="file.checked" ng-click="drive.check(file)")
+                            td.w-1.pr-0(ng-click="drive.check(file)")
+                                .avatar-area.avatar-area-sm
+                                    .avatar-container(class="{{file.type == 'folder' ? 'folder' : ''}}")
+                                        i.fa-solid.fa-file(ng-if="file.type == 'file'")
+                                        i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
+                            td.text-left.filename(ng-if="!file.edit" ng-click="drive.check(file)")
+                                div
+                                    a(ng-click="drive.click(file)" ng-if="file.type == 'folder'") {{file.name}}
+                                    a(ng-href="{{drive.api.download(file)}}" target="_blank" ng-if="file.type == 'file'") {{file.name}}
+                                div
+                                    small.text-muted {{drive.timer(file.ctime)}}
+                                    small.text-muted.mr-1.ml-1 /
+                                    small.text-muted {{drive.filesize(file.size)}}
+
+                            td.text-left(ng-if="file.edit" colspan=2)
+                                .d-flex
+                                    input.form-control(ng-model="file.rename" ng-enter="drive.api.rename(file)")
+                                    .btn.btn-primary.btn-circle.ml-2(style="width: 36px;" ng-click="drive.api.rename(file)")
+                                        i.fa-solid.fa-check
+
+                            td.w-1.text-right.pr-2.actions(ng-if="!file.edit")
+                                .dropdown
+                                    button.btn.btn-white.btn-sm(data-bs-toggle="dropdown" aria-expanded="false")
+                                        i.fa-solid.fa-ellipsis-vertical
+                                    ul.dropdown-menu
+                                        li
+                                            a.dropdown-item(ng-click="drive.rename(file)")
+                                                i.fa-solid.fa-pen-to-square
+                                                span Rename
+                                        li
+                                            a.dropdown-item(ng-href="{{drive.api.download(file)}}" target="_blank")
+                                                i.fa-solid.fa-download
+                                                span Download
+                                        li
+                                            a.dropdown-item(ng-click="drive.api.remove(file)")
+                                                i.fa-solid.fa-trash
+                                                span Delete
+
+                .drive-footer
+                    span {{drive.current? drive.current : '/'}}

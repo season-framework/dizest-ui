@@ -3,11 +3,11 @@ import json
 import math
 import datetime
 
-manager_id = "main"
+server_id = "main"
 dbname = "workflow"
 
-dizest = wiz.model("dizest").load(manager_id)    
-manager = dizest.manager()
+dizest = wiz.model("dizest").load(server_id)    
+server = dizest.server()
 
 db = wiz.model("orm").use(dbname)
 user_id = wiz.session.get("id")
@@ -36,7 +36,7 @@ def status():
     workflow_ids = json.loads(workflow_ids)
     res = dict()
     for workflow_id in workflow_ids:
-        workflow = manager.workflow_by_id(workflow_id)
+        workflow = server.workflow_by_id(workflow_id)
         status = "stop"
         if workflow is not None:
             status = workflow.status()
@@ -58,33 +58,32 @@ def create():
 def kill():
     workflow_id = wiz.request.query("workflow_id", True)
     try:
-        workflow = manager.workflow_by_id(workflow_id)
+        workflow = server.workflow_by_id(workflow_id)
         workflow.kill()
     except:
         pass
     wiz.response.status(200)
 
 def start():
-    specs = manager.kernelspecs()
+    specs = server.kernelspecs()
     workflow_id = wiz.request.query("workflow_id", True)
     spec = wiz.request.query("spec", True)
 
     if spec not in specs:
         wiz.response.status(500, f'not supported kernel spec')
     
-    workflow = manager.workflow_by_id(workflow_id)
+    workflow = server.workflow_by_id(workflow_id)
     if workflow is None:
         wpdata = db.get(id=workflow_id)
-        workflow = manager.workflow(wpdata)
+        workflow = server.workflow(wpdata)
 
-    drive = wiz.model("dizest").drive()
-    workflow.spawn(kernel_name=spec, cwd=drive.abspath())
+    workflow.spawn(kernel_name=spec)
     wiz.response.status(200)
 
 def run():
     workflow_id = wiz.request.query("workflow_id", True)
     try:
-        workflow = manager.workflow_by_id(workflow_id)
+        workflow = server.workflow_by_id(workflow_id)
         if workflow is None or workflow.status() == 'stop':
             raise Exception("kernel not selected")
         workflow.run()
@@ -96,7 +95,7 @@ def run():
 def delete():
     workflow_id = wiz.request.query("workflow_id", True)
     try:
-        workflow = manager.workflow_by_id(workflow_id)
+        workflow = server.workflow_by_id(workflow_id)
         workflow.kill()
     except:
         pass
@@ -104,9 +103,9 @@ def delete():
     wiz.response.status(200)
 
 def kernelspecs():
-    data = manager.kernelspecs()
+    data = server.kernelspecs()
     rows = []
     for item in data:
-        item = manager.kernelspec(item)
+        item = server.kernelspec(item)
         rows.append(item)
     wiz.response.status(200, rows)

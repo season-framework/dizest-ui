@@ -9,18 +9,16 @@ user_id = wiz.session.get("id")
 
 if action not in ["api", "render", "drive_api"]:
     workflow_id = wiz.request.query("workflow_id", True)
-    manager_id = wiz.request.query("manager_id", True)
+    server_id = wiz.request.query("server_id", True)
     dbname = wiz.request.query("db", True)
 else:
     workflow_id = wiz.request.uri().split("/")[7]
-    manager_id = wiz.request.uri().split("/")[6]
+    server_id = wiz.request.uri().split("/")[6]
     dbname = wiz.request.uri().split("/")[5]
 
-drive = wiz.model("dizest").drive()
-
 db = wiz.model("orm").use(dbname)
-dizest = wiz.model("dizest").load(manager_id)
-manager = dizest.manager()
+dizest = wiz.model("dizest").load(server_id)
+server = dizest.server()
 
 wpdata = db.get(id=workflow_id)
 
@@ -29,16 +27,16 @@ if wpdata is None: wiz.response.status(404, 'Not found')
 if wpdata['user_id'] != user_id: wiz.response.status(401, 'Unauthorized')
 
 # load workflow instance
-workflow = manager.workflow(wpdata)
+workflow = server.workflow(wpdata)
     
 def data():
     wiz.response.status(200, wpdata)
 
 def kernelspecs():
-    data = manager.kernelspecs()
+    data = server.kernelspecs()
     rows = []
     for item in data:
-        item = manager.kernelspec(item)
+        item = server.kernelspec(item)
         rows.append(item)
     wiz.response.status(200, rows)
 
@@ -46,7 +44,7 @@ def status():
     try:
         stat = workflow.status()
         spec = workflow.kernelspec()
-        spec = manager.kernelspec(spec)
+        spec = server.kernelspec(spec)
     except Exception as e:
         wiz.response.status(500, str(e))
     wiz.response.status(200, status=stat, spec=spec)
@@ -98,13 +96,13 @@ def update():
     wiz.response.status(200)
 
 def start():
-    specs = manager.kernelspecs()
+    specs = server.kernelspecs()
     spec = wiz.request.query("spec", None)
 
     if spec not in specs:
         wiz.response.status(500, f'not supported kernel spec')
     
-    workflow.spawn(kernel_name=spec, cwd=drive.abspath())
+    workflow.spawn(kernel_name=spec)
     wiz.response.status(200)
 
 def kill():
@@ -125,6 +123,7 @@ def run():
                 flow = workflow.flow(fid)
                 flow.run()
     except Exception as e:
+        raise e
         wiz.response.status(500, str(e))
     
     wiz.response.status(200)
@@ -149,16 +148,16 @@ def drive_api():
     resp = None
     
     if fnname == 'ls':
-        resp = workflow.drive_api.ls(path)
+        resp = workflow.server.drive_api.ls(path)
     elif fnname == 'create':
         data = wiz.request.query()
-        resp = workflow.drive_api.create(path, data)
+        resp = workflow.server.drive_api.create(path, data)
     elif fnname == 'rename':
         data = wiz.request.query()
-        resp = workflow.drive_api.rename(path, data)
+        resp = workflow.server.drive_api.rename(path, data)
     elif fnname == 'remove':
         data = wiz.request.query()
-        resp = workflow.drive_api.remove(path, data)
+        resp = workflow.server.drive_api.remove(path, data)
     elif fnname == 'upload':
         filepath = wiz.request.query("filepath", "[]")
         filepath = json.loads(filepath)
@@ -169,10 +168,10 @@ def drive_api():
             fdd = dict()
             if len(filepath) > 0: 
                 fdd['filepath'] = filepath[i]
-            workflow.drive_api.upload(path, method=request.method, files={"file": fd}, data=fdd)
+            workflow.server.drive_api.upload(path, method=request.method, files={"file": fd}, data=fdd)
         wiz.response.status(200)
     elif fnname == 'download':
-        resp = workflow.drive_api.download(path)
+        resp = workflow.server.drive_api.download(path)
 
     if resp is None:
         wiz.response.status(404)
@@ -203,7 +202,7 @@ def api():
 
 def render():
     flow_id = wiz.request.uri().split("/")[8]
-    url = "/".join(wiz.request.uri().split("/")[:4] + ['api', dbname, manager_id, workflow_id, flow_id])
+    url = "/".join(wiz.request.uri().split("/")[:4] + ['api', dbname, server_id, workflow_id, flow_id])
     flow = workflow.flow(flow_id)
     headjs = '''
     <script type="text/javascript">
