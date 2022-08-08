@@ -41,8 +41,11 @@
                                         td.text-center {{item.email}}
                                         td.w-1.text-right
                                             .btn.btn-circle.btn-white.mr-1(ng-if="users.status[item.id].status")
-                                                i.fa-solid.fa-play.mr-2
+                                                i.fa-solid.fa-pause.mr-2
                                                 span {{users.status[item.id].count}}
+                                            .btn.btn-circle.btn-white.mr-1(ng-if="users.status[item.id].status")
+                                                i.fa-solid.fa-play.mr-2
+                                                span {{users.status[item.id].countrun}}
                                             .btn.btn-circle.btn-primary(ng-click="users.select(item)")
                                                 i.fa-solid.fa-edit
 
