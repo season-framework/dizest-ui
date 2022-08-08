@@ -86,12 +86,13 @@ class Model:
         if configpy.spawner_class is not None:
             spawner_class = configpy.spawner_class
 
+        executable = configpy.executable
         if user_id is None:
             cwd = configpy.cwd(wiz.session.get("id"))
-            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"))
+            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"), executable=executable)
         else:
             cwd = configpy.cwd(user_id)
-            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id)
+            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id, executable=executable)
         
         config = self.package()
         kernelspecs = config.kernelspec
