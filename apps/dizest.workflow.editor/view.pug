@@ -30,7 +30,7 @@
     .workspace-header
         .page-header.d-print-none
             .row.align-items-center
-                .col-auto
+                .col-auto.if-desktop
                     span.status-indicator.status-indicator-animated(class="{{kernel.status_class()}}")
                         span.status-indicator-circle
                         span.status-indicator-circle
@@ -41,29 +41,29 @@
                         span {{workflow.data.title}}
 
                 .col-auto.actions
-                    a.btn.btn-white(ng-if="!kernel.is('stop')" style="width: 160px; overflow: hidden;") {{kernel.spec.title}}
+                    a.btn.btn-white.if-desktop(ng-if="!kernel.is('stop')" style="width: 160px; overflow: hidden;") {{kernel.spec.title}}
 
-                    a.btn.btn-primary(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
+                    a.btn.btn-primary.if-desktop(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
                         i.fa-solid.fa-stop.mr-2
                         span Stop Kernel
 
-                    a.btn.btn-primary(ng-if="!kernel.is('running')" ng-click="workflow.run()")
+                    a.btn.btn-primary.if-desktop(ng-if="!kernel.is('running')" ng-click="workflow.run()")
                         i.fa-solid.fa-play
 
-                    a.btn.btn-primary(ng-if="kernel.is('running')" ng-click="kernel.stop()")
+                    a.btn.btn-primary.if-desktop(ng-if="kernel.is('running')" ng-click="kernel.stop()")
                         i.fa-solid.fa-stop(ng-if="kernel.is('running')")
 
-                    a.btn.btn-primary(ng-click="workflow.save()")
+                    a.btn.btn-primary.if-desktop(ng-click="workflow.save()")
                         i.fa-solid.fa-save
 
-                    a.btn.btn-primary(ng-click="workflow.download()")
+                    a.btn.btn-primary.if-desktop(ng-click="workflow.download()")
                         i.fa-solid.fa-cloud-arrow-down
 
                     a.btn.btn-primary.btn-circle(href=url)
                         i.fa-solid.fa-xmark
 
     .workspace-body
-        .app(ng-if="!leftmenu.is('drive') && workflow.display")
+        .app.if-desktop(ng-if="!leftmenu.is('drive') && workflow.display")
             .app-search
                 input.form-control.search-form(placeholder="enter for search" ng-model="app.query" ng-change="app.search(app.query)")
 
@@ -85,7 +85,7 @@
                         button.btn.btn-primary.btn-sm(ng-click="workflow.add(item.id)")
                             i.fa-solid.fa-plus
 
-        .workspace-tab.drive-area(ng-if="leftmenu.is('drive')")
+        .workspace-tab.drive-area.if-desktop(ng-if="leftmenu.is('drive')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     input.form-check-input.mr-2(type="checkbox" ng-click="drive.check()" ng-model="drive.checked_all")
@@ -188,7 +188,7 @@
                     .btn.btn-primary(ng-click="workflow.drawflow.zoom_in()")
                         i.fa-solid.fa-magnifying-glass-plus
 
-        .workspace-tab.app-info(ng-if="menubar.is('appinfo')")
+        .workspace-tab.app-info.if-desktop(ng-if="menubar.is('appinfo')")
             .workspace-tab-header
                 .workspace-tab-header-title(ng-if="workflow.data.apps[node.selected.app_id]")
                     i.fa-solid.fa-circle-info.mr-2
@@ -323,7 +323,7 @@
                         .descarea.pb-0.pt-3.pr-3.pl-3(ng-if="!app.desc_editable && workflow.data.apps[node.selected.app_id].description" ng-bind-html="app.showdown(workflow.data.apps[node.selected.app_id].description)")
                         div(ng-if="app.desc_editable" ng-model="workflow.data.apps[node.selected.app_id].description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
 
-        .workspace-tab.codeflow(ng-if="menubar.is('codeflow')")
+        .workspace-tab.codeflow.if-desktop(ng-if="menubar.is('codeflow')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-code.mr-2
@@ -447,7 +447,7 @@
 
                 .margin-area(style="height: 80vh;")
             
-        .workspace-tab.uimode-editor(ng-if="uimode.activetab.length > 0 && !uimode.maximized" ui-sortable='uimode.activetab' ng-model="uimode.activetab")
+        .workspace-tab.uimode-editor.if-desktop(ng-if="uimode.activetab.length > 0 && !uimode.maximized" ui-sortable='uimode.activetab' ng-model="uimode.activetab")
             .ui-editor(ng-repeat="name in uimode.activetab" ng-if="uimode.tab[name].active")
                 .uimode-codeselect
                     a {{uimode.tab[name].name}}
@@ -458,7 +458,7 @@
                 .uimode-code.p-0
                     div(ng-if="uimode.tab[name].lang && uimode.loaded" ng-model="workflow.data.apps[node.selected.app_id][uimode.tab[name].mode]" ui-monaco-opts="options.monaco_code(uimode.tab[name].lang)" ui-monaco)
 
-        .workspace-tab.uimode(ng-if="menubar.is('uimode')" class="{{uimode.maximized ? 'maximized': ''}}")
+        .workspace-tab.uimode.if-desktop(ng-if="menubar.is('uimode')" class="{{uimode.maximized ? 'maximized': ''}}")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-display.mr-2
@@ -494,7 +494,7 @@
                 h2(ng-if="!kernel.is('running')") Not support UI
                 h2(ng-if="kernel.is('running')") UI is not available while the kernel is running
                 
-        .workspace-tab.shortcut-view(ng-if="menubar.is('shortcut')")
+        .workspace-tab.shortcut-view.if-desktop(ng-if="menubar.is('shortcut')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-keyboard.mr-2
@@ -520,7 +520,7 @@
 
                             td {{item.desc}}
 
-        .menu-area
+        .menu-area.if-desktop
             .d-block
                 .btn(ng-click="menubar.toggle('appinfo')" class="{{menubar.btn_class('appinfo')}}")
                     i.fa-solid.fa-info
@@ -586,7 +586,7 @@
                 }
 
                 .{{value.flow_id}} .action-btn-play {
-                    display: none;
+                    display: none !important;
                 }
 
                 .{{value.flow_id}} .action-btn-stop {
@@ -642,7 +642,7 @@
                 }
 
                 .flow-{{value.flow_id}} .action-btn-play {
-                    display: none;
+                    display: none !important;
                 }
 
                 .flow-{{value.flow_id}} .action-btn-stop {

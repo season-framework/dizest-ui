@@ -1,29 +1,28 @@
 .workspace-area(ng-cloak)
     .workspace-list
-        .workflow-list-header
-            .workspace-list-header
-                .page-header.d-print-none
-                    .row.align-items-center
-                        .col-auto
-                            .text-blue.mr-1(style="font-size: 28px;")
-                                i.fa-solid.fa-magnifying-glass
-                        .col
-                            h2.page-title= dic("title")
-                            .text-muted
-                                ul.list-inline.list-inline-dots.mb-0
-                                    li.list-inline-item= dic("desc")
+        .workspace-list-header
+            .page-header.d-print-none
+                .row.align-items-center
+                    .col-auto
+                        .text-blue.mr-1(style="font-size: 28px;")
+                            i.fa-solid.fa-magnifying-glass
+                    .col
+                        h2.page-title= dic("title")
+                        .text-muted
+                            ul.list-inline.list-inline-dots.mb-0
+                                li.list-inline-item= dic("desc")
 
-                        .col-auto.actions.area-round.if-desktop
-                            input.form-control.m-0(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
-                        
-                        .col-auto.actions.area-round.if-desktop
-                            a.btn.btn-primary.m-0(ng-click="workflow.search(true)")
-                                i.fa-solid.fa-magnifying-glass
+                    .col-auto.actions.area-round.if-desktop
+                        input.form-control(style="width: 240px;" ng-model="workflow.query.text" ng-enter="workflow.search(true)" placeholder="Enter for search")
+                    
+                    .col-auto.actions.area-round.if-desktop
+                        a.btn.btn-primary(ng-click="workflow.search(true)")
+                            i.fa-solid.fa-magnifying-glass
 
         .workspace-list-item
             .container.pt-4
                 .row.row-deck.row-cards
-                    .p-3(ng-repeat="item in workflow.data" ng-class="tab.active ? 'col-md-4' : 'col-md-3'")
+                    .p-3.col-md-3(ng-repeat="item in workflow.data")
                         .card(ng-click="viewer.select(item)" id="item-{{item.id}}")
                             .card-body.p-0.featured-area
                                 .status-area

@@ -4,29 +4,28 @@
             input#file-uploader.form-control(type='file' name='file[]' multiple)
 
     .workspace-list
-        .workflow-list-header
-            .workspace-list-header
-                .page-header.d-print-none
-                    .row.align-items-center
-                        .col-auto
-                            .text-blue.mr-1(style="font-size: 28px;")
-                                i.fa-solid.fa-magnifying-glass
-                        .col
-                            h2.page-title= dic("title")
-                            .text-muted
-                                ul.list-inline.list-inline-dots.mb-0
-                                    li.list-inline-item= dic("desc")
+        .workspace-list-header
+            .page-header.d-print-none
+                .row.align-items-center
+                    .col-auto
+                        .text-blue.mr-1(style="font-size: 28px;")
+                            i.fa-solid.fa-magnifying-glass
+                    .col
+                        h2.page-title= dic("title")
+                        .text-muted
+                            ul.list-inline.list-inline-dots.mb-0
+                                li.list-inline-item= dic("desc")
 
-                        .col-auto.actions.area-round.if-desktop
-                            a.btn.btn-red(ng-if="drive.checked.length > 0" ng-click="drive.api.remove_all()")
-                                i.fa-solid.fa-trash.mr-2
-                                span Delete
-                            a.btn.btn-primary(ng-click="drive.create()")
-                                i.fa-solid.fa-plus.mr-2
-                                span Create Folder
-                            a.btn.btn-primary(ng-click="drive.upload()")
-                                i.fa-solid.fa-upload.mr-2
-                                span Upload File
+                    .col-auto.actions.area-round
+                        a.btn.btn-red(ng-if="drive.checked.length > 0" ng-click="drive.api.remove_all()")
+                            i.fa-solid.fa-trash.mr-2
+                            span Delete
+                        a.btn.btn-primary(ng-click="drive.create()")
+                            i.fa-solid.fa-plus.mr-2
+                            span Create Folder
+                        a.btn.btn-primary(ng-click="drive.upload()")
+                            i.fa-solid.fa-upload.mr-2
+                            span Upload File
 
         .workspace-list-item
             .drive-area.p-0

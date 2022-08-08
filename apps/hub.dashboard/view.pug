@@ -1,103 +1,104 @@
-.workflow-list(ng-cloak)
-    .workflow-list-header
-        .page-header.d-print-none
-            .row.align-items-center
-                .col-auto
-                    .text-blue.mr-1(style="font-size: 28px;")
-                        i.fa-solid.fa-table-columns
-                .col
-                    h2.page-title= dic("title")
-                    .text-muted
-                        ul.list-inline.list-inline-dots.mb-0
-                            li.list-inline-item= dic("desc")
+.workspace-area(ng-cloak)
+    .workspace-list
+        .workspace-list-header
+            .page-header.d-print-none
+                .row.align-items-center
+                    .col-auto
+                        .text-blue.mr-1(style="font-size: 28px;")
+                            i.fa-solid.fa-table-columns
+                    .col
+                        h2.page-title= dic("title")
+                        .text-muted
+                            ul.list-inline.list-inline-dots.mb-0
+                                li.list-inline-item= dic("desc")
 
-                .col-auto.actions.area-round
-                    a.btn.btn-primary(ng-click="workflow.stop()" ng-if="workflow.list.length > 0")
-                        i.fa-solid.fa-stop.mr-2
-                        span Stop All Workflow
+                    .col-auto.actions.area-round
+                        a.btn.btn-primary(ng-click="workflow.stop()" ng-if="workflow.list.length > 0")
+                            i.fa-solid.fa-stop.mr-2
+                            span Stop All Workflow
 
-    .workflow-list-item
-        .container.pt-4
-            .row.row-deck.row-card.mb-4
-                .col-md-4
-                    .info-box
-                        h3.mb-4.text-center.text-dark Deployment
-                        
-                        table
-                            tr
-                                td.title.w-1 Dizest Version
-                                td.spare
-                                td.w-1 {{data.deploy.dizest_version}}
-                        
-                        table
-                            tr
-                                td.title.w-1 Python Version
-                                td.spare
-                                td.w-1 {{data.deploy.python_version}}
-                        
-                        table
-                            tr
-                                td.title.w-1 Database
-                                td.spare
-                                td.w-1 {{data.deploy.database}}
+        .workspace-list-item
+            .container.pt-4
+                .row.row-deck.row-card.mb-4
+                    .col-md-4
+                        .info-box
+                            h3.mb-4.text-center.text-dark Deployment
+                            
+                            table
+                                tr
+                                    td.title.w-1 Dizest Version
+                                    td.spare
+                                    td.w-1 {{data.deploy.dizest_version}}
+                            
+                            table
+                                tr
+                                    td.title.w-1 Python Version
+                                    td.spare
+                                    td.w-1 {{data.deploy.python_version}}
+                            
+                            table
+                                tr
+                                    td.title.w-1 Database
+                                    td.spare
+                                    td.w-1 {{data.deploy.database}}
 
-                .col-md-4
-                    .info-box
-                        h3.mb-4.text-center.text-dark System Usage
-                        
-                        table
-                            tr
-                                td.title.w-1 CPU
-                                td.spare
-                                td.w-1
-                                    span {{ monitor.data.cpu.usage | number:2 }} %
+                    .col-md-4
+                        .info-box
+                            h3.mb-4.text-center.text-dark System Usage
+                            
+                            table
+                                tr
+                                    td.title.w-1 CPU
+                                    td.spare
+                                    td.w-1
+                                        span {{ monitor.data.cpu.usage | number:2 }} %
 
-                        table
-                            tr
-                                td.title.w-1 Memory
-                                td.spare
-                                td.w-1
-                                    span {{ monitor.data.memory.usage / 1024 / 1024 / 1024 | number:2 }} GB
-                                    span.mr-1.ml-1 /
-                                    span {{ monitor.data.memory.total / 1024 / 1024 / 1024 | number:2 }} GB
-                        
-                        table
-                            tr
-                                td.title.w-1 Disk
-                                td.spare
-                                td.w-1
-                                    span {{ monitor.data.disk.used / 1024 / 1024 / 1024 | number:0 }} GB
-                                    span.mr-1.ml-1 /
-                                    span {{ monitor.data.disk.total / 1024 / 1024 / 1024 | number:0 }} GB
+                            table
+                                tr
+                                    td.title.w-1 Memory
+                                    td.spare
+                                    td.w-1
+                                        span {{ monitor.data.memory.usage / 1024 / 1024 / 1024 | number:2 }} GB
+                                        span.mr-1.ml-1 /
+                                        span {{ monitor.data.memory.total / 1024 / 1024 / 1024 | number:2 }} GB
+                            
+                            table
+                                tr
+                                    td.title.w-1 Disk
+                                    td.spare
+                                    td.w-1
+                                        span {{ monitor.data.disk.used / 1024 / 1024 / 1024 | number:0 }} GB
+                                        span.mr-1.ml-1 /
+                                        span {{ monitor.data.disk.total / 1024 / 1024 / 1024 | number:0 }} GB
 
-                .col-md-4
-                    a.info-box(href="/hub/workflow/list")
-                        h3.mb-3.text-center.text-dark Active / Total Workflow
-                        .text-center
-                            b.text-blue(style="font-size: 48px;") {{ workflow.list.length }}
-                            span.mr-2.ml-2.text-muted(style="font-size: 24px;") /
-                            b.text-muted(style="font-size: 36px;") {{ data.dizest.workflows}}
-            
-            .pr-3.pl-3(ng-if="workflow.list.length > 0")
-                h2 Active Workflow
+                    .col-md-4
+                        a.info-box(href="/hub/workflow/list")
+                            h3.mb-3.text-center.text-dark Active / Total Workflow
+                            .text-center
+                                b.text-blue(style="font-size: 48px;") {{ workflow.list.length }}
+                                span.mr-2.ml-2.text-muted(style="font-size: 24px;") /
+                                b.text-muted(style="font-size: 36px;") {{ data.dizest.workflows}}
+                
+                .pr-3.pl-3.text-center(ng-if="workflow.list.length > 0")
+                    h2 Active Workflow
 
-            .row.row-deck.row-cards(ng-if="workflow.list.length > 0")
-                .col-md-3.p-3(ng-repeat="item in workflow.list")
-                    .card(ng-click="workflow.click(item)")
-                        .card-body.p-0.featured-area
-                            .status-area(ng-if="workflow.status[item.id] && workflow.status[item.id] != 'stop'" class="{{workflow.status_class(workflow.status[item.id])}}")
-                                span {{workflow.status[item.id]}}
-                            .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
-                                svg(viewBox="0 0 16 9")
-                                    rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
+                .row.row-deck.row-cards(ng-if="workflow.list.length > 0")
+                    .col-md-3.p-3(ng-repeat="item in workflow.list")
+                        .card(ng-click="workflow.click(item)")
+                            .card-body.p-0.featured-area
+                                .status-area(ng-if="workflow.status[item.id] && workflow.status[item.id] != 'stop'" class="{{workflow.status_class(workflow.status[item.id])}}")
+                                    span {{workflow.status[item.id]}}
+                                .img-responsive(style="position: relative; background-image: url('{{item.featured}}')")
+                                    svg(viewBox="0 0 16 9")
+                                        rect(width="16" height="12" style="fill:rgba(255,255,255,0);")
 
-                        .card-footer.d-flex(style="align-items: center;")
-                            .avatar-area.avatar-area-sm.mr-3
-                                .avatar-container
-                                    span.avatar(style="background-image: url({{item.logo}})")
-                            .text-area
-                                h3.card-title.mb-0
-                                    .text-reset(style="font-size: 16px; white-space: nowrap; word-break: break-all; width: 168px; overflow: hidden; text-overflow: ellipsis;") {{item.title}}
-                                small.text-muted {{item.updated}}
+                            .card-footer.d-flex(style="align-items: center;")
+                                .avatar-area.avatar-area-sm.mr-3
+                                    .avatar-container
+                                        span.avatar(style="background-image: url({{item.logo}})")
+                                .text-area
+                                    h3.card-title.mb-0
+                                        .text-reset(style="font-size: 16px; white-space: nowrap; word-break: break-all; width: 168px; overflow: hidden; text-overflow: ellipsis;") {{item.title}}
+                                    small.text-muted {{item.updated}}
 
-            .mb-6
+                .mb-6

@@ -112,7 +112,7 @@ let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
             }
 
             obj.importdata = data;
-            obj.importmode = 'file';
+            obj.importmode = 'import';
 
             await tab.open("import");
             await $render();

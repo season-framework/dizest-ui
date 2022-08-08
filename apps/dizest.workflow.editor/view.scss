@@ -879,3 +879,15 @@
         }
     }
 }
+
+@media (max-width: 768px) {
+    .drawflow {
+        .action-btn {
+            display: none;
+        }
+
+        .action-btn-play, .action-btn-stop {
+            display: block;
+        }
+    }
+}

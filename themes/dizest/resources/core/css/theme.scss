@@ -5,13 +5,14 @@
 @import url(/resources/themes/dizest/core/css/components/btn.scss);
 @import url(/resources/themes/dizest/core/css/components/form.scss);
 @import url(/resources/themes/dizest/core/css/components/text.scss);
+@import url(/resources/themes/dizest/core/css/components/workspace.scss);
 
 html,
 body {
     font-family: 'wiz-r';
     background: var(--wiz-color-background);
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 }
 
@@ -27,7 +28,7 @@ body {
         display: flex;
         position: relative;
         width: var(--wiz-size-sidebar);
-        height: 100vh;
+        height: 100%;
         border-right: 1px solid var(--wiz-color-border);
         overflow: hidden;
         flex-direction: column;
@@ -73,7 +74,7 @@ body {
             background-color: #fff;
 
             @media (max-width: 768px) {
-                height: calc(100vh - 64px);
+                height: calc(100% - 64px);
                 position: fixed;
                 top: 64px;
                 left: 0;
@@ -154,7 +155,7 @@ body {
         display: flex;
         flex-direction: column;
         flex: 1;
-        height: 100vh;
+        height: 100%;
 
         .wiz-top-menu {
             display: flex;
