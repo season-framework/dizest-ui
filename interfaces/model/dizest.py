@@ -81,14 +81,16 @@ class Model:
             return None
 
         configpy = self.config()
-        cwd = configpy.cwd()
+
         spawner_class = dizest.spawner.SimpleSpawner
         if configpy.spawner_class is not None:
             spawner_class = configpy.spawner_class
 
         if user_id is None:
+            cwd = configpy.cwd(wiz.session.get("id"))
             server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"))
         else:
+            cwd = configpy.cwd(user_id)
             server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id)
         
         config = self.package()
