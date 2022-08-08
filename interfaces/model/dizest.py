@@ -73,6 +73,13 @@ class Model:
 
     def server(self, load=True):
         name = self.name
+
+        if wiz.session.has("id") == False:
+            return None
+        
+        if wiz.session.get("id") is None:
+            return None
+
         configpy = self.config()
         cwd = configpy.cwd()
         spawner_class = dizest.spawner.SimpleSpawner
