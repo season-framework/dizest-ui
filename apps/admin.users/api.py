@@ -10,7 +10,7 @@ def users():
 
         server_id = "main-" + row['id']
         dizest = wiz.model("dizest").load(server_id)
-        server = dizest.server(False)
+        server = dizest.server(user_id=row['id'])
 
         obj = dict()
         obj['status'] = server.is_running()
@@ -58,7 +58,7 @@ def delete():
     user_id = wiz.request.query("id", True)
 
     dizest = wiz.model("dizest").load("main-" + user_id)
-    server = dizest.server(False)
+    server = dizest.server(user_id=user_id)
     if server.is_running():
         server.stop()
 

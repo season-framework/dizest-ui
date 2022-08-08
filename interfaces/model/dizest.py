@@ -71,7 +71,7 @@ class Model:
         except Exception as e:
             pass
 
-    def server(self, load=True):
+    def server(self, user_id=None):
         name = self.name
 
         if wiz.session.has("id") == False:
@@ -86,7 +86,10 @@ class Model:
         if configpy.spawner_class is not None:
             spawner_class = configpy.spawner_class
 
-        server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"))
+        if user_id is None:
+            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"))
+        else:
+            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id)
         
         config = self.package()
         kernelspecs = config.kernelspec
@@ -95,6 +98,6 @@ class Model:
             for kernelspec in kernelspecs:
                 server.set_kernelspec(**kernelspec)
         
-        if load:
+        if user_id is None:
             server.start()
         return server
