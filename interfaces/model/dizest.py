@@ -12,8 +12,11 @@ class Model:
         self.name = name
         self.branch = branch = wiz.branch()
         self.basenamespace = f"/wiz/app/{branch}"
+        self.configpy = Model.config()
         host = urllib.parse.urlparse(wiz.flask.request.base_url)
         self.host = f"{host.scheme}://{host.netloc}/dizest/api/kernel/log"
+        if self.configpy.broker_api is not None:
+            self.host = self.configpy.broker_api
         
     @classmethod
     def load(cls, name):
@@ -23,9 +26,10 @@ class Model:
     def config():
         fs = dizest.util.os.storage(BASEPATH)
         code = fs.read("config.py")
-        env = season.stdClass()
-        env.wiz = wiz
+        env = os.environ.copy()
+        env['wiz'] = wiz
         exec(compile(code, fs.abspath(), 'exec'), env)
+        env = season.stdClass(env)
         return env
 
     @staticmethod
@@ -80,7 +84,7 @@ class Model:
         if wiz.session.get("id") is None:
             return None
 
-        configpy = self.config()
+        configpy = self.configpy
 
         spawner_class = dizest.spawner.SimpleSpawner
         if configpy.spawner_class is not None:
@@ -95,7 +99,11 @@ class Model:
             server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id, executable=executable)
         
         config = self.package()
-        kernelspecs = config.kernelspec
+        
+        kernelspecs = configpy.kernelspec
+        if kernelspecs is None:
+            kernelspecs = config.kernelspec
+
         if kernelspecs is not None:
             server.clear_kernelspec()
             for kernelspec in kernelspecs:
