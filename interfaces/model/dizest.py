@@ -1,6 +1,7 @@
 import os
 import sys
 import season
+import json
 import urllib
 import requests
 import dizest
@@ -14,6 +15,7 @@ class Model:
         self.basenamespace = f"/wiz/app/{branch}"
         self.configpy = Model.config()
         host = urllib.parse.urlparse(wiz.flask.request.base_url)
+        
         self.host = f"{host.scheme}://{host.netloc}/dizest/api/kernel/log"
         if self.configpy.broker_api is not None:
             self.host = self.configpy.broker_api
@@ -59,18 +61,13 @@ class Model:
             return False
         return True
 
-    def broker(self, workflow, flow_id, mode, data):
+    def broker(self, logs):
         try:
-            host = self.host
-            workflow_id = workflow.id()
-
             pd = dict()
-            pd['mode'] = mode
             pd['server'] = self.name
-            pd['workflow_id'] = workflow_id
-            pd['flow_id'] = flow_id
-            pd['data'] = data
-
+            pd['logs'] = json.dumps(logs)
+            
+            host = self.host
             res = requests.post(host, data=pd)
         except Exception as e:
             pass
@@ -90,13 +87,21 @@ class Model:
         if configpy.spawner_class is not None:
             spawner_class = configpy.spawner_class
 
-        executable = configpy.executable
+        kwargs = dict()
+        kwargs['broker'] = self.broker
+        kwargs['spawner_class'] = spawner_class
+
+        if configpy.executable is not None:
+            kwargs['executable'] = configpy.executable
+
         if user_id is None:
-            cwd = configpy.cwd(wiz.session.get("id"))
-            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=wiz.session.get("id"), executable=executable)
+            kwargs['cwd'] = configpy.cwd(wiz.session.get("id"))
+            kwargs['user'] = wiz.session.get("id")
         else:
-            cwd = configpy.cwd(user_id)
-            server = dizest.server(name, broker=self.broker, spawner_class=spawner_class, cwd=cwd, user=user_id, executable=executable)
+            kwargs['cwd'] = configpy.cwd(user_id)
+            kwargs['user'] = user_id
+
+        server = dizest.server(name, **kwargs)
         
         config = self.package()
         
