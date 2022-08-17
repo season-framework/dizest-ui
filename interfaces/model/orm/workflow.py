@@ -13,9 +13,9 @@ class Model(base):
     created = pw.DateTimeField(index=True)
     updated = pw.DateTimeField(index=True)
     
-    logo = pw.TextField()
-    featured = pw.TextField()
-    description = pw.TextField()
+    logo = base.TextField()
+    featured = base.TextField()
+    description = base.TextField()
 
     apps = base.JSONField()
     flow = base.JSONField()

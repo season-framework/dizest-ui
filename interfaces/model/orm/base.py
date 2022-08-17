@@ -30,7 +30,12 @@ class Model(pw.Model):
                 return bcrypt.checkpw(password, value)
             return check_password
 
+    class TextField(pw.TextField):
+        field_type = 'LONGTEXT'
+
     class JSONField(pw.TextField):
+        field_type = 'LONGTEXT'
+
         def db_value(self, value):
             return json.dumps(value)
 
@@ -43,6 +48,8 @@ class Model(pw.Model):
             return []
 
     class JSONObject(pw.TextField):
+        field_type = 'LONGTEXT'
+
         def db_value(self, value):
             return json.dumps(value)
 
