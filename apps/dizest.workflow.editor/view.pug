@@ -66,6 +66,8 @@
         .app.if-desktop(ng-if="!leftmenu.is('drive') && workflow.display")
             .app-search
                 input.form-control.search-form(placeholder="enter for search" ng-model="app.query" ng-change="app.search(app.query)")
+                button.btn.btn-primary.ml-1(ng-click="app.import()")
+                    i.fa-solid.fa-upload
 
             .app-list
                 .no-items.text-center.p-6(ng-if="app.data.length == 0")
@@ -299,6 +301,11 @@
                             .col
                                 input.form-control(type="text" placeholder="1.0.0" ng-model="workflow.data.apps[node.selected.app_id].version")
 
+                        .form-group.row.mb-3
+                            label.form-label.col-3.col-form-label Download App
+                            .col
+                                button.btn.btn-outline-blue.btn-block(ng-click="app.download(workflow.data.apps[node.selected.app_id])") Download
+
                 .card.mb-4
                     .card-header
                         h4.card-title Logo
@@ -368,14 +375,10 @@
                         table.table.card-table.table-sm
                             thead
                                 tr
-                                    th.w-1.nowrap Code
+                                    th.w-1.nowrap
+                                        span.mr-2 [{{workflow.status[item.id].index}}]
+                                        span Code
                         .codeflow-codearea
-                            .item-index(ng-if="workflow.status[item.id].index != '*'") [{{workflow.status[item.id].index}}]
-                            .item-index(ng-if="workflow.status[item.id].index == '*'" style="padding-left: 4px;")
-                                span.status-indicator.status-indicator-animated.status-primary
-                                    span.status-indicator-circle
-                                    span.status-indicator-circle
-                                    span.status-indicator-circle
                             .item-body
                                 div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
 
@@ -404,6 +407,8 @@
                                             option(value="text") Text
                                             option(value="password") Password
                                             option(value="number") Number
+                                            option(value="file") File
+                                            option(value="folder") Folder
                                             option(value="date") Date
                                             option(value="list") List
                                     td.w-1
@@ -447,7 +452,7 @@
 
                 .margin-area(style="height: 80vh;")
             
-        .workspace-tab.uimode-editor.if-desktop(ng-if="uimode.activetab.length > 0 && !uimode.maximized" ui-sortable='uimode.activetab' ng-model="uimode.activetab")
+        .workspace-tab.uimode-editor.if-desktop(ng-if="uimode.activetab.length > 0 && !uimode.maximized" ui-sortable='uimode.sortable' ng-model="uimode.activetab")
             .ui-editor(ng-repeat="name in uimode.activetab" ng-if="uimode.tab[name].active")
                 .uimode-codeselect
                     a {{uimode.tab[name].name}}
@@ -543,121 +548,170 @@
                 .btn.btn-white(ng-click="menubar.toggle('shortcut')" class="{{menubar.btn_class('shortcut')}}")
                     i.fa-solid.fa-keyboard
     
-    div(ng-if="node.selected")
-        style.
-            .drawflow-node {
-                opacity: 0.3;
-            }
-
-            .{{node.selected.id}} {
-                opacity: 1;
-            }
-
-            .workspace-tab.codeflow .card {
-                opacity: 0.6;
-            }
-
-            .workspace-tab.codeflow .card.codeflow-selected {
-                opacity: 1;
-            }
-
-    div(ng-if="app.hover")
-        style.
-            .drawflow-node {
-                opacity: 0.3;
-            }
-
-            .drawflow-node.{{app.hover}} {
-                opacity: 1;
-            }
-
-    div(ng-repeat="(key, value) in workflow.status")
-        div(ng-if="value.status == 'error'")
-            style.
-                .{{value.flow_id}} {
-                    border: none !important;
-                    box-shadow: 0 2px 20px 2px var(--wiz-color-red) !important;
-                }
-
-        div(ng-if="value.status == 'pending'")
-            style.
-                .{{value.flow_id}} .pending-indicator {
-                    display: block !important;
-                }
-
-                .{{value.flow_id}} .action-btn-play {
-                    display: none !important;
-                }
-
-                .{{value.flow_id}} .action-btn-stop {
-                    display: block !important;
-                }
+    #drive-modal.modal.fade(tabindex="-1")
+        .modal-dialog.modal-sm(role='document')
+            .modal-content
+                .modal-header.bg-blue(style="min-height: 42px;")
+                    h3.modal-title {{node.drive.variable_name}}
                 
+                .modal-body.p-0.bg-white
+                    .list-back
+                        table.table.table-sm.table-vcenter.mb-0
+                            tr
+                                td.text-muted.bg-dark-lt(style="padding: 4px 12px;")
+                                    small {{drive.current? drive.current + '/' : '/'}}
+                                    small(ng-if="node.drive.checked && node.drive.mode == 'folder'") {{node.drive.checked}}
 
-        div(ng-if="value.status == 'finish'")
+                    .list-back(ng-if="drive.current != ''")
+                        table.table.table-sm.table-hover.table-vcenter.mb-0
+                            tr
+                                td.text-left.cursor-pointer.bg-primary-lt(ng-click="node.drive.cd('..')")
+                                    svg.icon.mr-2(xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round")
+                                        path(stroke="none" d="M0 0h24v24H0z" fill="none")
+                                        path(d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4")
+                                    span ...
+
+                    div(style="max-height: 50vh; overflow-y: auto;")
+                        table.table.table-sm.table-hover.table-vcenter.mb-0
+                            tr(ng-repeat="file in drive.files" ng-if="file.name[0] != '.'" class="{{file.name == node.drive.checked ? 'bg-blue-lt' : ''}}")
+                                td.w-1.pr-0(ng-click="node.drive.check(file)")
+                                    .avatar-area.avatar-area-sm
+                                        .avatar-container(class="{{file.type == 'folder' ? 'folder' : ''}}")
+                                            i.fa-solid.fa-file(ng-if="file.type == 'file'")
+                                            i.fa-solid.fa-folder(ng-if="file.type == 'folder'")
+                                
+                                td.text-left.filename(ng-click="node.drive.check(file)")
+                                    div
+                                        a(ng-click="node.drive.click(file)" ng-if="file.type == 'folder'") {{file.name}}
+                                        a(ng-click="node.drive.check(file)" ng-if="file.type == 'file'") {{file.name}}
+                                    div
+                                        small.text-muted {{drive.timer(file.ctime)}}
+                                        small.text-muted.mr-1.ml-1 /
+                                        small.text-muted {{drive.filesize(file.size)}}
+
+                .modal-footer.p-1.bg-white(ng-if="node.drive.mode == 'file'")
+                    input.form-control(type="text" ng-model="node.drive.checked")
+
+                .modal-footer.p-1
+                    button.btn.btn-link.link-secondary.mr-auto(type='button' data-bs-dismiss="modal") Cancel
+                    button.btn.btn-primary(type='button' ng-click="node.drive.select()" ng-if="node.drive.checked") Select
+
+    .d-none
+        div(ng-if="node.selected")
             style.
-                .flow-{{value.flow_id}} .finish-indicator {
-                    display: block !important;
-                    padding-top: 9px;
-                    text-align: center;
-                    font-size: 12px;
-                    background: rgba(47,179,68,.1);
-                    color: #2fb344;
-                    font-weight: 1000;
+                .drawflow-node {
+                    opacity: 0.3;
                 }
 
-        div(ng-if="value.status == 'running'")
+                .{{node.selected.id}} {
+                    opacity: 1;
+                }
+
+                .workspace-tab.codeflow .card {
+                    opacity: 0.6;
+                }
+
+                .workspace-tab.codeflow .card.codeflow-selected {
+                    opacity: 1;
+                }
+
+        div(ng-if="app.hover")
             style.
-                :root {
-                    --animate-duration: 1s;
-                    --animate-delay: 1s;
-                    --animate-repeat: 1;
+                .drawflow-node {
+                    opacity: 0.3;
                 }
 
-                @keyframes heartBeat {
-                    0% {
-                        -webkit-transform: scale(1);
-                        transform: scale(1);
-                    }
-
-                    25% {
-                        -webkit-transform: scale(1.02);
-                        transform: scale(1.02);
-                    }
-
-                    50% {
-                        -webkit-transform: scale(1);
-                        transform: scale(1);
-                    }
-
-                    75% {
-                        -webkit-transform: scale(1.02);
-                        transform: scale(1.02);
-                    }
-
-                    100% {
-                        -webkit-transform: scale(1);
-                        transform: scale(1);
-                    }
+                .drawflow-node.{{app.hover}} {
+                    opacity: 1;
                 }
 
-                .flow-{{value.flow_id}} .action-btn-play {
-                    display: none !important;
-                }
+        div(ng-repeat="(key, value) in workflow.status")
+            div(ng-if="value.status == 'error'")
+                style.
+                    .{{value.flow_id}} {
+                        border: none !important;
+                        box-shadow: 0 2px 20px 2px var(--wiz-color-red) !important;
+                    }
 
-                .flow-{{value.flow_id}} .action-btn-stop {
-                    display: block !important;
-                }
+            div(ng-if="value.status == 'pending'")
+                style.
+                    .{{value.flow_id}} .pending-indicator {
+                        display: block !important;
+                    }
 
-                .flow-{{value.flow_id}} .progress {
-                    display: flex !important;
-                }
+                    .{{value.flow_id}} .action-btn-play {
+                        display: none !important;
+                    }
 
-    div(ng-if="workflow.active_flow_id")
-        style.
-            .{{workflow.active_flow_id}} {
-                background: white;
-                border: 1px solid #4ea9ff;
-                -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
-                box-shadow: 0 2px 20px 2px #4ea9ff;
-            }
+                    .{{value.flow_id}} .action-btn-stop {
+                        display: block !important;
+                    }
+                    
+
+            div(ng-if="value.status == 'finish'")
+                style.
+                    .flow-{{value.flow_id}} .finish-indicator {
+                        display: block !important;
+                        padding-top: 9px;
+                        text-align: center;
+                        font-size: 12px;
+                        background: rgba(47,179,68,.1);
+                        color: #2fb344;
+                        font-weight: 1000;
+                    }
+
+            div(ng-if="value.status == 'running'")
+                style.
+                    :root {
+                        --animate-duration: 1s;
+                        --animate-delay: 1s;
+                        --animate-repeat: 1;
+                    }
+
+                    @keyframes heartBeat {
+                        0% {
+                            -webkit-transform: scale(1);
+                            transform: scale(1);
+                        }
+
+                        25% {
+                            -webkit-transform: scale(1.02);
+                            transform: scale(1.02);
+                        }
+
+                        50% {
+                            -webkit-transform: scale(1);
+                            transform: scale(1);
+                        }
+
+                        75% {
+                            -webkit-transform: scale(1.02);
+                            transform: scale(1.02);
+                        }
+
+                        100% {
+                            -webkit-transform: scale(1);
+                            transform: scale(1);
+                        }
+                    }
+
+                    .flow-{{value.flow_id}} .action-btn-play {
+                        display: none !important;
+                    }
+
+                    .flow-{{value.flow_id}} .action-btn-stop {
+                        display: block !important;
+                    }
+
+                    .flow-{{value.flow_id}} .progress {
+                        display: flex !important;
+                    }
+
+        div(ng-if="workflow.active_flow_id")
+            style.
+                .{{workflow.active_flow_id}} {
+                    background: white;
+                    border: 1px solid #4ea9ff;
+                    -webkit-box-shadow: 0 2px 20px 2px #4ea9ff !important;
+                    box-shadow: 0 2px 20px 2px #4ea9ff;
+                }

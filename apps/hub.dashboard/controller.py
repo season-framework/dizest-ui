@@ -18,6 +18,7 @@ process = psutil.Process(os.getpid())
 data = season.stdClass()
 data.deploy = season.stdClass()
 data.deploy.dizest_version = dizest.version
+data.deploy.dizest_ui_version = wiz.model("dizest").VERSION
 data.deploy.wiz_version = season.version
 data.deploy.python_version = platform.python_version()
 data.deploy.database = config.db.type

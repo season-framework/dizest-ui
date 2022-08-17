@@ -9,6 +9,8 @@ import dizest
 BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
+    VERSION = "v2022.08.17.2347"
+
     def __init__(self, name):
         self.name = name
         self.branch = branch = wiz.branch()

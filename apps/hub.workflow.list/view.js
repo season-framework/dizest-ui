@@ -99,7 +99,7 @@ let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
         }
 
         obj.import = async () => {
-            let data = await $file.json(".dwp,.json");
+            let data = await $file.json(".dwp");
             delete data.id;
             delete data.user_id;
             delete data.created;

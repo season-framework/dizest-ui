@@ -39,7 +39,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 fontSize: 14,
                 automaticLayout: true,
                 scrollBeyondLastLine: false,
-                lineNumbers: 'off',
+                // lineNumbers: 'off',
+                wordWrap: true,
                 roundedSelection: false,
                 scrollBeyondLastLine: false,
                 glyphMargin: false,
@@ -56,11 +57,27 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 let monaco_auto_height = async () => {
                     const LINE_HEIGHT = 21;
                     const el = editor._domElement;
+                    let ui_line_counter = $(el).find('.margin-view-overlays .line-numbers').length;
                     let counter = editor.getModel().getLineCount();
-                    let height = counter * LINE_HEIGHT;
+                    let real_line = $(el).find('.view-lines .view-line').length;
+                    let height = real_line * LINE_HEIGHT;
                     if (height < 105) height = 105;
                     el.style.height = height + 'px';
                     editor.layout();
+
+                    while (ui_line_counter != counter) {
+                        ui_line_counter = $(el).find('.margin-view-overlays .line-numbers').length;
+                        counter = editor.getModel().getLineCount();
+                        real_line = $(el).find('.view-lines .view-line').length;
+                        real_line = real_line + 1;
+                        height = real_line * LINE_HEIGHT;
+
+                        if (height < 105) height = 105;
+                        el.style.height = height + 'px';
+                        editor.layout();
+
+                        await $render(50);
+                    }
                 }
 
                 await monaco_auto_height();
@@ -93,6 +110,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 language: language,
                 theme: "vs",
                 fontSize: 14,
+                wordWrap: true,
                 automaticLayout: true,
                 minimap: {
                     enabled: false
@@ -243,8 +261,10 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.select = async (flow_id) => {
             if (flow_id) await node.select(flow_id);
-            if (!menubar.is('uimode'))
+            if (!menubar.is('uimode')) {
+                await obj.maximize(false);
                 await menubar.toggle('uimode');
+            }
             await obj.render();
             await $render();
         }
@@ -345,6 +365,22 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             html = converter.makeHtml(text);
             html = $scope.trustAsHtml(html);
             return html;
+        }
+
+        obj.download = async (app) => {
+            let data = angular.copy(app);
+            await $file.download(data, data.title + ".dwa");
+        }
+
+        obj.import = async () => {
+            let apps = workflow.data.apps;
+            let newdata = await $file.json(".dwa");
+            let app_id = $util.random();
+            while (apps[app_id])
+                app_id = $util.random();
+            newdata.id = app_id;
+            workflow.data.apps[app_id] = newdata;
+            await obj.load();
         }
 
         obj.get = async (app_id) => {
@@ -542,6 +578,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             $("#node-" + flow_id + " .debug-message").remove();
             workflow.debug[flow_id] = "";
             await workflow.save(true);
+            kernel.status = 'running';
             let { code, data } = await API("run", { flow_id: flow_id });
             await $loading.hide();
             if (code != 200)
@@ -668,6 +705,56 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
+        obj.drive = {};
+
+        obj.drive.cd = async (path) => {
+            await drive.cd(path);
+            obj.drive.checked = null;
+            await $render();
+        }
+
+        obj.drive.click = async (file) => {
+            await drive.click(file);
+            obj.drive.checked = null;
+            await $render();
+        }
+
+        obj.drive.check = async (file) => {
+            if (obj.drive.mode == 'folder') {
+                if (file.type == 'file') return;
+                obj.drive.checked = file.name;
+            } else {
+                obj.drive.checked = file.name;
+            }
+        }
+
+        obj.drive.select = async () => {
+            let path = drive.current.substring(1) + "/" + obj.drive.checked;
+            $(obj.drive.element).find("input").val(path);
+            let event = {}
+            event.target = $(obj.drive.element).find("input")[0];
+            workflow.drawflow.updateNodeValue(event);
+            $('#drive-modal').modal('hide');
+        }
+
+        obj.drive.file = async (el, variable_name) => {
+            obj.drive.mode = 'file';
+            obj.drive.checked = null;
+            obj.drive.variable_name = variable_name;
+            obj.drive.element = el;
+            await drive.api.ls();
+            $('#drive-modal').modal('show');
+        }
+
+        obj.drive.folder = async (el, variable_name) => {
+            obj.drive.mode = 'folder';
+            obj.drive.checked = null;
+            obj.drive.variable_name = variable_name;
+            obj.drive.element = el;
+            await drive.api.ls();
+            $('#drive-modal').modal('show');
+        }
+
         obj.create = async (app_id, pos_x, pos_y, nodeid, data, isdrop, flow) => {
             let drawflow = workflow.drawflow;
 
@@ -749,6 +836,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
                         opts = '<div class="value-data"><select class="form-select form-select-sm" df-' + variable_name + '>' + opts + "</select></div>";
                         wrapper.append(opts);
+                    } else if (value.inputtype == 'file' || value.inputtype == 'folder') {
+                        let df = '<div onclick="node.drive.' + value.inputtype + '(this, \'' + variable_name + '\')" class="value-data">'
+                            + '<input style="cursor: pointer;" class="form-control form-control-sm text-left" placeholder="' + value.description + '" df-' + variable_name + '/>'
+                            + '</div>';
+                        wrapper.append(df);
                     } else {
                         wrapper.append('<div class="value-data"><input class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
                     }
@@ -1042,7 +1134,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.save = async (hide_result) => {
-            let tiemstamp = new Date().getTime();
             if (kernel.is("running")) return;
 
             let data = await obj.update(true);
@@ -1406,6 +1497,9 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 if (timestamp < obj.timestamp) {
                     return;
                 }
+                
+                kernel.status = data.data;
+                await uimode.render();
             }
 
             kernel.status = data.data;

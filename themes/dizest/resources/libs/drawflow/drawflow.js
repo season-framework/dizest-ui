@@ -1571,7 +1571,6 @@ class Drawflow {
 
     updateNodeValue(event) {
         var attr = event.target.attributes;
-
         for (var i = 0; i < attr.length; i++) {
             if (attr[i].nodeName.startsWith('df-')) {
                 var keys = attr[i].nodeName.slice(3).split("-");
