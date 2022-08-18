@@ -53,6 +53,9 @@
                     a.btn.btn-primary.if-desktop(ng-if="kernel.is('running')" ng-click="kernel.stop()")
                         i.fa-solid.fa-stop(ng-if="kernel.is('running')")
 
+                    a.btn.btn-primary.if-desktop(ng-click="kernel.init()")
+                        i.fa-solid.fa-refresh
+
                     a.btn.btn-primary.if-desktop(ng-click="workflow.save()")
                         i.fa-solid.fa-save
 
