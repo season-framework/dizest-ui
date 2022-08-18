@@ -63,7 +63,13 @@
                         i.fa-solid.fa-xmark
 
     .workspace-body
-        .app.if-desktop(ng-if="!leftmenu.is('drive') && workflow.display")
+        .show-toggle(ng-click="leftmenu.show()" ng-if="leftmenu.hidden")
+            i.fa-solid.fa-caret-right
+
+        .app.if-desktop(ng-if="!leftmenu.hidden && !leftmenu.is('drive') && workflow.display")
+            .hide-toggle(ng-click="leftmenu.hide()")
+                i.fa-solid.fa-caret-left
+
             .app-search
                 input.form-control.search-form(placeholder="enter for search" ng-model="app.query" ng-change="app.search(app.query)")
                 button.btn.btn-primary.ml-1(ng-click="app.import()")
@@ -87,7 +93,7 @@
                         button.btn.btn-primary.btn-sm(ng-click="workflow.add(item.id)")
                             i.fa-solid.fa-plus
 
-        .workspace-tab.drive-area.if-desktop(ng-if="leftmenu.is('drive')")
+        .workspace-tab.drive-area.if-desktop(ng-if="!leftmenu.hidden && leftmenu.is('drive')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     input.form-check-input.mr-2(type="checkbox" ng-click="drive.check()" ng-model="drive.checked_all")
@@ -118,6 +124,9 @@
                             span ...
 
             .workspace-tab-body.p-0(ng-drop="drive.drop")
+                .hide-toggle(ng-click="leftmenu.hide()")
+                    i.fa-solid.fa-caret-left
+
                 table.table.table-sm.table-hover.table-vcenter.mb-5
                     tr(ng-if="drive.is_create")
                         td.w-1.pr-0
@@ -180,6 +189,14 @@
         .workflow(ng-if="workflow.display")
             .workflow-canvas.noselect(ng-if="!workflow.clear")
                 #drawflow(ondrop="dragdrop.drop(event)" ondragover="dragdrop.allowDrop(event)")
+
+            .workflow-position
+                a.text-muted.btn-link.cursor-pointer(ng-click="workflow.init_pos()")
+                    span (
+                    span {{-workflow.position.x}}
+                    span.mr-1.ml-1 ,
+                    span {{-workflow.position.y}}
+                    span )
 
             .workflow-zoom
                 .btn-group
@@ -335,18 +352,31 @@
                 .workspace-tab-header-title
                     i.fa-solid.fa-code.mr-2
                     span Codeflow
+
                 .ml-auto
+
+                .text-white.close-btn.mr-3(ng-click="codeflow.toggle()")
+                    i.fa-solid.fa-book-open(ng-if="!codeflow.closed")
+                    i.fa-solid.fa-book(ng-if="codeflow.closed")
+
                 .text-white.close-btn(ng-click="menubar.toggle('codeflow')")
                     i.fa-solid.fa-xmark
             
             .codeflow-body(ng-click="node.select(null, 'codeflow')")
-                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}}")
+                .codeflow-actions(ng-if="codeflow.maximized")
+                    button.btn.btn-primary.btn-round.mr-1(ng-click="$event.stopPropagation(); workflow.save()")
+                        i.fa-solid.fa-save
+
+                    button.btn.btn-primary.btn-round(ng-click="$event.stopPropagation(); codeflow.maximize(null);")
+                        i.fa-solid.fa-xmark
+
+                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}} {{(node.selected.id && node.selected.id == codeflow.maximized) ? 'codeflow-focused' : ''}}")
                     .codeflow-header
                         span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="item.inactive = !item.inactive")
                             span {{item.inactive ? 'manual' : 'auto'}}
                         input(ng-model="workflow.data.apps[item.app_id].title" placeholder="app title here")
                         .ml-auto
-                        .btn.btn-sm.btn-white(ng-click="node.maximize(item.id)" ng-if="item.id == node.selected.id")
+                        .btn.btn-sm.btn-white(ng-click="codeflow.maximize(item.id)" ng-if="item.id == node.selected.id")
                             i.fa-solid.fa-up-right-and-down-left-from-center
                         .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)" ng-if="item.id == node.selected.id")
                             i.fa-solid.fa-arrow-up
@@ -378,9 +408,12 @@
                                     th.w-1.nowrap
                                         span.mr-2 [{{workflow.status[item.id].index}}]
                                         span Code
-                        .codeflow-codearea
+                        .codeflow-codearea(ng-if="!codeflow.closed || item.id == node.selected.id")
                             .item-body
-                                div(ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                                div(ng-if="!node.selected || node.selected.id != codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                                div(ng-if="node.selected && node.selected.id == codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco_code(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                        
+                        .text-muted.p-1(ng-if="codeflow.closed && item.id != node.selected.id") code hidden
 
                     .codeflow-options
                         table.table.card-table.table-sm

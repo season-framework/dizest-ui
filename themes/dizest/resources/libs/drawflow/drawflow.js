@@ -428,6 +428,7 @@ class Drawflow {
                 x: x,
                 y: y
             });
+
             this.precanvas.style.transform = "translate(" + x + "px, " + y + "px) scale(" + this.zoom + ")";
         }
 

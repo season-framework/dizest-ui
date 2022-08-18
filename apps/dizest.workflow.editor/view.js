@@ -76,7 +76,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                         el.style.height = height + 'px';
                         editor.layout();
 
-                        await $render(50);
+                        await $render();
                     }
                 }
 
@@ -152,9 +152,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.leftmenu = $scope.leftmenu = (() => {
         let obj = {};
         obj.view = 'app';
+        obj.hidden = false;
 
         obj.is = (view) => {
             return obj.view == view;
+        }
+
+        obj.hide = async () => {
+            obj.hidden = true;
+            await $render();
+        }
+
+        obj.show = async () => {
+            obj.hidden = false;
+            await $render();
         }
 
         obj.toggle = async (view) => {
@@ -326,6 +337,19 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
     window.codeflow = $scope.codeflow = (() => {
         let obj = {};
+
+        obj.maximized = null;
+        obj.closed = false;
+
+        obj.toggle = async () => {
+            obj.closed = !obj.closed;
+            await $render();
+        }
+
+        obj.maximize = async (item_id) => {
+            obj.maximized = item_id;
+            await $render();
+        }
 
         return obj;
     })();
@@ -730,6 +754,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.drive.select = async () => {
             let path = drive.current.substring(1) + "/" + obj.drive.checked;
+            if (path[0] == '/') path = path.substring(1);
             $(obj.drive.element).find("input").val(path);
             let event = {}
             event.target = $(obj.drive.element).find("input")[0];
@@ -977,6 +1002,21 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             }
 
             obj.drawflow = new Drawflow(document.getElementById("drawflow"));
+
+            obj.position = { x: 0, y: 0 };
+
+            obj.init_pos = async () => {
+                obj.position.x = 0;
+                obj.position.y = 0;
+                obj.drawflow.move({ canvas_x: 0, canvas_y: 0 });
+            }
+
+            obj.drawflow.on('translate', async (pos) => {
+                let { x, y } = pos;
+                obj.position.x = x;
+                obj.position.y = y;
+                await $render();
+            });
 
             obj.drawflow.reroute = true;
             obj.drawflow.reroute_fix_curvature = true;
@@ -1497,7 +1537,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 if (timestamp < obj.timestamp) {
                     return;
                 }
-                
+
                 kernel.status = data.data;
                 await uimode.render();
             }
