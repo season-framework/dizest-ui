@@ -1234,6 +1234,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
+        obj.refresh = async()=> {
+            await workflow.init();
+            await obj.init();
+            await workflow.refresh();
+        }
+
         obj.status_class = () => {
             if (obj.status == 'stop') return 'status-secondary';
             if (obj.status == 'running') return 'status-primary';
