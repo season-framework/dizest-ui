@@ -1,4 +1,6 @@
 & {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
 }
 
@@ -39,8 +41,8 @@
 }
 
 .workspace-body {
-    width: 100vw;
-    height: calc(100vh - 54px);
+    width: 100%;
+    height: calc(100% - 54px);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -828,7 +830,8 @@
                 max-height: 200px;
                 overflow: auto;
                 cursor: auto;
-                word-break: break-all;
+                white-space: nowrap;
+                // word-break: break-all;
 
                 -webkit-touch-callout: text;
                 -webkit-user-select: text;
@@ -836,6 +839,10 @@
                 -moz-user-select: text;
                 -ms-user-select: text;
                 user-select: text;
+
+                margin: 0;
+                line-height: 13px;
+                
 
                 pre {
                     padding: 0;

@@ -375,7 +375,7 @@
 
                 .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}} {{(node.selected.id && node.selected.id == codeflow.maximized) ? 'codeflow-focused' : ''}}")
                     .codeflow-header
-                        span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="item.inactive = !item.inactive")
+                        span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="node.toggle_active(item)")
                             span {{item.inactive ? 'manual' : 'auto'}}
                         input(ng-model="workflow.data.apps[item.app_id].title" placeholder="app title here")
                         .ml-auto

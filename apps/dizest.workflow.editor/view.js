@@ -489,21 +489,25 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             checker = {};
             for (let i = 0; i < data.outputs.length; i++) {
                 if (!data.outputs[i].name || data.outputs[i].name.length == 0) {
+                    await $loading.hide();
                     await $alert("Output name must be filled");
                     return;
                 }
 
                 if (data.outputs[i].name.includes(" ")) {
+                    await $loading.hide();
                     await $alert("Output name only allow alphabet and digits.");
                     return;
                 }
 
                 if (data.outputs[i].name.match(/[^a-z0-9_]/gi)) {
+                    await $loading.hide();
                     await $alert("Output name only allow alphabet and digits.");
                     return;
                 }
 
                 if (checker[data.outputs[i].name]) {
+                    await $loading.hide();
                     await $alert("Output name must be unique.");
                     return;
                 }
@@ -571,6 +575,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (!obj.data[find]) return;
             await obj.select(obj.data[find].id, 'all');
+        }
+
+        obj.toggle_active = async (item) => {
+            if (!item.inactive) item.inactive = true;
+            else item.inactive = !item.inactive;
+            await $render();
         }
 
         obj.prev = async () => {
@@ -1096,7 +1106,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.update = async (donot_node_reload) => {
             let data = angular.copy(obj.data);
-
             let checker = true;
             for (let key in data.apps)
                 checker = await app.validate(key);
@@ -1110,6 +1119,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             for (let i = 0; i < node.data.length; i++) {
                 orders[node.data[i].id] = i + 1;
                 data.flow[node.data[i].id].description = node.data[i].description;
+                data.flow[node.data[i].id].inactive = node.data[i].inactive;
             }
 
             for (let flow_id in flows) {
@@ -1177,6 +1187,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (kernel.is("running")) return;
 
             let data = await obj.update(true);
+            if (!data) return;
+
             if (!data.title || data.title.length == 0) {
                 await $alert("Workflow title is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');
@@ -1234,7 +1246,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
-        obj.refresh = async()=> {
+        obj.refresh = async () => {
             await workflow.init();
             await obj.init();
             await workflow.refresh();
@@ -1512,7 +1524,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             $(node_id + " .debug-message").remove();
             let data = workflow.debug[flow_id];
             if (data) {
-                $(node_id).append('<div class="debug-message">' + data + '</div>');
+                $(node_id).append('<pre class="debug-message">' + data + '</pre>');
                 let element = $(node_id + " .debug-message")[0];
                 if (!element) return;
                 element.scrollTop = element.scrollHeight - element.clientHeight;
@@ -1565,6 +1577,13 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (!workflow.status[flow_id]) workflow.status[flow_id] = { flow_id: flow_id };
             workflow.status[flow_id].index = data;
             $('#node-' + flow_id + ' .finish-indicator').text('[' + data + ']');
+        });
+
+        obj.client.on("flow.log.clear", async (message) => {
+            let { flow_id } = message;
+            workflow.debug[flow_id] = [];
+            await obj.log(flow_id);
+            await $render();
         });
 
         obj.client.on("flow.log", async (message) => {
