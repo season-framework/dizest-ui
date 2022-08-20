@@ -2,6 +2,18 @@
     "name": "DIZEST",
     "short_name": "DIZEST",
     "start_url": "/",
+    "icons": [
+        {
+            "src": "/resources/images/brand/192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/resources/images/brand/512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
     "theme_color": "#3843d0",
     "background_color": "#3843d0",
     "description": "DIZEST Hub",
