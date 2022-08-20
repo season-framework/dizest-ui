@@ -1,3 +1,5 @@
+import os
+import season
 import json
 
 if wiz.session.get("role") != "admin":
@@ -56,3 +58,17 @@ def checkdb():
     if count == -1:
         wiz.response.status(500, count)
     wiz.response.status(200, count)
+
+def upload():
+    files = wiz.request.files()
+    try:
+        icon = files[0]
+        ext = os.path.splitext(icon.filename)[-1]
+        ext = ext.lower()
+        if ext == '.png':
+            respath = os.path.join(wiz.branchpath(), 'resources')
+            fs = season.util.os.FileSystem(respath)
+            fs.write.file('images/brand/icon.png', icon)
+    except Exception as e:
+        pass
+    wiz.response.status(200)

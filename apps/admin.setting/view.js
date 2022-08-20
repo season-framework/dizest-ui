@@ -1,7 +1,10 @@
-let wiz_controller = async ($scope, $render, $alert, $file) => {
+let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => {
     $scope.status = {};
     $scope.config = wiz.data.config;
     $scope.processes = wiz.data.processes;
+    $scope.timestamp = new Date().getTime();
+
+    $scope.icon_updated = true;
 
     $scope.check = async () => {
         if ($scope.status.db) return;
@@ -33,6 +36,37 @@ let wiz_controller = async ($scope, $render, $alert, $file) => {
         $scope.status.db = false;
         await $render();
     }, true);
+
+    $scope.icon_upload = async () => {
+        $("#file-uploader").click();
+    }
+
+    $scope.icon_update = async (fd) => {
+        $scope.icon_updated = false;
+        await $loading.show('progress');
+        let url = wiz.API.url('upload');
+        await $render();
+        await $file.upload(url, fd, async (percent, total, current) => {
+            if (percent == 100 && $loading.status()) {
+                return await $loading.show();
+            }
+            total = $util.filesize(total);
+            current = $util.filesize(current);
+            await $loading.message('Uploading... ' + current + ' / ' + total + " (" + Math.round(percent) + "%)");
+            await $loading.progress(percent);
+        });
+        $('#file-uploader').val(null);
+        await $loading.hide();
+        $scope.timestamp = new Date().getTime();
+
+        $scope.icon_updated = true;
+        await $render();
+    }
+
+    document.getElementById('file-uploader').onchange = async () => {
+        let fd = new FormData($('#file-form')[0]);
+        await $scope.icon_update(fd);
+    };
 
     await $render();
 }

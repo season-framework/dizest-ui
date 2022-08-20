@@ -1,4 +1,8 @@
 .workspace-area(ng-cloak)
+    div(style="display: none;")
+        form#file-form
+            input#file-uploader.form-control(type='file' name='file[]')
+    
     .workspace-list
         .workspace-list-header
             .page-header.d-print-none
@@ -24,11 +28,13 @@
                         h4.card-title Hub Information
 
                     .card-body.p-4
-                        .form-group.row.mb-3
+                        .form-group.row
                             label.form-label.col-3.col-form-label Hub Title
                             .col
                                 input.form-control(type="text" placeholder="Hub Title" ng-model="config.title")
                         
+                        .mb-3
+
                         .form-group.row
                             label.form-label.col-3.col-form-label Logo
                             .col.text-left
@@ -40,6 +46,16 @@
                             .col-2.if-desktop
                                 .btn.btn-primary.btn-block(ng-click="uploader()") Upload
                                 .btn.btn-outline-danger.btn-block.mt-2(ng-if="config.logo" ng-click="config.logo = ''") Delete
+
+                        .mb-3
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Icon
+                            .col.text-left
+                                img(ng-if="icon_updated" src="/resources/images/brand/icon.png?v={{timestamp}}" style="height: 48px; width: 48px;")
+
+                            .col-2.if-desktop
+                                .btn.btn-primary.btn-block(ng-click="icon_upload()") Upload
 
                 .card.mb-5
                     .card-header

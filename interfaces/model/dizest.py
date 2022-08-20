@@ -9,7 +9,7 @@ import dizest
 BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
-    VERSION = "v2022.08.20.1840"
+    VERSION = "v2022.08.20.1723"
 
     def __init__(self, name):
         self.name = name
