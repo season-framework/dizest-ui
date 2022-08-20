@@ -37,32 +37,31 @@
                         span.status-indicator-circle
                 .col
                     h2.page-title
-                        small.text-muted.mr-2 Workflow:
                         span {{workflow.data.title}}
 
                 .col-auto.actions
                     a.btn.btn-white.if-desktop(ng-if="!kernel.is('stop')" style="width: 160px; overflow: hidden;") {{kernel.spec.title}}
 
-                    a.btn.btn-primary.if-desktop(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
+                    a.btn.btn-white.if-desktop(ng-click="kernel.kill()" ng-if="!kernel.is('stop')")
                         i.fa-solid.fa-stop.mr-2
                         span Stop Kernel
 
-                    a.btn.btn-primary.if-desktop(ng-if="!kernel.is('running')" ng-click="workflow.run()")
+                    a.btn.btn-white(ng-if="!kernel.is('running')" ng-click="workflow.run()")
                         i.fa-solid.fa-play
 
-                    a.btn.btn-primary.if-desktop(ng-if="kernel.is('running')" ng-click="kernel.stop()")
+                    a.btn.btn-white(ng-if="kernel.is('running')" ng-click="kernel.stop()")
                         i.fa-solid.fa-stop(ng-if="kernel.is('running')")
 
-                    a.btn.btn-primary.if-desktop(ng-click="kernel.refresh()")
+                    a.btn.btn-white(ng-click="kernel.refresh()")
                         i.fa-solid.fa-refresh
 
-                    a.btn.btn-primary.if-desktop(ng-click="workflow.save()")
+                    a.btn.btn-white.if-desktop(ng-click="workflow.save()")
                         i.fa-solid.fa-save
 
-                    a.btn.btn-primary.if-desktop(ng-click="workflow.download()")
+                    a.btn.btn-white.if-desktop(ng-click="workflow.download()")
                         i.fa-solid.fa-cloud-arrow-down
 
-                    a.btn.btn-primary.btn-circle(href=url)
+                    a.btn.btn-white.btn-circle(href=url)
                         i.fa-solid.fa-xmark
 
     .workspace-body
@@ -102,12 +101,12 @@
                     input.form-check-input.mr-2(type="checkbox" ng-click="drive.check()" ng-model="drive.checked_all")
                     span Drive
                 .ml-auto
+                .btn.btn-white.btn-sm.mr-2(ng-click="drive.api.ls()")
+                    i.fa-solid.fa-refresh.text-blue
                 .btn.btn-white.btn-sm.mr-2(ng-click="drive.create()")
-                    i.fa-solid.fa-plus.mr-1
-                    span Create
+                    i.fa-solid.fa-plus.text-blue
                 .btn.btn-white.btn-sm.mr-3(ng-click="drive.upload()")
-                    i.fa-solid.fa-upload.mr-1
-                    span Upload
+                    i.fa-solid.fa-upload.text-blue
                 .text-white.close-btn(ng-click="leftmenu.toggle('app')")
                     i.fa-solid.fa-xmark
             

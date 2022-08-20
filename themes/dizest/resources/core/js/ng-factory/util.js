@@ -21,6 +21,19 @@ app.factory('$util', () => {
             return randomstring;
         }
 
+        obj.filesize = (value) => {
+            if (!value) return "0B";
+            let kb = value / 1024;
+            if (kb < 1) return value + "B";
+            let mb = kb / 1024;
+            if (mb < 1) return Math.round(kb * 100) / 100 + "KB";
+            let gb = mb / 1024;
+            if (gb < 1) return Math.round(mb * 100) / 100 + "MB";
+            let tb = gb / 1024;
+            if (tb < 1) return Math.round(gb * 100) / 100 + "GB";
+            return Math.round(tb * 100) / 100 + "TB";
+        }
+
         return obj;
     })();
 });

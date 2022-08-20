@@ -214,3 +214,9 @@ $radius: 24px;
         z-index: 10;
     }   
 }
+
+.col-md-4 {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

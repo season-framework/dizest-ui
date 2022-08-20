@@ -84,16 +84,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
-        obj.filesize = (value) => {
-            if (!value) return "0B";
-            let kb = value / 1024;
-            if (kb < 1) return value + "B";
-            let mb = kb / 1024;
-            if (mb < 1) return Math.round(kb * 100) / 100 + "KB";
-            let gb = mb / 1024;
-            if (gb < 1) return Math.round(mb * 100) / 100 + "MB";
-            return Math.round(gb * 100) / 100 + "GB";
-        }
+        obj.filesize = $util.filesize;
 
         obj.timer = (value) => {
             return moment(new Date(value * 1000)).format("YYYY-MM-DD HH:mm:ss");
@@ -186,23 +177,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.api.upload = async (fd) => {
-            await $loading.show();
-
-            let fn = (fd) => new Promise((resolve) => {
-                let url = DRIVE_API.url('upload' + obj.current);
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: fd,
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                }).always(function (res) {
-                    resolve(res);
-                });
+            await $loading.show('progress');
+            let url = DRIVE_API.url('upload' + obj.current);
+            await $render();
+            await $file.upload(url, fd, async (percent, total, current) => {
+                if (percent == 100 && $loading.status()) {
+                    return await $loading.show();
+                }
+                total = $util.filesize(total);
+                current = $util.filesize(current);
+                await $loading.message('Uploading... ' + current + ' / ' + total + " (" + Math.round(percent) + "%)");
+                await $loading.progress(percent);
             });
 
-            await fn(fd);
+
             await obj.api.ls();
             $('#file-uploader').val(null);
             await $loading.hide();

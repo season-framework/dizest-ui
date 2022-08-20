@@ -1,7 +1,33 @@
 let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
-    await $loading.show();
-
     $scope.trustAsHtml = $sce.trustAsHtml;
+
+    $scope.drop = {
+        text: "drop dwp file!",
+        ondrop: async (e, files) => {
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    let file = files[i];
+                    let ext = file.name.split('.');
+                    ext = ext[ext.length - 1];
+                    if (ext != 'dwp') {
+                        return $alert(wiz.dic.importerror);
+                    }
+                    
+                    let data = await $file.convert.json(file);
+                    if (!data.flow || !data.apps)
+                        return $alert(wiz.dic.importerror);
+                    workflow.importdata = data;
+                    workflow.importmode = 'import';
+
+                    await tab.open("import");
+                    await $render();
+                } catch (e) {
+                    return $alert(wiz.dic.importerror);
+                }
+                return;
+            }
+        }
+    };
 
     let workflow = $scope.workflow = (() => {
         let obj = {};
@@ -257,6 +283,7 @@ let wiz_controller = async ($sce, $scope, $render, $loading, $file, $alert) => {
         return obj;
     })();
 
+    await $loading.show();
     await kernel.init();
     await workflow.search();
     await workflow.get_status();

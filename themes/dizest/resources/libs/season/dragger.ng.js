@@ -72,17 +72,21 @@
                                 resolve(file)
                             })
                         } else if (item.isDirectory) {
-                            let dirReader = item.createReader()
-                            dirReader.readEntries(entries => {
-                                let entriesPromises = []
+                            let dirReader = item.createReader();
+                            const entriesPromises = [];
+                            const readEntriesHandler = (entries) => {
+                                if (entries.length === 0) {
+                                    resolve(Promise.all(entriesPromises));
+                                    return;
+                                }
                                 for (let entr of entries)
                                     entriesPromises.push(traverseFileTreePromise(entr, path + item.name + "/"))
-                                resolve(Promise.all(entriesPromises))
-                            })
+                                dirReader.readEntries(readEntriesHandler);
+                            }
+                            dirReader.readEntries(readEntriesHandler);
                         }
                     })
                 }
-
 
                 return new Promise((resolve, reject) => {
                     let entriesPromises = []

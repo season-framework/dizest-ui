@@ -66,6 +66,11 @@ h1 {
         border-top-right-radius: $br;
         border-top-left-radius: $br;
     }
+
+    > div:last-child {
+        border-bottom-right-radius: $br;
+        border-bottom-left-radius: $br;
+    }
 }
 
 .featured-area {

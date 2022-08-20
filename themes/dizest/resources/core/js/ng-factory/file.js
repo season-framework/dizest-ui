@@ -24,6 +24,45 @@ app.factory('$file', () => {
             downloadAnchorNode.remove();
         }
 
+        obj.convert = {};
+        obj.convert.json = (file) => new Promise((resolve) => {
+            let fr = new FileReader();
+            fr.onload = () => {
+                let data = fr.result;
+                data = JSON.parse(data);
+                resolve(data);
+            };
+            fr.readAsText(file);
+        });
+
+        obj.upload = (url, fd, callback) => new Promise((resolve) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: fd,
+                cache: false,
+                contentType: false,
+                processData: false,
+                xhr: () => {
+                    let myXhr = $.ajaxSettings.xhr();
+                    if (myXhr.upload) {
+                        myXhr.upload.addEventListener('progress', async (event) => {
+                            let percent = 0;
+                            let position = event.loaded || event.position;
+                            let total = event.total;
+                            if (event.lengthComputable) {
+                                percent = Math.round(position / total * 10000) / 100;
+                                if (callback) await callback(percent, total, position);
+                            }
+                        }, false);
+                    }
+                    return myXhr;
+                }
+            }).always(function (res) {
+                resolve(res);
+            });
+        });
+
         return obj;
     })();
 });

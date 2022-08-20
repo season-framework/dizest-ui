@@ -1250,6 +1250,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await workflow.init();
             await obj.init();
             await workflow.refresh();
+            toastr.success("relaoded");
         }
 
         obj.status_class = () => {
@@ -1477,23 +1478,20 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.api.upload = async (fd) => {
-            await $loading.show();
-
-            let fn = (fd) => new Promise((resolve) => {
-                let url = DRIVE_API.url('upload' + obj.current);
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: fd,
-                    cache: false,
-                    contentType: false,
-                    processData: false
-                }).always(function (res) {
-                    resolve(res);
-                });
+            await $loading.show('progress');
+            let url = DRIVE_API.url('upload' + obj.current);
+            await $render();
+            await $file.upload(url, fd, async (percent, total, current) => {
+                if (percent == 100 && $loading.status()) {
+                    return await $loading.show();
+                }
+                total = $util.filesize(total);
+                current = $util.filesize(current);
+                await $loading.message('Uploading... ' + current + ' / ' + total + " (" + Math.round(percent) + "%)");
+                await $loading.progress(percent);
             });
 
-            await fn(fd);
+
             await obj.api.ls();
             $('#file-uploader').val(null);
             await $loading.hide();

@@ -46,7 +46,7 @@
                             i.fa-solid.fa-plus
 
         .workspace-list-item
-            .container.pt-4
+            .container.pt-4(ng-drop="drop")
                 .row.row-deck.row-cards
                     .p-3.col-md-3(ng-repeat="item in workflow.data")
                         .card(ng-click="viewer.select(item)" id="item-{{item.id}}")

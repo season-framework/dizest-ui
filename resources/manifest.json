@@ -1,0 +1,9 @@
+{
+    "name": "DIZEST",
+    "short_name": "DIZEST",
+    "start_url": "/",
+    "theme_color": "#3843d0",
+    "background_color": "#3843d0",
+    "description": "DIZEST Hub",
+    "display": "standalone"
+}

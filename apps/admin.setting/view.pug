@@ -32,12 +32,12 @@
                         .form-group.row
                             label.form-label.col-3.col-form-label Logo
                             .col.text-left
-                                .bg-primary.text-center(style="padding: 0.75rem 0; width: 280px;")
+                                .bg-primary.text-center(style="padding: 0.75rem 0; max-width: 280px; width: 100%;")
                                     img(ng-if="config.logo" src="{{config.logo}}" style="height: 32px; margin: 5px 0;")
                                     img(ng-if="!config.logo" src="/resources/images/brand/dizest-hub-white.png" style="height: 32px; margin: 5px 0;")
 
                                 input.form-control#file-logo(type="file" accept="image/*" style="display: none")
-                            .col-2
+                            .col-2.if-desktop
                                 .btn.btn-primary.btn-block(ng-click="uploader()") Upload
                                 .btn.btn-outline-danger.btn-block.mt-2(ng-if="config.logo" ng-click="config.logo = ''") Delete
 
