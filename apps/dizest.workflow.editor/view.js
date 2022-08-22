@@ -1511,6 +1511,39 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         return obj;
     })();
 
+    window.cron = $scope.cron = (() => {
+        let obj = {};
+
+        obj.list = [];
+        obj.query = {};
+
+        obj.refresh = async () => {
+            let { code, data } = await API("cron_list", {});
+            obj.list = data;
+            await $render();
+        }
+
+        obj.toggle = async () => {
+            await menubar.toggle('cron');
+            if (menubar.is('cron')) {
+                await obj.refresh();
+            }
+        }
+
+        obj.remove = async (comment) => {
+            let { code, data } = await API("cron_remove", { comment: comment });
+            await obj.refresh();
+        }
+
+        obj.add = async () => {
+            let { code, data } = await API("cron_add", angular.copy(obj.query));
+            obj.query = {};
+            await obj.refresh();
+        }
+
+        return obj;
+    })();
+
     window.socket = $scope.socket = (() => {
         let obj = {};
         obj.client = wiz.socket.get();

@@ -9,7 +9,7 @@ import dizest
 BASEPATH = os.path.realpath(season.path.project + "/..")
 
 class Model:
-    VERSION = "v2022.08.20.1723"
+    VERSION = "v2022.08.23.0103"
 
     def __init__(self, name):
         self.name = name
@@ -77,11 +77,11 @@ class Model:
     def server(self, user_id=None):
         name = self.name
 
-        if wiz.session.has("id") == False:
-            return None
-        
-        if wiz.session.get("id") is None:
-            return None
+        if user_id is None:
+            if wiz.session.has("id") == False:
+                return None
+            if wiz.session.get("id") is None:
+                return None
 
         configpy = self.configpy
 

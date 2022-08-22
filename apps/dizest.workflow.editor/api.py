@@ -3,6 +3,8 @@ import season
 import json
 import datetime
 from flask import Response
+from crontab import CronTab
+import urllib
 
 action = wiz.request.uri().split("/")[4]
 user_id = wiz.session.get("id")
@@ -255,3 +257,59 @@ def render():
 
     view = flow.render(head=headjs)
     wiz.response.send(view, content_type="text/html")
+
+def cron_list():
+    try:
+        res = []
+        user_id = wiz.session.get("id")
+        cron  = CronTab(user=user_id)
+        for job in cron:
+            time = " ".join([str(x) for x in job.slices])
+            comment = ";".join(job.comment.split(";")[1:])
+            res.append(dict(comment=comment, time=time))
+    except Exception as e:
+        wiz.response.status(500, e)
+    wiz.response.status(200, res)
+
+def cron_remove():
+    try:
+        comment = wiz.request.query("comment", True)
+        comment = f"{workflow_id};{comment}"
+        user_id = wiz.session.get("id")
+        cron  = CronTab(user=user_id)
+        rows = cron.find_comment(comment)
+        for job in rows:
+            job.enable(False)
+            cron.remove(job)
+        cron.write()
+    except Exception as e:
+        wiz.response.status(500, e)
+    wiz.response.status(200)
+
+def cron_add():
+    try:
+        configpy = wiz.model("dizest").config()
+        host = urllib.parse.urlparse(wiz.flask.request.base_url)
+        host = f"{host.scheme}://{host.netloc}"
+        if configpy.broker_api is not None:
+            host = configpy.broker_api
+            host = host.split("/")[:3]
+            host = "/".join(host)
+        host = f"{host}/dizest/api/cron"
+
+        comment = wiz.request.query("comment", True)
+        comment = f"{workflow_id};{comment}"
+
+        time = wiz.request.query("time", True)
+        spec = wiz.request.query("spec", True)
+        user_id = wiz.session.get("id")
+
+        cron  = CronTab(user=user_id)
+        command = f'curl "{host}?user_id={user_id}&workflow_id={workflow_id}&server_id={server_id}&dbname={dbname}&spec={spec}"'
+        job = cron.new(command=command, comment=comment)
+        job.setall(time)
+        cron.write()
+        job.enable()
+    except Exception as e:
+        wiz.response.status(500, e)
+    wiz.response.status(200)

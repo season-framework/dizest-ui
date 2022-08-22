@@ -534,13 +534,49 @@
                 h2(ng-if="!kernel.is('running')") Not support UI
                 h2(ng-if="kernel.is('running')") UI is not available while the kernel is running
                 
+        .workspace-tab.cron-view.if-desktop(ng-if="menubar.is('cron')")
+            .workspace-tab-header
+                .workspace-tab-header-title
+                    i.fa-solid.fa-stopwatch.mr-2
+                    span Timer
+                .ml-auto
+                .text-white.close-btn(ng-click="menubar.toggle('cron')")
+                    i.fa-solid.fa-xmark
+            
+            .workspace-tab-body
+                .card
+                    .card-header.p-2
+                        input.form-control(placeholder="0 5 * * *" ng-model="cron.query.time" style="width: 160px;")
+                        .mr-2
+                        select.form-select(ng-model="cron.query.spec" style="width: 140px;")
+                            option(ng-repeat="spec in kernel.specs" value="{{spec.name}}") {{spec.title}}
+                        .mr-2
+                        input.form-control(placeholder="comment" ng-model="cron.query.comment")
+                        .mr-2
+                        button.btn.btn-primary(ng-click="cron.add()")
+                            i.fa-solid.fa-plus
+
+                    .card-body.pb-2.pt-2
+                        span.text-muted Timer use system cron. set time and comment for regist timer.
+
+                    .card-table.table-responsive
+                        table.table.table-hover.table-vcenter.mb-0
+                            tr(ng-repeat="item in cron.list")
+                                th.w-1.nowrap {{item.time}}
+                                td.text-muted {{item.comment}}
+                                td.w-1.nowrap
+                                    button.btn.btn-red.btn-sm(ng-click="cron.remove(item.comment)")
+                                        i.fa-solid.fa-trash
+
+                    .card-body.p-1
+
         .workspace-tab.shortcut-view.if-desktop(ng-if="menubar.is('shortcut')")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-keyboard.mr-2
                     span Shortcut
                 .ml-auto
-                .text-white.close-btn(ng-click="menubar.toggle('uimode')")
+                .text-white.close-btn(ng-click="menubar.toggle('shortcut')")
                     i.fa-solid.fa-xmark
             
             .workspace-tab-body
@@ -568,6 +604,10 @@
             .d-block
                 .btn(ng-click="menubar.toggle('codeflow')" class="{{menubar.btn_class('codeflow')}}")
                     i.fa-solid.fa-code
+            
+            .d-block
+                .btn(ng-click="cron.toggle()" class="{{menubar.btn_class('cron')}}")
+                    i.fa-solid.fa-stopwatch
                         
             .d-block(ng-if="node.selected")
                 .btn(ng-click="menubar.toggle('uimode')" class="{{menubar.btn_class('uimode')}}")
@@ -576,7 +616,7 @@
             .d-block
                 .btn(ng-click="drive.toggle()" class="{{leftmenu.btn_class('drive')}}")
                     i.fa-solid.fa-folder-tree
-
+                    
             .mt-auto
 
             .d-block
