@@ -364,7 +364,7 @@
                 .text-white.close-btn(ng-click="menubar.toggle('codeflow')")
                     i.fa-solid.fa-xmark
             
-            .codeflow-body(ng-click="node.select(null, 'codeflow')")
+            .codeflow-body(ng-click="node.select(null, 'codeflow')" class="{{options.sorting ? 'on-sorting' : ''}}")
                 .codeflow-actions(ng-if="codeflow.maximized")
                     button.btn.btn-primary.btn-round.mr-1(ng-click="$event.stopPropagation(); workflow.save()")
                         i.fa-solid.fa-save
@@ -372,116 +372,121 @@
                     button.btn.btn-primary.btn-round(ng-click="$event.stopPropagation(); codeflow.maximize(null);")
                         i.fa-solid.fa-xmark
 
-                .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}} {{(node.selected.id && node.selected.id == codeflow.maximized) ? 'codeflow-focused' : ''}}")
-                    .codeflow-header
-                        span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="node.toggle_active(item)")
-                            span {{item.inactive ? 'manual' : 'auto'}}
-                        input(ng-model="workflow.data.apps[item.app_id].title" placeholder="app title here")
-                        .ml-auto
-                        .btn.btn-sm.btn-white(ng-click="codeflow.maximize(item.id)" ng-if="item.id == node.selected.id")
-                            i.fa-solid.fa-up-right-and-down-left-from-center
-                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)" ng-if="item.id == node.selected.id")
-                            i.fa-solid.fa-arrow-up
-                        .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.down(item)" ng-if="item.id == node.selected.id")
-                            i.fa-solid.fa-arrow-down
-                        .btn.btn-sm.btn-primary(ng-click="node.delete(item.id)")
-                            i.fa-solid.fa-xmark
+                div(ui-sortable='options.sortable' ng-model="node.data")
+                    .card(ng-repeat="item in node.data" id="codeflow-{{item.id}}" ng-click="node.select(item.id, 'codeflow')" class="{{item.id == node.selected.id ? 'codeflow-selected' : ''}} {{(node.selected.id && node.selected.id == codeflow.maximized) ? 'codeflow-focused' : ''}}")
+                        .codeflow-header
+                            span.badge.badge-sm.mr-1(class="{{item.inactive ? 'bg-white text-primary' : 'bg-primary text-white'}}" ng-click="node.toggle_active(item)")
+                                span {{item.inactive ? 'manual' : 'auto'}}
 
-                    .codeflow-desc
-                        table.table.card-table.table-sm(ng-if="item.id == node.selected.id")
-                            thead
-                                tr
-                                    th.nowrap Note
-                                    th.w-1.text-right
-                                        button.btn.btn-primary.btn-sm(ng-click="node.editable[item.id] = !node.editable[item.id]")
-                                            i.fa-solid.fa-book(ng-if="node.editable[item.id]")
-                                            i.fa-solid.fa-edit(ng-if="!node.editable[item.id]")
-                    
-                        .codeflow-descarea.pb-0.pt-3.pr-3.pl-3(ng-if="(item.id != node.selected.id || !node.editable[item.id]) && item.description" ng-bind-html="app.showdown(item.description)")
+                            input(ng-model="item.title" placeholder="{{workflow.data.apps[item.app_id].title}}")
+
+                            .ml-auto
+                            .btn.btn-sm.btn-white.sortable-handle(ng-if="node.selected == null && codeflow.closed")
+                                i.fa-solid.fa-up-down-left-right
+                            .btn.btn-sm.btn-white(ng-click="codeflow.maximize(item.id)" ng-if="item.id == node.selected.id")
+                                i.fa-solid.fa-up-right-and-down-left-from-center
+                            .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.up(item)" ng-if="item.id == node.selected.id")
+                                i.fa-solid.fa-arrow-up
+                            .btn.btn-sm.btn-white(ng-click="node.selected = null; node.data.down(item)" ng-if="item.id == node.selected.id")
+                                i.fa-solid.fa-arrow-down
+                            .btn.btn-sm.btn-primary(ng-click="node.delete(item.id)")
+                                i.fa-solid.fa-xmark
                         
-                        .codeflow-descarea(ng-if="item.id == node.selected.id && node.editable[item.id]")
-                            .item-body
-                                div(ng-model="item.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
-
-                    .codeflow-item
-                        table.table.card-table.table-sm
-                            thead
-                                tr
-                                    th.w-1.nowrap
-                                        span.mr-2 [{{workflow.status[item.id].index}}]
-                                        span Code
-                        .codeflow-codearea(ng-if="!codeflow.closed || item.id == node.selected.id")
-                            .item-body
-                                div(ng-if="!node.selected || node.selected.id != codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
-                                div(ng-if="node.selected && node.selected.id == codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco_code(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                        .codeflow-desc
+                            table.table.card-table.table-sm(ng-if="item.id == node.selected.id")
+                                thead
+                                    tr
+                                        th.nowrap Note
+                                        th.w-1.text-right
+                                            button.btn.btn-primary.btn-sm(ng-click="node.editable[item.id] = !node.editable[item.id]")
+                                                i.fa-solid.fa-book(ng-if="node.editable[item.id]")
+                                                i.fa-solid.fa-edit(ng-if="!node.editable[item.id]")
                         
-                        .text-muted.p-1(ng-if="codeflow.closed && item.id != node.selected.id") code hidden
+                            .codeflow-descarea.pb-0.pt-3.pr-3.pl-3(ng-if="(item.id != node.selected.id || !node.editable[item.id]) && item.description" ng-bind-html="app.showdown(item.description)")
+                            
+                            .codeflow-descarea(ng-if="item.id == node.selected.id && node.editable[item.id]")
+                                .item-body
+                                    div(ng-model="item.description" ui-monaco-opts="options.monaco('markdown')" ui-monaco)
 
-                    .codeflow-options
-                        table.table.card-table.table-sm
-                            thead
-                                tr
-                                    th.text-left(colspan=4) Input
-                                    th.text-right
-                                        button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].inputs.push({})")
-                                            i.fa-solid.fa-plus
-                            tbody(ng-if="workflow.data.apps[item.app_id].inputs.length == 0")
-                                tr
-                                    td.pl-2(colspan=5)
-                                        span.text-muted No input
+                        .codeflow-item
+                            table.table.card-table.table-sm
+                                thead
+                                    tr
+                                        th.w-1.nowrap
+                                            span.mr-2 [{{workflow.status[item.id].index}}]
+                                            span Code
+                            .codeflow-codearea(ng-if="!codeflow.closed || item.id == node.selected.id")
+                                .item-body
+                                    div(ng-if="!node.selected || node.selected.id != codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                                    div(ng-if="node.selected && node.selected.id == codeflow.maximized" ng-model="workflow.data.apps[item.app_id].code" ui-monaco-opts="options.monaco_code(workflow.data.language, 'codeflow-' + item.id)" ui-monaco)
+                            
+                            .text-muted.p-1(ng-if="codeflow.closed && item.id != node.selected.id") code hidden
 
-                            tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].inputs")
-                                tr(ng-repeat="obj in workflow.data.apps[item.app_id].inputs")
-                                    td.w-1(style="width: 120px !important;")
-                                        select.form-select(ng-model="obj.type")
-                                            option(value="variable") Variable
-                                            option(value="output") Output
+                        .codeflow-options
+                            table.table.card-table.table-sm
+                                thead
+                                    tr
+                                        th.text-left(colspan=4) Input
+                                        th.text-right
+                                            button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].inputs.push({})")
+                                                i.fa-solid.fa-plus
+                                tbody(ng-if="workflow.data.apps[item.app_id].inputs.length == 0")
+                                    tr
+                                        td.pl-2(colspan=5)
+                                            span.text-muted No input
 
-                                    td.w-1(style="width: 120px !important;")
-                                        select.form-select(ng-model="obj.inputtype" ng-if="obj.type == 'variable'")
-                                            option(value="text") Text
-                                            option(value="textarea") Textarea
-                                            option(value="password") Password
-                                            option(value="number") Number
-                                            option(value="file") File
-                                            option(value="folder") Folder
-                                            option(value="date") Date
-                                            option(value="list") List
-                                    td.w-1
-                                        input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="obj.name")
-                                    td
-                                        textarea.form-control(placeholder="{{ obj.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" ng-model="obj.description")
-                                    td.w-1.nowrap
-                                        button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].inputs.remove(obj)")
-                                            i.fa-solid.fa-xmark
-                                        .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
-                                            i.fa-solid.fa-up-down-left-right
-                    
-                    .codeflow-options
-                        table.table.card-table.table-sm
-                            thead
-                                tr
-                                    th.w-1.nowrap(colspan=2) Output 
-                                    th.w-1.nowrap.text-right
-                                        button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].outputs.push({})")
-                                            i.fa-solid.fa-plus
+                                tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].inputs")
+                                    tr(ng-repeat="obj in workflow.data.apps[item.app_id].inputs")
+                                        td.w-1(style="width: 120px !important;")
+                                            select.form-select(ng-model="obj.type")
+                                                option(value="variable") Variable
+                                                option(value="output") Output
 
-                            tbody(ng-if="workflow.data.apps[item.app_id].outputs.length == 0")
-                                tr
-                                    td.pl-2(colspan=5)
-                                        span.text-muted No Output
+                                        td.w-1(style="width: 120px !important;")
+                                            select.form-select(ng-model="obj.inputtype" ng-if="obj.type == 'variable'")
+                                                option(value="text") Text
+                                                option(value="textarea") Textarea
+                                                option(value="password") Password
+                                                option(value="number") Number
+                                                option(value="file") File
+                                                option(value="folder") Folder
+                                                option(value="date") Date
+                                                option(value="list") List
+                                        td.w-1
+                                            input.form-control(style="width: 160px;" placeholder="Input Name" ng-model="obj.name")
+                                        td
+                                            textarea.form-control(placeholder="{{ obj.inputtype == 'list' ? 'samsung: 005930,\nkakao: 035720' : 'Description'}}" ng-model="obj.description")
+                                        td.w-1.nowrap
+                                            button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].inputs.remove(obj)")
+                                                i.fa-solid.fa-xmark
+                                            .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
+                                                i.fa-solid.fa-up-down-left-right
+                        
+                        .codeflow-options
+                            table.table.card-table.table-sm
+                                thead
+                                    tr
+                                        th.w-1.nowrap(colspan=2) Output 
+                                        th.w-1.nowrap.text-right
+                                            button.btn.btn-primary.btn-sm(ng-click="workflow.data.apps[item.app_id].outputs.push({})")
+                                                i.fa-solid.fa-plus
 
-                            tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].outputs")
-                                tr(ng-repeat="obj in workflow.data.apps[item.app_id].outputs")
-                                    td.w-1
-                                        input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="obj.name")
-                                    td
-                                        textarea.form-control(placeholder="Description" ng-model="obj.description")
-                                    td.w-1.nowrap
-                                        button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].outputs.remove(obj)")
-                                            i.fa-solid.fa-xmark
-                                        .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
-                                            i.fa-solid.fa-up-down-left-right
+                                tbody(ng-if="workflow.data.apps[item.app_id].outputs.length == 0")
+                                    tr
+                                        td.pl-2(colspan=5)
+                                            span.text-muted No Output
+
+                                tbody(ui-sortable ng-model="workflow.data.apps[item.app_id].outputs")
+                                    tr(ng-repeat="obj in workflow.data.apps[item.app_id].outputs")
+                                        td.w-1
+                                            input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="obj.name")
+                                        td
+                                            textarea.form-control(placeholder="Description" ng-model="obj.description")
+                                        td.w-1.nowrap
+                                            button.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;" ng-click="workflow.data.apps[item.app_id].outputs.remove(obj)")
+                                                i.fa-solid.fa-xmark
+                                            .draggable.btn.btn-white.btn-sm(style="margin-top: 6px; margin-right: 4px;")
+                                                i.fa-solid.fa-up-down-left-right
 
                 .btn.btn-primary.btn-block(ng-click="workflow.add()")
                     i.fa-solid.fa-plus

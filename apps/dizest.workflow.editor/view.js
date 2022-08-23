@@ -30,6 +30,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
     window.options = $scope.options = (() => {
         let obj = {};
         obj.editor = {};
+        obj.sorting = false;
 
         obj.monaco = (language, editor_id) => {
             let opt = {
@@ -134,8 +135,14 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             return opt;
         }
 
-        obj.sortableOptions = {
+        obj.sortable = {
+            handle: '.sortable-handle',
+            start: async () => {
+                obj.sorting = true;
+                await $render();
+            },
             stop: async () => {
+                obj.sorting = false;
                 try {
                     for (let i = 0; i < node.data.length; i++) {
                         let flow = node.data[i];
@@ -143,6 +150,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     }
                 } catch (e) {
                 }
+                await $render();
             }
         };
 
@@ -454,11 +462,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (!data.title || data.title.length == 0) {
                 await $alert("App title is not filled.");
-                return false;
-            }
-
-            if (!data.version || data.version.length == 0) {
-                await $alert("App Version is not filled.");
                 return false;
             }
 
@@ -827,7 +830,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             let logo = item.logo ? 'url(' + item.logo + ')' : '#fff';
             container.append('<div class="avatar-area avatar-area-sm mr-2"><div class="avatar-container"><span class="avatar" style="background-image: ' + logo + ';"></span></div></div>')
-            container.append('<h2 class="card-title" style="line-height: 1;">' + item.title + '<br/><small class="text-white" style="font-size: 10px; font-weight: 100; font-family: \'wiz-r\'">' + item.version + '</small></h2>');
+            container.append('<h2 class="card-title" style="line-height: 1;">' + ((flow && flow.title) ? flow.title : item.title) + '<br/><small class="text-white" style="font-size: 10px; font-weight: 100; font-family: \'wiz-r\'">' + item.version + '</small></h2>');
             container.append('<div class="ml-auto"></div>');
             container.append('<button class="btn btn-sm btn-white" onclick="node.delete(\'' + nodeid + '\')"><i class="fa-solid fa-xmark"></i></button>');
             let html = container.prop('outerHTML');
@@ -954,6 +957,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         obj.status_init = async () => {
             let res = await API("flow_status");
             obj.status = res.data.status;
+
+            for (let flow_id in obj.status) {
+                let fdata = obj.status[flow_id];
+                $('#node-' + flow_id + ' .finish-indicator').text('[' + fdata.index + ']');
+            }
+
             for (let flow_id in res.data.log) {
                 let logdata = res.data.log[flow_id];
                 obj.debug[flow_id] = logdata.replace(/\n/gim, '<br>');
@@ -1127,6 +1136,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             for (let i = 0; i < node.data.length; i++) {
                 orders[node.data[i].id] = i + 1;
                 data.flow[node.data[i].id].description = node.data[i].description;
+                data.flow[node.data[i].id].title = node.data[i].title;
                 data.flow[node.data[i].id].inactive = node.data[i].inactive;
             }
 
@@ -1139,6 +1149,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                     flows[flow_id]['description'] = data.flow[flow_id].description;
                 } catch (e) {
                     flows[flow_id]['description'] = '';
+                }
+
+                try {
+                    flows[flow_id].title = data.flow[flow_id].title;
+                } catch (e) {
                 }
 
                 let outputs = {};
@@ -1199,13 +1214,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (!data.title || data.title.length == 0) {
                 await $alert("Workflow title is not filled.");
-                $('#offcanvas-workflow-info').offcanvas('show');
-                return false;
-            }
-
-            if (!data.version || data.version.length == 0) {
-                await $alert("Workflow Version is not filled.");
-                $('#offcanvas-workflow-info').offcanvas('show');
                 return false;
             }
 
@@ -1241,7 +1249,6 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let kernelspecs = await API("kernelspecs");
             kernelspecs = kernelspecs.data;
             obj.specs = kernelspecs;
-
             let { code, data } = await API("status");
             if (code != 200) return;
 
@@ -1252,6 +1259,14 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             } catch (e) {
                 workflow.data.language = 'python';
             }
+
+            if (!obj.spec)
+                obj.spec = obj.specs[0];
+
+            if (obj.status == 'stop' && obj.specs.length == 1) {
+                await obj.start();
+            }
+
             await $render();
         }
 
@@ -1820,7 +1835,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             if (counter > 3) {
                 counter = 0;
                 started = null;
-                await kernel.refresh(true);
+                await workflow.status_init();
             }
         }
     }, 1000);

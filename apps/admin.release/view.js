@@ -2,6 +2,17 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.history = [];
 
     $scope.history.push({
+        name: "v2022.08.23.2109",
+        log: [
+            "[workflow] customizable codeflow title",
+            "[workflow] drag & drop sorting in codeflow",
+            "[workflow] mobile optimized",
+            "[workflow] enhanced flow status update",
+            "[workflow] auto select kernel when single kernel"
+        ]
+    });
+
+    $scope.history.push({
         name: "v2022.08.23.1933",
         log: [
             "[workflow] add textarea option at flow input"

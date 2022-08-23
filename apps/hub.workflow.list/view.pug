@@ -101,19 +101,19 @@
                     div {{viewer.data.version}}
                 .title-area-actions
                     a.action(href="/hub/workflow/item/{{viewer.data.id}}")
-                        span Open
+                        span.if-desktop Open
                         i.fa-solid.fa-square-arrow-up-right.ml-2
                     a.action(ng-click="viewer.copy()")
-                        span Duplicate
+                        span.if-desktop Duplicate
                         i.fa-solid.fa-clone.ml-2
                     a.action(ng-click="workflow.run(viewer.data.id)" ng-if="workflow.status[viewer.data.id] != 'running'")
-                        span Run
+                        span.if-desktop Run
                         i.fa-solid.fa-play.ml-2
                     a.action(ng-click="workflow.kill(viewer.data.id)" ng-if="workflow.status[viewer.data.id] == 'running' || workflow.status[viewer.data.id] == 'ready'")
-                        span Stop
+                        span.if-desktop Stop
                         i.fa-solid.fa-stop.ml-2
                     a.action(ng-click="workflow.delete(viewer.data)")
-                        span Delete
+                        span.if-desktop Delete
                         i.fa-solid.fa-trash.ml-2
             
             .btn.btn-white.text-dark.tab-close-btn(ng-click="tab.close()")
