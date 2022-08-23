@@ -6,6 +6,8 @@ import time
 import psutil
 import signal
 import subprocess
+import requests
+import dizest
 
 if wiz.session.get("role") != "admin":
     wiz.response.abort(401)
@@ -88,6 +90,7 @@ def health():
 
 def upgrade():
     BASEPATH = os.path.realpath(season.path.project + "/..")
+    current = os.getcwd()
     os.chdir(BASEPATH)
 
     cmd = str(sys.executable) + " -m pip install dizest --upgrade"
@@ -97,9 +100,39 @@ def upgrade():
     cmd = str(sys.executable) + " -m dizest.cmd update"
     cmd = cmd.split(" ")
     output = subprocess.run(cmd, capture_output=True)
+
+    os.chdir(current)
     
     pid = os.getpid()
     for child in psutil.Process(pid).children(recursive=True):
         os.kill(int(child.pid), signal.SIGKILL)
     os.kill(int(pid), signal.SIGKILL)
     wiz.response.status(200)
+
+def check_update():
+    try:
+        res = requests.get("https://raw.githubusercontent.com/season-framework/dizest-ui/main/config/version.txt", timeout=5)
+        latest_ui_version = str(res.text)
+    except Exception as e:
+        latest_ui_version = None
+
+    try:
+        res = requests.get("https://raw.githubusercontent.com/season-framework/dizest/main/src/dizest/version.py", timeout=5)
+        code = str(res.text)
+        env = dict()
+        exec(code, env)
+        latest_version = env['VERSION_STRING']
+    except Exception as e:
+        latest_version = None
+    
+    dizest_version = dizest.version
+    ui_version = wiz.model("dizest").VERSION
+
+    is_update = False
+    if latest_version is not None and latest_ui_version is not None:
+        if dizest_version != dizest_version:
+            is_update = True
+        if latest_ui_version != ui_version:
+            is_update = True
+    
+    wiz.response.status(200, dizest_version=latest_version, dizest_ui_version=latest_ui_version, is_update=is_update)

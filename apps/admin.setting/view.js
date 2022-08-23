@@ -1,8 +1,5 @@
 let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => {
-    $scope.timestamp = new Date().getTime();
-
     $scope.status = {};
-    $scope.deploy = wiz.data.deploy;
 
     let info = $scope.info = (() => {
         let obj = {};
@@ -99,6 +96,15 @@ let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => 
 
     let updater = $scope.updater = (() => {
         let obj = {};
+        obj.version = wiz.data.deploy;
+        obj.latest = angular.copy(obj.version);
+
+        obj.check = async () => {
+            let { code, data } = await wiz.API.async("check_update");
+            if (code != 200) return;
+            obj.latest = data;
+            await $render();
+        }
 
         obj.upgrade = async (type) => {
             $loading.show();
@@ -119,4 +125,6 @@ let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => 
 
         return obj;
     })();
+
+    await updater.check();
 }
