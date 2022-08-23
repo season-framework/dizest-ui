@@ -615,6 +615,8 @@
                         overflow: hidden;
                         text-overflow: ellipsis;
                         white-space: nowrap;
+                        border: none;
+                        background: transparent;
                     }
                     
                     .app-namespace {

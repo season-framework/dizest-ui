@@ -87,7 +87,7 @@
                         .avatar-container
                             span.avatar(style="background-image: {{ item.logo ? 'url(' + item.logo + ')' : '#fff' }}" ng-cloak)
                     .title-area
-                        .app-header.mb-1.pb-1 {{item.title}}
+                        input.app-header.mb-1(ng-model="item.title")
                         .app-namespace.text-muted {{item.version}}
                     .ml-auto
                         button.btn.btn-white.btn-sm(ng-click="app.delete(item.id)")
@@ -435,7 +435,7 @@
                                         td.pl-2(colspan=5)
                                             span.text-muted No input
 
-                                tbody(ui-sortable='options.sortable' ng-model="workflow.data.apps[item.app_id].inputs")
+                                tbody(ui-sortable='' ng-model="workflow.data.apps[item.app_id].inputs")
                                     tr(ng-repeat="obj in workflow.data.apps[item.app_id].inputs")
                                         td.w-1(style="width: 120px !important;")
                                             select.form-select(ng-model="obj.type")
@@ -476,7 +476,7 @@
                                         td.pl-2(colspan=5)
                                             span.text-muted No Output
 
-                                tbody(ui-sortable ng-model="workflow.data.apps[item.app_id].outputs")
+                                tbody(ui-sortable='' ng-model="workflow.data.apps[item.app_id].outputs")
                                     tr(ng-repeat="obj in workflow.data.apps[item.app_id].outputs")
                                         td.w-1
                                             input.form-control(style="width: 160px;" placeholder="Output Name" ng-model="obj.name")

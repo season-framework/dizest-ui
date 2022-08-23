@@ -4,7 +4,9 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.history.push({
         name: "v2022.08.23.2129",
         log: [
-            "[workflow] fold codeflow when block > 5"
+            "[workflow] fold codeflow when block > 5",
+            "[workflow] app title editable",
+            "[workflow] input/output sortable bug fixed"
         ]
     });
 
