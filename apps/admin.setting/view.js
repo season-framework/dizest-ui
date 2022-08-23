@@ -53,6 +53,21 @@ let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => 
             await $render();
         }
 
+        obj.restart = async (type) => {
+            $loading.show();
+            wiz.API.async("restart");
+            await $render(5000);
+            while (true) {
+                try {
+                    let res = await wiz.API.async("health");
+                    location.reload();
+                    return;
+                } catch (e) {
+                    await $render(1000);
+                }
+            }
+        }
+
         document.getElementById('file-uploader').onchange = async () => {
             let fd = new FormData($('#file-form')[0]);
             await obj.updater.icon(fd);

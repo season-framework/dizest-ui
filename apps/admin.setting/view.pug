@@ -16,11 +16,6 @@
                             ul.list-inline.list-inline-dots.mb-0
                                 li.list-inline-item= dic("desc")
 
-                    .col-auto.actions.area-round
-                        a.btn.btn-primary(ng-click="info.updater.config()")
-                            i.fa-solid.fa-save.mr-2
-                            span Update
-
         .workspace-list-item.area-round
             .container(style="max-width: 860px;")
                 .card.mt-5.mb-5
@@ -86,7 +81,38 @@
                                     span.p-1.d-inline-block
                                         i.fa-solid.fa-circle-arrow-right.mr-2.ml-2
                                     span.badge.bg-blue-lt.p-2.d-inline-block {{updater.latest.dizest_ui_version}}
-                        
+                
+                .card.mb-5
+                    .card-header
+                        h4.card-title Server Info
+
+                    .card-body.p-4
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Process ID
+                            .col
+                                span.badge.bg-blue-lt.p-2 {{updater.version.process_id}}
+
+                        .mb-3
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Child Processes
+                            .col
+                                span.badge.bg-blue-lt.p-2 {{updater.version.subprocess}}
+
+                        .mb-3
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Working Path
+                            .col
+                                span.badge.bg-blue-lt.p-2 {{updater.version.cwd}}
+
+                        .mb-3
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Restart
+                            .col
+                                .btn.btn-primary(ng-click="info.restart()") Restart Server & All Kernel
+
                 .card.mb-5
                     .card-header
                         h4.card-title Database

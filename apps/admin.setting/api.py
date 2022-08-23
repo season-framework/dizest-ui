@@ -88,6 +88,13 @@ def upload():
 def health():
     wiz.response.status(200)
 
+def restart():    
+    pid = os.getpid()
+    for child in psutil.Process(pid).children(recursive=True):
+        os.kill(int(child.pid), signal.SIGKILL)
+    os.kill(int(pid), signal.SIGKILL)
+    wiz.response.status(200)
+
 def upgrade():
     BASEPATH = os.path.realpath(season.path.project + "/..")
     current = os.getcwd()
