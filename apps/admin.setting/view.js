@@ -113,10 +113,7 @@ let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => 
             while (true) {
                 try {
                     let res = await wiz.API.async("health");
-                    if (res.code == 200 || res.code == 401) {
-                        location.reload();
-                        return;
-                    }
+                    location.reload();
                 } catch (e) {
                     await $render(1000);
                 }
