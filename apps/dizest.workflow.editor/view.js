@@ -390,6 +390,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 obj.data.push(apps[app_id]);
             }
             obj.data.sort((a, b) => a.title.localeCompare(b.title));
+
+            if (obj.data.length > 5) {
+                codeflow.closed = true;
+            }
+
             await $render();
         }
 
