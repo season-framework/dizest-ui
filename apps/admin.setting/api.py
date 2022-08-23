@@ -87,7 +87,6 @@ def health():
     wiz.response.status(200)
 
 def upgrade():
-    branchpath = wiz.branchpath()
     BASEPATH = os.path.realpath(season.path.project + "/..")
     os.chdir(BASEPATH)
 
