@@ -498,13 +498,13 @@
                 .uimode-code.p-0
                     div(ng-if="uimode.tab[name].lang && uimode.loaded" ng-model="workflow.data.apps[node.selected.app_id][uimode.tab[name].mode]" ui-monaco-opts="options.monaco_code(uimode.tab[name].lang)" ui-monaco)
 
-        .workspace-tab.uimode.if-desktop(ng-if="menubar.is('uimode')" class="{{uimode.maximized ? 'maximized': ''}}")
+        .workspace-tab.uimode(ng-if="menubar.is('uimode')" class="{{uimode.maximized ? 'maximized': ''}}")
             .workspace-tab-header
                 .workspace-tab-header-title
                     i.fa-solid.fa-display.mr-2
                     span {{workflow.data.apps[node.selected.app_id].title}}
                 .ml-auto
-                .dropdown.mr-3
+                .dropdown.mr-3.if-desktop
                     button.btn.btn-white.btn-sm.dropdown-toggle(type="button" data-bs-toggle="dropdown" aria-expanded="false")
                         span Code
                     
@@ -512,7 +512,7 @@
                         li(ng-repeat="(name, tab) in uimode.tab" ng-if="!tab.active")
                             a.dropdown-item(ng-click="tab.open()") {{uimode.tab[name].name}}
                 
-                .text-white.close-btn.mr-3(ng-click="uimode.maximize(!uimode.maximized)")
+                .text-white.close-btn.mr-3.if-desktop(ng-click="uimode.maximize(!uimode.maximized)")
                     i.fa-solid.fa-up-right-and-down-left-from-center(ng-if="!uimode.maximized")
                     i.fa-solid.fa-down-left-and-up-right-to-center(ng-if="uimode.maximized")
 

@@ -381,6 +381,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             for (let app_id in apps) {
                 obj.data.push(apps[app_id]);
             }
+            obj.data.sort((a, b) => a.title.localeCompare(b.title));
             await $render();
         }
 
@@ -453,34 +454,34 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (!data.title || data.title.length == 0) {
                 await $alert("App title is not filled.");
-                return;
+                return false;
             }
 
             if (!data.version || data.version.length == 0) {
                 await $alert("App Version is not filled.");
-                return;
+                return false;
             }
 
             let checker = {};
             for (let i = 0; i < data.inputs.length; i++) {
                 if (!data.inputs[i].name || data.inputs[i].name.length == 0) {
                     await $alert("Input name must be filled");
-                    return;
+                    return false;
                 }
 
                 if (data.inputs[i].name.includes(" ")) {
                     await $alert("Input name only allow alphabet and digits.");
-                    return;
+                    return false;
                 }
 
                 if (data.inputs[i].name.match(/[^a-z0-9_]/gi)) {
                     await $alert("Input name only allow alphabet and digits.");
-                    return;
+                    return false;
                 }
 
                 if (checker[data.inputs[i].name]) {
                     await $alert("Input name must be unique.");
-                    return;
+                    return false;
                 }
 
                 checker[data.inputs[i].name] = true;
@@ -491,25 +492,25 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                 if (!data.outputs[i].name || data.outputs[i].name.length == 0) {
                     await $loading.hide();
                     await $alert("Output name must be filled");
-                    return;
+                    return false;
                 }
 
                 if (data.outputs[i].name.includes(" ")) {
                     await $loading.hide();
                     await $alert("Output name only allow alphabet and digits.");
-                    return;
+                    return false;
                 }
 
                 if (data.outputs[i].name.match(/[^a-z0-9_]/gi)) {
                     await $loading.hide();
                     await $alert("Output name only allow alphabet and digits.");
-                    return;
+                    return false;
                 }
 
                 if (checker[data.outputs[i].name]) {
                     await $loading.hide();
                     await $alert("Output name must be unique.");
-                    return;
+                    return false;
                 }
 
                 checker[data.outputs[i].name] = true;
@@ -836,7 +837,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             actions.append('<span class="pending-indicator status-indicator status-yellow status-indicator-animated"><span class="status-indicator-circle"><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span><span class="status-indicator-circle"></span></span>')
             actions.append('<div class="action-btn" onclick="app.info(\'' + app_id + '\')"><i class="fa-solid fa-info"></i></div>');
             actions.append('<div class="action-btn" onclick="node.code(\'' + nodeid + '\')"><i class="fa-solid fa-code"></i></div>');
-            actions.append('<div class="action-btn" onclick="uimode.select(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
+            actions.append('<div class="action-btn action-btn-mobile" onclick="uimode.select(\'' + nodeid + '\')"><i class="fa-solid fa-display"></i></div>');
             actions.append('<div class="action-btn action-btn-play" onclick="node.run(\'' + nodeid + '\')"><i class="fa-solid fa-play"></i></div>');
             actions.append('<div class="action-btn action-btn-stop" onclick="node.stop(\'' + nodeid + '\')"><i class="fa-solid fa-stop"></i></div>');
             html = html + actions.prop('outerHTML');
@@ -1112,7 +1113,8 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             let data = angular.copy(obj.data);
             let checker = true;
             for (let key in data.apps)
-                checker = await app.validate(key);
+                if (checker)
+                    checker = await app.validate(key);
             if (!checker) return;
 
             await app.load();
@@ -1251,11 +1253,12 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $render();
         }
 
-        obj.refresh = async () => {
+        obj.refresh = async (notoast) => {
             await workflow.init();
             await obj.init();
             await workflow.refresh();
-            toastr.success("relaoded");
+            if (!notoast)
+                toastr.success("relaoded");
         }
 
         obj.status_class = () => {
@@ -1588,12 +1591,11 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
             if (data.data == 'ready') {
                 await $render(1000);
-                if (timestamp < obj.timestamp) {
-                    return;
-                }
-
+                if (timestamp < obj.timestamp) return;
                 kernel.status = data.data;
+                await $render();
                 await uimode.render();
+                return;
             }
 
             kernel.status = data.data;
@@ -1603,14 +1605,18 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
 
         obj.client.on("flow.status", async (message) => {
             let { flow_id, data } = message;
-            if (!workflow.status[flow_id]) workflow.status[flow_id] = { flow_id: flow_id };
+            if (!workflow.status[flow_id]) {
+                workflow.status[flow_id] = { flow_id: flow_id };
+            }
             workflow.status[flow_id].status = data;
             await $render();
         });
 
         obj.client.on("flow.index", async (message) => {
             let { flow_id, data } = message;
-            if (!workflow.status[flow_id]) workflow.status[flow_id] = { flow_id: flow_id };
+            if (!workflow.status[flow_id]) {
+                workflow.status[flow_id] = { flow_id: flow_id };
+            }
             workflow.status[flow_id].index = data;
             $('#node-' + flow_id + ' .finish-indicator').text('[' + data + ']');
         });
@@ -1799,4 +1805,21 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         let fd = new FormData($('#file-form')[0]);
         await drive.api.upload(fd);
     };
+
+    let started = null;
+    let counter = 0;
+    setInterval(async () => {
+        if (kernel.status == 'running' & started == null)
+            started = new Date().getTime();
+
+        if (kernel.status == 'ready' && started != null) {
+            counter++;
+
+            if (counter > 3) {
+                counter = 0;
+                started = null;
+                await kernel.refresh(true);
+            }
+        }
+    }, 1000);
 }

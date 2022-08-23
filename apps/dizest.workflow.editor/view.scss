@@ -969,18 +969,6 @@
     }
 }
 
-@media (max-width: 768px) {
-    .drawflow {
-        .action-btn {
-            display: none;
-        }
-
-        .action-btn-play, .action-btn-stop {
-            display: block;
-        }
-    }
-}
-
 #drive-modal {
     .drive-footer {
         height: 32px;
@@ -1102,5 +1090,30 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         max-width: 50vw;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .drawflow {
+        .action-btn {
+            display: none;
+        }
+
+        .action-btn-mobile {
+            display: block;
+        }
+
+        .action-btn-play, .action-btn-stop {
+            display: block;
+        }
+    }
+
+    .uimode {
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #fff !important;
+        border-left: none !important;
     }
 }
