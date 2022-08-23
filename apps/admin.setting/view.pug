@@ -58,6 +58,7 @@
                 .card.mb-5
                     .card-header
                         h4.card-title System Version
+                        .badge.bg-primary-lt.ml-2(ng-if="!updater.latest.is_update") Latest
                         .ml-auto
                         .btn.btn-primary(ng-click="updater.upgrade()" ng-if="updater.latest.is_update") Update Available
 
@@ -66,7 +67,7 @@
                             label.form-label.col-3.col-form-label Core Version
                             .col
                                 span.badge.bg-blue-lt.p-2 {{updater.version.dizest_version}}
-                                .d-inline-block(ng-if="updater.latest.dizest_version != updater.version.dizest_version")
+                                .d-inline-block(ng-if="updater.latest.dizest_version != updater.version.dizest_version && updater.latest.is_update")
                                     span.p-1.d-inline-block
                                         i.fa-solid.fa-circle-arrow-right.mr-2.ml-2
                                     span.badge.bg-blue-lt.p-2.d-inline-block {{updater.latest.dizest_version}}
@@ -77,7 +78,7 @@
                             label.form-label.col-3.col-form-label UI Version
                             .col
                                 span.badge.bg-blue-lt.p-2.d-inline-block {{updater.version.dizest_ui_version}}
-                                .d-inline-block(ng-if="updater.latest.dizest_ui_version != updater.version.dizest_ui_version")
+                                .d-inline-block(ng-if="updater.latest.dizest_ui_version != updater.version.dizest_ui_version && updater.latest.is_update")
                                     span.p-1.d-inline-block
                                         i.fa-solid.fa-circle-arrow-right.mr-2.ml-2
                                     span.badge.bg-blue-lt.p-2.d-inline-block {{updater.latest.dizest_ui_version}}

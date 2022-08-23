@@ -30,5 +30,6 @@ class Controller(wiz.controller("base")):
                 .add(title='Admin', ko="관리자", type="header") \
                 .add(title='Setting', ko="설정", url='/hub/admin/setting', icon="fa-solid fa-cogs") \
                 .add(title='Users', ko="사용자관리", url='/hub/admin/users', icon="fa-solid fa-users") \
-                .add(title='Package', ko="패키지관리", url='/hub/admin/package', icon="fa-solid fa-boxes-packing")
+                .add(title='Package', ko="패키지관리", url='/hub/admin/package', icon="fa-solid fa-boxes-packing") \
+                .add(title='Releases', ko="릴리즈", url='/hub/admin/release', icon="fa-solid fa-book")
         wiz.menu.main.build()

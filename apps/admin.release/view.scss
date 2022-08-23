@@ -1,0 +1,202 @@
+& {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    
+    .workspace-list {
+        height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+
+        .workspace-list-header {
+            padding: 9px 32px;
+            border-bottom: 1px solid var(--wiz-color-border);
+            background: #fff;
+
+            .page-header {
+                margin: 0 !important;
+            }
+        }
+
+        .workspace-list-item {
+            width: 100%;
+            flex: auto;
+            display: flex;
+            overflow: auto;
+
+            .container {
+                width: 100%;
+                max-width: 860px;
+                height: fit-content;
+            }
+        }
+
+        .workspace-list-pagenation {
+            border-top: 1px solid var(--wiz-color-border);
+            background-color: #fff;
+            height: 42px;
+            display: flex;
+            align-items: center;
+
+            .pagenation {
+                flex: auto;
+            }
+            
+            .btn-primary {
+                border-radius: 32px;
+                width: 24px;
+                height: 24px;
+            }
+        }
+    }
+
+    .workspace-tab {
+        flex: 1;
+        border-left: 1px solid var(--wiz-color-border);
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        max-width: 720px;
+
+        .workspace-tab-header {
+            display: flex;
+            width: 100%;
+            height: 36px;
+            background: var(--wiz-color-blue);
+            color: #fff;
+            align-items: center;
+            padding: 0 12px;
+
+            h3 {
+                margin: 0;
+                padding: 0;
+            }
+
+            .btn, .close-btn {
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.w-1 {
+    white-space: nowrap;
+    text-align: center;
+    padding: 0 12px;
+}
+
+th {
+    text-align: center;
+}
+
+th, td {
+    text-align: center;
+}
+
+.nav.nav-tabs {
+    .nav-link {
+        border-bottom: 1px solid rgba(101,109,119,.16);
+    }
+
+    .nav-link.active {
+        font-family: 'wiz-eb';
+        color: inherit;
+        border-bottom: 1px solid #fff;
+    }
+}
+
+.card {
+    $br: 14px;
+    border-radius: $br;
+    
+    .img-responsive {
+        border-top-right-radius: $br;
+        border-top-left-radius: $br;
+    }
+
+    > div:last-child {
+        border-bottom-right-radius: $br;
+        border-bottom-left-radius: $br;
+    }
+}
+
+$radius: 24px;
+.actions {
+    > * {
+        margin-left: 8px;
+    }
+
+    .btn {
+        min-width: 76px;
+        padding: 8px 16px;
+        font-weight: 1000;
+        border-radius: $radius;
+    }
+
+    .btn-group {
+        @media (max-width: 768px) {
+            display: block;
+        }
+
+        .btn {
+            border-radius: 0;
+
+            @media (max-width: 768px) {
+                display: block;
+                width: 100%;
+                border-radius: 0;
+
+                &:not(:first-child) {
+                    border-top: none;
+                }
+            }
+        }
+
+        .btn.btn-active {
+            background-color: var(--wiz-color-red);
+            color: #ffffff;
+        }
+
+        .btn:first-child {
+            border-top-left-radius: $radius;
+            border-bottom-left-radius: $radius;
+
+            @media (max-width: 768px) {
+                border-top-left-radius: $radius;
+                border-top-right-radius: $radius;
+                border-bottom-left-radius: 0;
+            }
+        }
+
+        .btn:last-child {
+            border-top-right-radius: $radius;
+            border-bottom-right-radius: $radius;
+
+            @media (max-width: 768px) {
+                border-bottom-left-radius: $radius;
+                border-bottom-right-radius: $radius;
+                border-top-right-radius: 0;
+            }
+        }   
+    }
+}
+
+.featured-area {
+    position: relative;
+
+    .status-area {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: rgba(255,255,255,.8);
+        border-top-left-radius: 13px;
+        border-bottom-right-radius: 13px;
+        border-right: 1px solid var(--wiz-color-border);
+        border-bottom: 1px solid var(--wiz-color-border);
+        padding: 6px;
+        z-index: 10;
+    }   
+}

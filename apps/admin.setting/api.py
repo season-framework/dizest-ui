@@ -1,6 +1,7 @@
 import sys
 import os
 import season
+import string
 import json
 import time
 import psutil
@@ -139,7 +140,7 @@ def check_update():
     if latest_version is not None and latest_ui_version is not None:
         if dizest_version != latest_version:
             is_update = True
-        if latest_ui_version != ui_version:
+        if int(latest_ui_version.strip(string.ascii_letters).replace(".", "")) > int(ui_version.strip(string.ascii_letters).replace(".", "")):
             is_update = True
     
     wiz.response.status(200, dizest_version=latest_version, dizest_ui_version=latest_ui_version, is_update=is_update)

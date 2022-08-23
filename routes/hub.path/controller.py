@@ -17,5 +17,6 @@ if wiz.session.get("role") == "admin":
     wiz.response.render("/hub/admin/users", "admin.users")
     wiz.response.render("/hub/admin/setting", "admin.setting")
     wiz.response.render("/hub/admin/package", "admin.package")
+    wiz.response.render("/hub/admin/release", "admin.release")
 
 wiz.response.redirect("/hub/dashboard")
