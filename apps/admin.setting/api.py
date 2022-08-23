@@ -74,13 +74,13 @@ def updatedb():
 def upload():
     files = wiz.request.files()
     try:
+        BASEPATH = os.path.realpath(season.path.project + "/..")
         icon = files[0]
         ext = os.path.splitext(icon.filename)[-1]
         ext = ext.lower()
         if ext == '.png':
-            respath = os.path.join(wiz.branchpath(), 'resources')
-            fs = season.util.os.FileSystem(respath)
-            fs.write.file('images/brand/icon.png', icon)
+            fs = season.util.os.FileSystem(BASEPATH)
+            fs.write.file('icon.png', icon)
     except Exception as e:
         pass
     wiz.response.status(200)

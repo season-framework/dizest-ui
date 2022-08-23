@@ -1,3 +1,6 @@
+import os
+import season
+
 if wiz.request.uri() == "/pwa/sw.js":
     swjs = "self.addEventListener('fetch', function (e) {});"
     wiz.response.send(swjs, content_type="text/javascript")
@@ -11,12 +14,12 @@ if wiz.request.uri() == "/pwa/manifest.json":
     manifest['start_url'] = '/'
     manifest['icons'] = [
         {
-            "src": "/resources/images/brand/icon.png",
+            "src": "/pwa/icon.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/resources/images/brand/icon.png",
+            "src": "/pwa/icon.png",
             "sizes": "512x512",
             "type": "image/png"
         }
@@ -28,5 +31,17 @@ if wiz.request.uri() == "/pwa/manifest.json":
     manifest['orientation'] = 'any'
 
     wiz.response.json(manifest)
+
+if wiz.request.uri() == "/pwa/icon.png":
+    BASEPATH = os.path.realpath(season.path.project + "/..")
+    fs = season.util.os.FileSystem(BASEPATH)
+    if fs.exists('icon.png') == False:
+        respath = os.path.join(wiz.branchpath(), 'resources')
+        iconpath = season.util.os.FileSystem(respath).abspath('images/brand/icon.png')
+        wiz.response.download(iconpath)
+
+    iconpath = fs.abspath('icon.png')
+    wiz.response.download(iconpath)
+        
 
 wiz.response.status(404)

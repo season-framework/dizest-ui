@@ -1,7 +1,7 @@
 .workspace-area(ng-cloak)
     div(style="display: none;")
         form#file-form
-            input#file-uploader.form-control(type='file' name='file[]')
+            input#file-uploader.form-control(type='file' name='file[]' accept=".png")
     
     .workspace-list
         .workspace-list-header
@@ -46,7 +46,7 @@
                         .form-group.row
                             label.form-label.col-3.col-form-label Icon
                             .col.text-left
-                                img(ng-src="/resources/images/brand/icon.png?v={{info.timestamp.icon}}" style="height: 48px; width: 48px;")
+                                img(ng-src="/pwa/icon.png?v={{info.timestamp.icon}}" style="height: 48px; width: 48px;")
 
                             .col-2.if-desktop
                                 .btn.btn-outline-primary.btn-block(ng-click="info.uploader.icon()") Upload
