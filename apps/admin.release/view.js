@@ -2,6 +2,13 @@ let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.history = [];
 
     $scope.history.push({
+        name: "v2022.08.23.1933",
+        log: [
+            "[workflow] add textarea option at flow input"
+        ]
+    });
+
+    $scope.history.push({
         name: "v2022.08.23.1808",
         log: [
             "[workflow] input/output validate bug fixed",
