@@ -890,7 +890,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
                             + '</div>';
                         wrapper.append(df);
                     } else if (value.inputtype == 'textarea') {
-                        wrapper.append('<div class="value-data"><textarea rows=5 class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '></textarea></div>');
+                        wrapper.append('<div class="value-data"><textarea rows=5 class="form-control form-control-sm text-left" placeholder="' + value.description + '" df-' + variable_name + '></textarea></div>');
                     } else {
                         wrapper.append('<div class="value-data"><input class="form-control form-control-sm" placeholder="' + value.description + '" df-' + variable_name + '/></div>');
                     }

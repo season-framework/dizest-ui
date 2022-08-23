@@ -265,8 +265,11 @@ def cron_list():
         cron  = CronTab(user=user_id)
         for job in cron:
             time = " ".join([str(x) for x in job.slices])
-            comment = ";".join(job.comment.split(";")[1:])
-            res.append(dict(comment=comment, time=time))
+            comment = job.comment.split(";")
+            wpid = comment[0]
+            if wpid == workflow_id:
+                comment = ";".join(comment[1:])
+                res.append(dict(comment=comment, time=time))
     except Exception as e:
         wiz.response.status(500, e)
     wiz.response.status(200, res)
