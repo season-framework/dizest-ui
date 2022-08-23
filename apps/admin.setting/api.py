@@ -88,12 +88,14 @@ def health():
 
 def upgrade():
     branchpath = wiz.branchpath()
-    
+    BASEPATH = os.path.realpath(season.path.project + "/..")
+    os.chdir(BASEPATH)
+
     cmd = str(sys.executable) + " -m pip install dizest --upgrade"
     cmd = cmd.split(" ")
     output = subprocess.run(cmd, capture_output=True)
-
-    cmd = str(sys.executable) + " -m dizest update"
+    
+    cmd = str(sys.executable) + " -m dizest.cmd update"
     cmd = cmd.split(" ")
     output = subprocess.run(cmd, capture_output=True)
     
