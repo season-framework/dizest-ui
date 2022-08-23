@@ -1,72 +1,122 @@
 let wiz_controller = async ($scope, $render, $alert, $file, $loading, $util) => {
-    $scope.status = {};
-    $scope.config = wiz.data.config;
-    $scope.processes = wiz.data.processes;
     $scope.timestamp = new Date().getTime();
 
-    $scope.icon_updated = true;
+    $scope.status = {};
+    $scope.deploy = wiz.data.deploy;
 
-    $scope.check = async () => {
-        if ($scope.status.db) return;
-        let data = angular.copy($scope.config);
-        data = JSON.stringify(data);
-        let res = await wiz.API.async("checkdb", { data: data });
-        if (res.code == 200) {
-            $scope.status.db = true;
-        } else {
-            await $alert("Database connection error");
+    let info = $scope.info = (() => {
+        let obj = {};
+
+        obj.config = angular.copy(wiz.data.config);
+        delete obj.config.db;
+
+        obj.timestamp = {};
+        obj.timestamp.icon = new Date().getTime();
+
+        obj.uploader = {};
+        obj.uploader.logo = async () => {
+            obj.config.logo = await $file.image({ size: 180, limit: 1024 * 100 });
+            await $render();
+        }
+        obj.uploader.icon = async () => {
+            $("#file-uploader").click();
         }
 
-        await $render();
-    }
-
-    $scope.update = async () => {
-        let data = angular.copy($scope.config);
-        data = JSON.stringify(data);
-        await wiz.API.async("update", { data: data, db: $scope.status.db });
-        location.reload();
-    }
-
-    $scope.uploader = async () => {
-        $scope.config.logo = await $file.image({ size: 180, limit: 1024 * 100 });
-        await $render();
-    }
-
-    $scope.$watch('config.db', async () => {
-        $scope.status.db = false;
-        await $render();
-    }, true);
-
-    $scope.icon_upload = async () => {
-        $("#file-uploader").click();
-    }
-
-    $scope.icon_update = async (fd) => {
-        $scope.icon_updated = false;
-        await $loading.show('progress');
-        let url = wiz.API.url('upload');
-        await $render();
-        await $file.upload(url, fd, async (percent, total, current) => {
-            if (percent == 100 && $loading.status()) {
-                return await $loading.show();
+        obj.updater = {};
+        obj.updater.config = async () => {
+            $loading.show();
+            let config = angular.copy(obj.config);
+            config = JSON.stringify(config);
+            let { code, data } = await wiz.API.async("update", { data: config });
+            if (code == 200) {
+                toastr.success("config updated");
+            } else {
+                $alert(data);
             }
-            total = $util.filesize(total);
-            current = $util.filesize(current);
-            await $loading.message('Uploading... ' + current + ' / ' + total + " (" + Math.round(percent) + "%)");
-            await $loading.progress(percent);
-        });
-        $('#file-uploader').val(null);
-        await $loading.hide();
-        $scope.timestamp = new Date().getTime();
+            $loading.hide();
+        }
 
-        $scope.icon_updated = true;
-        await $render();
-    }
+        obj.updater.icon = async (fd) => {
+            await $loading.show('progress');
+            let url = wiz.API.url('upload');
+            await $render();
+            await $file.upload(url, fd, async (percent, total, current) => {
+                if (percent == 100 && $loading.status()) {
+                    return await $loading.show();
+                }
+                total = $util.filesize(total);
+                current = $util.filesize(current);
+                await $loading.message('Uploading... ' + current + ' / ' + total + " (" + Math.round(percent) + "%)");
+                await $loading.progress(percent);
+            });
+            $('#file-uploader').val(null);
+            await $loading.hide();
 
-    document.getElementById('file-uploader').onchange = async () => {
-        let fd = new FormData($('#file-form')[0]);
-        await $scope.icon_update(fd);
-    };
+            obj.timestamp.icon = new Date().getTime();
+            await $render();
+        }
 
-    await $render();
+        document.getElementById('file-uploader').onchange = async () => {
+            let fd = new FormData($('#file-form')[0]);
+            await obj.updater.icon(fd);
+        };
+
+        return obj;
+    })();
+
+    let database = $scope.database = (() => {
+        let obj = {};
+
+        obj.config = {};
+        obj.config.db = angular.copy(wiz.data.config.db);
+        obj.status = false;
+
+        obj.update = async () => {
+            if (obj.status) return;
+
+            $loading.show();
+            let config = angular.copy(obj.config);
+            config = JSON.stringify(config);
+            let { code, data } = await wiz.API.async("updatedb", { data: config });
+
+            if (code == 200) {
+                toastr.success("config updated");
+            } else {
+                await $alert("Database connection error");
+            }
+
+            await $render();
+            $loading.hide();
+        }
+
+        $scope.$watch("database.config", async () => {
+            obj.status = false;
+            await $render();
+        }, true);
+
+        return obj;
+    })();
+
+    let updater = $scope.updater = (() => {
+        let obj = {};
+
+        obj.upgrade = async (type) => {
+            $loading.show();
+            wiz.API.async("upgrade", { type: type });
+            await $render(5000);
+            while (true) {
+                try {
+                    let res = await wiz.API.async("health");
+                    if (res.code == 200) {
+                        location.reload();
+                        return;
+                    }
+                } catch (e) {
+                    await $render(1000);
+                }
+            }
+        }
+
+        return obj;
+    })();
 }

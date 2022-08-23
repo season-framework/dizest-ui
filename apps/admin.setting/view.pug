@@ -17,11 +17,11 @@
                                 li.list-inline-item= dic("desc")
 
                     .col-auto.actions.area-round
-                        a.btn.btn-primary(ng-click="update()")
+                        a.btn.btn-primary(ng-click="info.updater.config()")
                             i.fa-solid.fa-save.mr-2
                             span Update
 
-        .workspace-list-item
+        .workspace-list-item.area-round
             .container(style="max-width: 860px;")
                 .card.mt-5.mb-5
                     .card-header
@@ -31,7 +31,7 @@
                         .form-group.row
                             label.form-label.col-3.col-form-label Hub Title
                             .col
-                                input.form-control(type="text" placeholder="Hub Title" ng-model="config.title")
+                                input.form-control(type="text" placeholder="Hub Title" ng-model="info.config.title")
                         
                         .mb-3
 
@@ -39,24 +39,46 @@
                             label.form-label.col-3.col-form-label Logo
                             .col.text-left
                                 .bg-primary.text-center(style="padding: 0.75rem 0; max-width: 280px; width: 100%;")
-                                    img(ng-if="config.logo" src="{{config.logo}}" style="height: 32px; margin: 5px 0;")
-                                    img(ng-if="!config.logo" src="/resources/images/brand/dizest-hub-white.png" style="height: 32px; margin: 5px 0;")
+                                    img(ng-if="info.config.logo" src="{{info.config.logo}}" style="height: 32px; margin: 5px 0;")
+                                    img(ng-if="!info.config.logo" src="/resources/images/brand/dizest-hub-white.png" style="height: 32px; margin: 5px 0;")
 
-                                input.form-control#file-logo(type="file" accept="image/*" style="display: none")
                             .col-2.if-desktop
-                                .btn.btn-primary.btn-block(ng-click="uploader()") Upload
-                                .btn.btn-outline-danger.btn-block.mt-2(ng-if="config.logo" ng-click="config.logo = ''") Delete
+                                .btn.btn-outline-primary.btn-block(ng-click="info.uploader.logo()") Upload
+                                .btn.btn-outline-danger.btn-block.mt-2(ng-if="info.config.logo" ng-click="info.config.logo = ''") Delete
 
                         .mb-3
 
                         .form-group.row
                             label.form-label.col-3.col-form-label Icon
                             .col.text-left
-                                img(ng-if="icon_updated" src="/resources/images/brand/icon.png?v={{timestamp}}" style="height: 48px; width: 48px;")
+                                img(src="/resources/images/brand/icon.png?v={{info.timestamp.icon}}" style="height: 48px; width: 48px;")
 
                             .col-2.if-desktop
-                                .btn.btn-primary.btn-block(ng-click="icon_upload()") Upload
+                                .btn.btn-outline-primary.btn-block(ng-click="info.uploader.icon()") Upload
+                    
+                    .card-footer.d-flex.p-2
+                        .ml-auto
+                        a.btn.btn-primary(ng-click="info.updater.config()") Update
+                        
+                .card.mb-5
+                    .card-header
+                        h4.card-title System Version
+                        .ml-auto
+                        .btn.btn-primary(ng-click="updater.upgrade()") Update Available
 
+                    .card-body.p-4
+                        .form-group.row
+                            label.form-label.col-3.col-form-label Core Version
+                            .col
+                                span.badge.bg-blue-lt.p-2 {{deploy.dizest_version}}
+
+                        .mb-3
+
+                        .form-group.row
+                            label.form-label.col-3.col-form-label UI Version
+                            .col
+                                span.badge.bg-blue-lt.p-2 {{deploy.dizest_ui_version}}
+                        
                 .card.mb-5
                     .card-header
                         h4.card-title Database
@@ -67,43 +89,41 @@
                             .col
                                 .form-selectgroup
                                     label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="dbtype" value="sqlite" ng-model="config.db.type")
+                                        input.form-selectgroup-input(type="radio" name="dbtype" value="sqlite" ng-model="database.config.db.type")
                                         span.form-selectgroup-label
                                             span sqlite
                                     label.form-selectgroup-item
-                                        input.form-selectgroup-input(type="radio" name="dbtype" value="mysql" ng-model="config.db.type")
+                                        input.form-selectgroup-input(type="radio" name="dbtype" value="mysql" ng-model="database.config.db.type")
                                         span.form-selectgroup-label
                                             span MySQL
                         
-                        div(ng-if="config.db.type == 'mysql'")
+                        div(ng-if="database.config.db.type == 'mysql'")
                             .form-group.row.mb-3
                                 label.form-label.col-3.col-form-label Database
                                 .col
-                                    input.form-control(type="text" placeholder="database" ng-model="config.db.database")
+                                    input.form-control(type="text" placeholder="database" ng-model="database.config.db.database")
 
                             .form-group.row.mb-3
                                 label.form-label.col-3.col-form-label Host
                                 .col
-                                    input.form-control(type="text" placeholder="127.0.0.1" ng-model="config.db.config.host")
+                                    input.form-control(type="text" placeholder="127.0.0.1" ng-model="database.config.db.config.host")
                             
                             .form-group.row.mb-3
                                 label.form-label.col-3.col-form-label Port
                                 .col
-                                    input.form-control(type="number" placeholder="3306" ng-model="config.db.config.port")
+                                    input.form-control(type="number" placeholder="3306" ng-model="database.config.db.config.port")
 
                             .form-group.row.mb-3
                                 label.form-label.col-3.col-form-label User
                                 .col
-                                    input.form-control(type="text" placeholder="dbuser" ng-model="config.db.config.user")
+                                    input.form-control(type="text" placeholder="dbuser" ng-model="database.config.db.config.user")
 
                             .form-group.row.mb-3
                                 label.form-label.col-3.col-form-label Password
                                 .col
-                                    input.form-control(type="password" placeholder="dbpass" ng-model="config.db.config.passwd")
+                                    input.form-control(type="password" placeholder="dbpass" ng-model="database.config.db.config.passwd")
                             
                     .card-footer.d-flex.p-2
                         .ml-auto
-                        .btn.btn-primary.btn-circle(style="width: 120px;" ng-click="check()" ng-if="!status.db") Test Database
-                        .btn.btn-primary.btn-circle(style="width: 120px;" ng-if="status.db")
-                            i.fa-solid.fa-check.mr-2
-                            span Connected
+                        .btn.btn-primary.btn-circle(style="width: 120px;" ng-click="database.update()") Update
+                        

@@ -7,9 +7,11 @@ import requests
 import dizest
 
 BASEPATH = os.path.realpath(season.path.project + "/..")
+fs = dizest.util.os.storage(os.path.join(wiz.branchpath(), "config"))
+version = fs.read("version.txt")
 
 class Model:
-    VERSION = "v2022.08.23.0103"
+    VERSION = version
 
     def __init__(self, name):
         self.name = name

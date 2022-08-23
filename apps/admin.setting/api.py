@@ -1,24 +1,30 @@
+import sys
 import os
 import season
 import json
+import time
+import psutil
+import signal
+import subprocess
 
 if wiz.session.get("role") != "admin":
     wiz.response.abort(401)
 
 def update():
-    dbupdate = wiz.request.query("db", False)
     data = wiz.request.query("data", True)
     data = json.loads(data)
 
-    if dbupdate == 'false':
-        prev = wiz.model("dizest").package()
-        data['db'] = prev.db
-
+    # update except db config
+    prev = wiz.model("dizest").package()
+    data['db'] = prev.db
+    
     wiz.model("dizest").package(data)
+    time.sleep(3)
     wiz.response.status(200)
 
-def checkdb():
+def updatedb():
     prev = wiz.model("dizest").package()
+
     data = wiz.request.query("data", True)
     data = json.loads(data)
 
@@ -49,7 +55,6 @@ def checkdb():
             for user in users: model.insert(user)
             model = wiz.model("orm").use('workflow')
             for wp in workflow: model.insert(wp)
-
     except Exception as e:
         count = -1
 
@@ -57,6 +62,11 @@ def checkdb():
     
     if count == -1:
         wiz.response.status(500, count)
+
+    prev['db'] = data['db']
+    wiz.model("dizest").package(prev)
+
+    time.sleep(3)
     wiz.response.status(200, count)
 
 def upload():
@@ -71,4 +81,24 @@ def upload():
             fs.write.file('images/brand/icon.png', icon)
     except Exception as e:
         pass
+    wiz.response.status(200)
+
+def health():
+    wiz.response.status(200)
+
+def upgrade():
+    branchpath = wiz.branchpath()
+    
+    cmd = str(sys.executable) + " -m pip install dizest --upgrade"
+    cmd = cmd.split(" ")
+    output = subprocess.run(cmd, capture_output=True)
+
+    cmd = str(sys.executable) + " -m dizest update"
+    cmd = cmd.split(" ")
+    output = subprocess.run(cmd, capture_output=True)
+    
+    pid = os.getpid()
+    for child in psutil.Process(pid).children(recursive=True):
+        os.kill(int(child.pid), signal.SIGKILL)
+    os.kill(int(pid), signal.SIGKILL)
     wiz.response.status(200)

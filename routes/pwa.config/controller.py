@@ -25,6 +25,7 @@ if wiz.request.uri() == "/pwa/manifest.json":
     manifest['theme_color'] = '#3843d0'
     manifest['background_color'] = '#3843d0'
     manifest['display'] = 'standalone'
+    manifest['orientation'] = 'any'
 
     wiz.response.json(manifest)
 
