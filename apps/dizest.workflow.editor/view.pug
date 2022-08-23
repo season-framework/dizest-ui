@@ -87,7 +87,7 @@
                         .avatar-container
                             span.avatar(style="background-image: {{ item.logo ? 'url(' + item.logo + ')' : '#fff' }}" ng-cloak)
                     .title-area
-                        input.app-header.mb-1(ng-model="item.title")
+                        input.app-header.mb-1(ng-model="workflow.data.apps[item.id].title")
                         .app-namespace.text-muted {{item.version}}
                     .ml-auto
                         button.btn.btn-white.btn-sm(ng-click="app.delete(item.id)")
