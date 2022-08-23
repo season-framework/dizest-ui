@@ -611,12 +611,16 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await $loading.show();
             $("#node-" + flow_id + " .debug-message").remove();
             workflow.debug[flow_id] = "";
-            await workflow.save(true);
-            kernel.status = 'running';
-            let { code, data } = await API("run", { flow_id: flow_id });
-            await $loading.hide();
-            if (code != 200)
-                await $alert(data);
+            let stat = await workflow.save(true);
+            if (stat) {
+                kernel.status = 'running';
+                let { code, data } = await API("run", { flow_id: flow_id });
+                await $loading.hide();
+                if (code != 200)
+                    await $alert(data);
+            } else {
+                await $loading.hide();
+            }
         }
 
         obj.stop = async () => {
@@ -1184,21 +1188,21 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
         }
 
         obj.save = async (hide_result) => {
-            if (kernel.is("running")) return;
+            if (kernel.is("running")) return false;
 
             let data = await obj.update(true);
-            if (!data) return;
+            if (!data) return false;
 
             if (!data.title || data.title.length == 0) {
                 await $alert("Workflow title is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');
-                return;
+                return false;
             }
 
             if (!data.version || data.version.length == 0) {
                 await $alert("Workflow Version is not filled.");
                 $('#offcanvas-workflow-info').offcanvas('show');
-                return;
+                return false;
             }
 
             let res = null;
@@ -1209,6 +1213,7 @@ let wiz_controller = async ($sce, $scope, $render, $alert, $util, $loading, $fil
             await uimode.render();
 
             obj.last_updated = new Date().getTime();
+            return true;
         }
 
         obj.delete = async () => {

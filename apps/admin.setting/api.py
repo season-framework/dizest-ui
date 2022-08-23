@@ -137,7 +137,7 @@ def check_update():
 
     is_update = False
     if latest_version is not None and latest_ui_version is not None:
-        if dizest_version != dizest_version:
+        if dizest_version != latest_version:
             is_update = True
         if latest_ui_version != ui_version:
             is_update = True

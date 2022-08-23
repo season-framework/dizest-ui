@@ -1,5 +1,6 @@
-app.factory('$alert', () => {
+app.factory('$alert', ($loading) => {
     return async (message, option = {}) => {
+        $loading.hide();
         if (!option.btn_class) option.btn_class = "btn-danger";
         if (!option.btn_action) option.btn_action = "Confirm";
         if (!option.btn_close) option.btn_close = "Close";
