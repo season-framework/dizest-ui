@@ -1,5 +1,12 @@
 let wiz_controller = async ($sce, $scope, $timeout) => {
     $scope.history = [];
+    
+    $scope.history.push({
+        name: "v2022.08.25.2154",
+        log: [
+            "[workflow] kernelspec error fixed in package install"
+        ]
+    });
 
     $scope.history.push({
         name: "v2022.08.23.2317",
